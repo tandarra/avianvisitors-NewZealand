@@ -1,7 +1,222 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<title>NZ Bird Master Index</title>
-<meta http-equiv="refresh" content="0; url=birds/master_index.html">
-<link rel="canonical" href="birds/master_index.html">
-<style>body{background:#efebe1;color:#141414;font-family:Georgia,serif;padding:40px}</style>
-</head><body><p>Opening the <a href="birds/master_index.html">NZ Bird Master Index</a>…</p></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Birds Heard Today</title>
+<meta name="description" content="A live collage of the birds heard at a backyard listening station in Pōkeno, Aotearoa New Zealand.">
+<meta name="theme-color" content="#efe6d2">
+<style>
+:root{
+  --paper:#efe6d2; --paper2:#f6f0e2; --ink:#141414; --mute:#6b6457; --line:#cfc4ac; --red:#b3261e;
+  --serif:Georgia,'Iowan Old Style','Times New Roman',serif; --mono:'Courier New',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif)}
+body{min-height:100vh;display:flex;flex-direction:column;
+  background-image:radial-gradient(rgba(107,90,60,.06) 1px,transparent 1px);background-size:3px 3px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;
+  padding:28px clamp(16px,4vw,56px) 14px;border-bottom:3px solid var(--ink)}
+.kicker{font:600 11px/1.2 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+h1{margin:6px 0 0;font-size:clamp(30px,5vw,54px);line-height:1;font-weight:700;letter-spacing:-.01em}
+.meta{text-align:right;font:12px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.meta b{color:var(--ink);font-weight:700}
+.summary{padding:12px clamp(16px,4vw,56px);font:12px var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  border-bottom:1px solid var(--line);display:flex;gap:18px;flex-wrap:wrap}
+.summary span::before{content:"";display:inline-block;width:22px;height:1px;background:var(--ink);vertical-align:middle;margin-right:10px}
+main{flex:1;position:relative;min-height:62vh}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.state{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+  font:italic 20px var(--serif);color:var(--mute);padding:24px}
+.tip{position:absolute;pointer-events:none;background:var(--paper2);border:1px solid var(--ink);padding:8px 12px;
+  font:14px var(--serif);box-shadow:3px 3px 0 rgba(20,20,20,.15);opacity:0;transition:opacity .12s;max-width:240px}
+.tip b{display:block;font-size:16px}.tip i{color:var(--mute);font-size:13px}
+.tip small{display:block;font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.legend{border-top:1px dashed var(--ink);margin:0 clamp(16px,4vw,56px);padding:14px 0 4px;
+  columns:4 220px;column-gap:28px}
+.legend div{break-inside:avoid;display:flex;justify-content:space-between;gap:10px;font-size:15px;
+  padding:4px 0;border-bottom:1px dotted rgba(20,20,20,.25)}
+.legend em{font:12px var(--mono);font-style:normal;color:var(--mute)}
+footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px clamp(16px,4vw,56px) 26px;
+  font:11px/1.7 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+footer a{color:var(--ink)}
+@media (max-width:640px){.meta{text-align:left}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="kicker">Avian Visitors · Pōkeno, Aotearoa</div>
+    <h1>Birds heard today</h1>
+  </div>
+  <div class="meta"><span id="date"></span><br>Last 24 hours · <span id="updated">listening…</span></div>
+</header>
+<div class="summary" id="summary"><span>Listening</span></div>
+<main id="stage"><canvas id="c" aria-label="Collage of birds heard in the last 24 hours" role="img"></canvas>
+  <div class="state" id="state">Gathering the flock…</div><div class="tip" id="tip"></div></main>
+<div class="legend" id="legend"></div>
+<footer>
+  <div>Heard by a BirdNET-Go microphone in a Pōkeno garden · Sized by how often each bird called</div>
+  <div><a href="birds/master_index.html">Illustration checklist</a> · <a href="https://github.com/tandarra/avianvisitors-NewZealand">Source</a> ·
+    Style after <a href="https://theodore.net/projects/AvianVisitors/">Avian Visitors</a> · CC BY-NC-SA 4.0</div>
+</footer>
+<script>
+(() => {
+  const API = "/api/today", IMG = "birds/", REFRESH = 5 * 60_000;
+  const cv = document.getElementById("c"), stage = document.getElementById("stage");
+  const stateEl = document.getElementById("state"), tip = document.getElementById("tip");
+  let data = null, placed = [], cellPx = 4, lastSig = "";
+  const imgCache = new Map();
+
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const facesRight = (key) => { let h = 0x811C9DC5; for (const ch of key) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; } return h % 100 < 45; };
+
+  function loadImg(src) {
+    if (imgCache.has(src)) return imgCache.get(src);
+    const p = new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+    imgCache.set(src, p); return p;
+  }
+
+  async function tiles(species) {
+    const out = [];
+    await Promise.all(species.map(async (s, i) => {
+      let fly = i % 3 === 2, img = null;
+      if (fly) img = await loadImg(IMG + s.slug + "-2.webp");
+      if (!img) { fly = false; img = await loadImg(IMG + s.slug + ".webp"); }
+      if (!img) { img = await loadImg(IMG + s.slug + "-2.webp"); fly = !!img; }
+      if (!img) return;
+      out.push({ s, img, fly, flip: facesRight(s.slug + (fly ? "^" : "")), ar: img.naturalWidth / img.naturalHeight, i });
+    }));
+    return out.sort((a, b) => a.i - b.i);
+  }
+
+  function mask(t, gw, gh) {
+    const c = document.createElement("canvas"); c.width = gw * 2; c.height = gh * 2;
+    const x = c.getContext("2d", { willReadFrequently: true });
+    if (t.flip) { x.translate(c.width, 0); x.scale(-1, 1); }
+    x.drawImage(t.img, 0, 0, c.width, c.height);
+    const a = x.getImageData(0, 0, c.width, c.height).data, m = new Uint8Array(gw * gh);
+    for (let y = 0; y < gh; y++) for (let xx = 0; xx < gw; xx++) {
+      let on = 0;
+      for (let sy = 0; sy < 2 && !on; sy++) for (let sx = 0; sx < 2 && !on; sx++)
+        if (a[(((y * 2 + sy) * c.width) + xx * 2 + sx) * 4 + 3] > 40) on = 1;
+      m[y * gw + xx] = on;
+    }
+    const d = m.slice();
+    for (let y = 0; y < gh; y++) for (let xx = 0; xx < gw; xx++) if (m[y * gw + xx])
+      for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) {
+        const nx = xx + ox, ny = y + oy; if (nx >= 0 && ny >= 0 && nx < gw && ny < gh) d[ny * gw + nx] = 1;
+      }
+    return d;
+  }
+
+  function layout(ts, W, H) {
+    const cell = Math.max(4, Math.round(Math.max(W, H) / 320)), GW = Math.floor(W / cell), GH = Math.floor(H / cell);
+    cellPx = cell;
+    const base = new Uint8Array(GW * GH);
+    const freeA = GW * GH * cell * cell;
+    const sum = ts.reduce((a, t) => a + Math.pow(t.s.count, 0.65), 0);
+    const budget = freeA * (0.40 + 0.18 * Math.min(1, ts.length / 25));
+    const short = Math.min(W, H), aMin = (short * 0.09) ** 2, aMax = (short * 0.5) ** 2;
+    ts.forEach((t) => t.area = Math.min(aMax, Math.max(aMin, budget * Math.pow(t.s.count, 0.65) / sum)));
+    const order = [...ts].sort((a, b) => b.area - a.area);
+    const bias = Math.max(0.8, Math.min(2.1, (W / H) * 1.18));
+    const rx = GW, ry = GH, cand = [];
+    for (let dy = -ry; dy <= ry; dy++) for (let dx = -rx; dx <= rx; dx++) cand.push([Math.hypot(dx / bias, dy), dx, dy]);
+    cand.sort((a, b) => a[0] - b[0]);
+    const cx = Math.floor(GW / 2), cy = Math.floor(GH / 2);
+    let scale = 1;
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const occ = base.slice(); let ok = true;
+      for (const t of order) {
+        const a = t.area * scale * scale;
+        t.w = Math.max(cell * 3, Math.round(Math.sqrt(a * t.ar))); t.h = Math.max(cell * 3, Math.round(t.w / t.ar));
+        t.gw = Math.ceil(t.w / cell); t.gh = Math.ceil(t.h / cell); t.m = mask(t, t.gw, t.gh); t.gx = -1;
+        for (const [, dx, dy] of cand) {
+          const x0 = cx + dx - (t.gw >> 1), y0 = cy + dy - (t.gh >> 1);
+          if (x0 < 0 || y0 < 0 || x0 + t.gw > GW || y0 + t.gh > GH) continue;
+          let fit = true;
+          for (let y = 0; y < t.gh && fit; y++) { const r = (y0 + y) * GW + x0, mr = y * t.gw;
+            for (let x = 0; x < t.gw; x++) if (t.m[mr + x] && occ[r + x]) { fit = false; break; } }
+          if (!fit) continue;
+          for (let y = 0; y < t.gh; y++) for (let x = 0; x < t.gw; x++) if (t.m[y * t.gw + x]) occ[(y0 + y) * GW + x0 + x] = 1;
+          t.gx = x0; t.gy = y0; break;
+        }
+        if (t.gx < 0) { ok = false; break; }
+      }
+      if (ok) break;
+      scale *= 0.93;
+    }
+    return order.filter((t) => t.gx >= 0);
+  }
+
+  async function render() {
+    if (!data || !data.species.length) return;
+    const W = stage.clientWidth, H = stage.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    const ts = await tiles(data.species);
+    if (!ts.length) { stateEl.textContent = "No illustrations yet for today's birds."; return; }
+    placed = layout(ts, W, H);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    g.imageSmoothingQuality = "high";
+    for (const t of placed) {
+      t.x = t.gx * cellPx + (t.gw * cellPx - t.w) / 2; t.y = t.gy * cellPx + (t.gh * cellPx - t.h) / 2;
+      g.save();
+      if (t.flip) { g.translate(t.x + t.w, t.y); g.scale(-1, 1); g.drawImage(t.img, 0, 0, t.w, t.h); }
+      else g.drawImage(t.img, t.x, t.y, t.w, t.h);
+      g.restore();
+    }
+    stateEl.style.display = "none";
+  }
+
+  function hit(px, py) {
+    for (let i = placed.length - 1; i >= 0; i--) {
+      const t = placed[i];
+      if (px < t.x || py < t.y || px > t.x + t.w || py > t.y + t.h) continue;
+      const mx = Math.floor((px - t.gx * cellPx) / cellPx), my = Math.floor((py - t.gy * cellPx) / cellPx);
+      if (mx >= 0 && my >= 0 && mx < t.gw && my < t.gh && t.m[my * t.gw + mx]) return t;
+    }
+    return null;
+  }
+  function showTip(e) {
+    const r = stage.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, t = hit(x, y);
+    cv.style.cursor = t ? "help" : "default";
+    if (!t) { tip.style.opacity = 0; return; }
+    tip.innerHTML = `<b>${esc(t.s.com)}</b><i>${esc(t.s.sci)}</i><small>${t.s.count} call${t.s.count === 1 ? "" : "s"}${t.s.last ? " · last " + esc(t.s.last) : ""}</small>`;
+    tip.style.left = Math.min(r.width - 250, x + 14) + "px"; tip.style.top = Math.max(8, y - 70) + "px"; tip.style.opacity = 1;
+  }
+  stage.addEventListener("mousemove", showTip);
+  stage.addEventListener("mouseleave", () => tip.style.opacity = 0);
+  stage.addEventListener("click", showTip);
+
+  function text() {
+    const sp = data.species, top = sp[0];
+    document.getElementById("summary").innerHTML = sp.length
+      ? `<span>${sp.length} species</span><span>${data.calls} calls</span>${top ? `<span>Most heard: ${esc(top.com)}</span>` : ""}`
+      : `<span>Quiet so far</span>`;
+    document.getElementById("legend").innerHTML = sp.map((s) => `<div>${esc(s.com)}<em>${s.count}</em></div>`).join("");
+    const u = new Date(data.updated);
+    document.getElementById("updated").textContent = "updated " + u.toLocaleTimeString("en-NZ", { hour: "numeric", minute: "2-digit" });
+  }
+
+  async function refresh() {
+    document.getElementById("date").textContent = new Date().toLocaleDateString("en-NZ", { weekday: "long", day: "numeric", month: "long", timeZone: "Pacific/Auckland" });
+    try {
+      const r = await fetch(API, { cache: "no-store" });
+      const d = await r.json();
+      if (!r.ok || d.error) throw new Error(d.error || r.status);
+      data = d;
+      const sig = d.species.map((s) => s.slug + ":" + Math.round(Math.log(s.count + 1) * 4)).join(",");
+      text();
+      if (!d.species.length) { stateEl.style.display = ""; stateEl.textContent = "All quiet — no birds heard in the last 24 hours."; return; }
+      if (sig !== lastSig) { lastSig = sig; await render(); }
+    } catch (e) {
+      if (!data) { stateEl.style.display = ""; stateEl.textContent = "The listening station is offline right now. Check back soon."; }
+    }
+  }
+  let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 250); });
+  refresh(); setInterval(refresh, REFRESH);
+})();
+</script>
+</body>
+</html>
