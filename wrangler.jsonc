@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "avianvisitors-newzealand",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": ".", "binding": "ASSETS" },
+  "routes": [{ "pattern": "birds.tandarra.net", "custom_domain": true }],
+  "vars": {
+    "BIRDNET_ORIGIN": "https://birdnet-api.tandarra.net",
+    "TIMEZONE": "Pacific/Auckland"
+  }
+}

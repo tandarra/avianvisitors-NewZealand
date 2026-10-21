@@ -1,0 +1,14 @@
+.git
+.github
+node_modules
+functions
+worker.js
+wrangler.jsonc
+.assetsignore
+.gitignore
+.nojekyll
+*.py
+homeassistant
+birds/raw
+README.md
+LICENSE
