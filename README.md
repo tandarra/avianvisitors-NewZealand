@@ -5,14 +5,15 @@ Kachō-e woodblock-style illustrations of New Zealand's birds, built for a
 Home Assistant "Field Journal" card. The style follows the
 [Avian Visitors](https://theodore.net/projects/AvianVisitors/) guidelines by Teddy Warner.
 
-**Progress:** open [`birds/master_index.html`](birds/master_index.html) (or
-[`birds/master_index.csv`](birds/master_index.csv)) — every species eBird has
-recorded in New Zealand (389), with what's been illustrated so far.
+**Live checklist: https://tandarra.github.io/avianvisitors-NewZealand/** — every species
+eBird has recorded in New Zealand (389), with what's been illustrated so far
+(also as [`birds/master_index.csv`](birds/master_index.csv)).
 
 ## What's in here
 
 | Path | What it is |
 |---|---|
+| `birds/raw/` | Full-size master originals as generated (PNG) |
 | `birds/<slug>.webp` | Perched pose, background removed (slug = scientific name, lowercase, hyphenated) |
 | `birds/<slug>-2.webp` | Second pose: in flight (penguins swim; kiwi, kākāpō, takahē, weka, ratites walk) |
 | `birds/<slug>-3.webp` | Optional extra pose |
@@ -23,8 +24,7 @@ recorded in New Zealand (389), with what's been illustrated so far.
 | `homeassistant/packages/birdnet.yaml` | MQTT sensors for BirdNET-Go detections + today's running species list |
 | `homeassistant/cards/field_journal_card.yaml` | e-ink style dashboard card (needs `button-card`) |
 
-Not committed (see `.gitignore`): API keys, the full-size originals in `birds/raw/`,
-reference photos in `birds/refs/`, and audio clips.
+Not committed (see `.gitignore`): API keys, reference photos in `birds/refs/`, and audio clips.
 
 ## Style rules
 
