@@ -3,8 +3,7 @@ bird_keys.txt
 *.env
 .env
 
-# Large originals and personal reference photos stay on your PC
-birds/raw/
+# Personal reference photos stay on your PC
 birds/refs/
 birds/birds/
 style.png
