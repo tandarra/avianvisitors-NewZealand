@@ -1,0 +1,270 @@
+{
+  "prosthemadera-novaeseelandiae": {
+    "com": "Tui",
+    "sci": "Prosthemadera novaeseelandiae"
+  },
+  "botaurus-poiciloptilus": {
+    "com": "Australasian Bittern",
+    "sci": "Botaurus poiciloptilus"
+  },
+  "morus-serrator": {
+    "com": "Australasian Gannet",
+    "sci": "Morus serrator"
+  },
+  "spatula-rhynchotis": {
+    "com": "Australasian Shoveler",
+    "sci": "Spatula rhynchotis"
+  },
+  "porphyrio-melanotus": {
+    "com": "Australasian Swamphen",
+    "sci": "Porphyrio melanotus"
+  },
+  "gymnorhina-tibicen": {
+    "com": "Australian Magpie",
+    "sci": "Gymnorhina tibicen"
+  },
+  "limosa-lapponica": {
+    "com": "Bar-tailed Godwit",
+    "sci": "Limosa lapponica"
+  },
+  "cygnus-atratus": {
+    "com": "Black Swan",
+    "sci": "Cygnus atratus"
+  },
+  "gallirallus-philippensis": {
+    "com": "Buff-banded Rail",
+    "sci": "Gallirallus philippensis"
+  },
+  "callipepla-californica": {
+    "com": "California Quail",
+    "sci": "Callipepla californica"
+  },
+  "branta-canadensis": {
+    "com": "Canada Goose",
+    "sci": "Branta canadensis"
+  },
+  "fringilla-coelebs": {
+    "com": "Common Chaffinch",
+    "sci": "Fringilla coelebs"
+  },
+  "acridotheres-tristis": {
+    "com": "Common Myna",
+    "sci": "Acridotheres tristis"
+  },
+  "prunella-modularis": {
+    "com": "Dunnock",
+    "sci": "Prunella modularis"
+  },
+  "platycercus-eximius": {
+    "com": "Eastern Rosella",
+    "sci": "Platycercus eximius"
+  },
+  "turdus-merula": {
+    "com": "Eurasian Blackbird",
+    "sci": "Turdus merula"
+  },
+  "alauda-arvensis": {
+    "com": "Eurasian Skylark",
+    "sci": "Alauda arvensis"
+  },
+  "carduelis-carduelis": {
+    "com": "European Goldfinch",
+    "sci": "Carduelis carduelis"
+  },
+  "chloris-chloris": {
+    "com": "European Greenfinch",
+    "sci": "Chloris chloris"
+  },
+  "sturnus-vulgaris": {
+    "com": "European Starling",
+    "sci": "Sturnus vulgaris"
+  },
+  "gerygone-igata": {
+    "com": "Gray Gerygone",
+    "sci": "Gerygone igata"
+  },
+  "anas-gracilis": {
+    "com": "Gray Teal",
+    "sci": "Anas gracilis"
+  },
+  "anser-anser": {
+    "com": "Graylag Goose",
+    "sci": "Anser anser"
+  },
+  "phalacrocorax-carbo": {
+    "com": "Great Cormorant",
+    "sci": "Phalacrocorax carbo"
+  },
+  "passer-domesticus": {
+    "com": "House Sparrow",
+    "sci": "Passer domesticus"
+  },
+  "pavo-cristatus": {
+    "com": "Indian Peafowl",
+    "sci": "Pavo cristatus"
+  },
+  "larus-dominicanus": {
+    "com": "Kelp Gull",
+    "sci": "Larus dominicanus"
+  },
+  "phalacrocorax-sulcirostris": {
+    "com": "Little Black Cormorant",
+    "sci": "Phalacrocorax sulcirostris"
+  },
+  "microcarbo-melanoleucos": {
+    "com": "Little Pied Cormorant",
+    "sci": "Microcarbo melanoleucos"
+  },
+  "anas-platyrhynchos": {
+    "com": "Mallard",
+    "sci": "Anas platyrhynchos"
+  },
+  "vanellus-miles": {
+    "com": "Masked Lapwing",
+    "sci": "Vanellus miles"
+  },
+  "anthornis-melanura": {
+    "com": "New Zealand Bellbird",
+    "sci": "Anthornis melanura"
+  },
+  "falco-novaeseelandiae": {
+    "com": "New Zealand Falcon",
+    "sci": "Falco novaeseelandiae"
+  },
+  "rhipidura-fuliginosa": {
+    "com": "New Zealand Fantail",
+    "sci": "Rhipidura fuliginosa"
+  },
+  "poliocephalus-rufopectus": {
+    "com": "New Zealand Grebe",
+    "sci": "Poliocephalus rufopectus"
+  },
+  "nestor-meridionalis": {
+    "com": "New Zealand Kaka",
+    "sci": "Nestor meridionalis"
+  },
+  "hemiphaga-novaeseelandiae": {
+    "com": "New Zealand Pigeon",
+    "sci": "Hemiphaga novaeseelandiae"
+  },
+  "anthus-novaeseelandiae": {
+    "com": "New Zealand Pipit",
+    "sci": "Anthus novaeseelandiae"
+  },
+  "apteryx-mantelli": {
+    "com": "North Island Brown Kiwi",
+    "sci": "Apteryx mantelli"
+  },
+  "callaeas-wilsoni": {
+    "com": "North Island Kokako",
+    "sci": "Callaeas wilsoni"
+  },
+  "pluvialis-fulva": {
+    "com": "Pacific Golden-Plover",
+    "sci": "Pluvialis fulva"
+  },
+  "tadorna-variegata": {
+    "com": "Paradise Shelduck",
+    "sci": "Tadorna variegata"
+  },
+  "phalacrocorax-varius": {
+    "com": "Pied Cormorant",
+    "sci": "Phalacrocorax varius"
+  },
+  "himantopus-leucocephalus": {
+    "com": "Pied Stilt",
+    "sci": "Himantopus leucocephalus"
+  },
+  "calidris-canutus": {
+    "com": "Red Knot",
+    "sci": "Calidris canutus"
+  },
+  "phasianus-colchicus": {
+    "com": "Ring-necked Pheasant",
+    "sci": "Phasianus colchicus"
+  },
+  "columba-livia": {
+    "com": "Rock Pigeon",
+    "sci": "Columba livia"
+  },
+  "corvus-frugilegus": {
+    "com": "Rook",
+    "sci": "Corvus frugilegus"
+  },
+  "platalea-regia": {
+    "com": "Royal Spoonbill",
+    "sci": "Platalea regia"
+  },
+  "arenaria-interpres": {
+    "com": "Ruddy Turnstone",
+    "sci": "Arenaria interpres"
+  },
+  "todiramphus-sanctus": {
+    "com": "Sacred Kingfisher",
+    "sci": "Todiramphus sanctus"
+  },
+  "chalcites-lucidus": {
+    "com": "Shining Bronze-Cuckoo",
+    "sci": "Chalcites lucidus"
+  },
+  "chroicocephalus-novaehollandiae": {
+    "com": "Silver Gull",
+    "sci": "Chroicocephalus novaehollandiae"
+  },
+  "zosterops-lateralis": {
+    "com": "Silvereye",
+    "sci": "Zosterops lateralis"
+  },
+  "turdus-philomelos": {
+    "com": "Song Thrush",
+    "sci": "Turdus philomelos"
+  },
+  "haematopus-finschi": {
+    "com": "South Island Oystercatcher",
+    "sci": "Haematopus finschi"
+  },
+  "spilopelia-chinensis": {
+    "com": "Spotted Dove",
+    "sci": "Spilopelia chinensis"
+  },
+  "cacatua-galerita": {
+    "com": "Sulphur-crested Cockatoo",
+    "sci": "Cacatua galerita"
+  },
+  "circus-approximans": {
+    "com": "Swamp Harrier",
+    "sci": "Circus approximans"
+  },
+  "petroica-macrocephala": {
+    "com": "Tomtit",
+    "sci": "Petroica macrocephala"
+  },
+  "haematopus-unicolor": {
+    "com": "Variable Oystercatcher",
+    "sci": "Haematopus unicolor"
+  },
+  "hirundo-neoxena": {
+    "com": "Welcome Swallow",
+    "sci": "Hirundo neoxena"
+  },
+  "egretta-novaehollandiae": {
+    "com": "White-faced Heron",
+    "sci": "Egretta novaehollandiae"
+  },
+  "meleagris-gallopavo": {
+    "com": "Wild Turkey",
+    "sci": "Meleagris gallopavo"
+  },
+  "anarhynchus-frontalis": {
+    "com": "Wrybill",
+    "sci": "Anarhynchus frontalis"
+  },
+  "cyanoramphus-auriceps": {
+    "com": "Yellow-crowned Parakeet",
+    "sci": "Cyanoramphus auriceps"
+  },
+  "emberiza-citrinella": {
+    "com": "Yellowhammer",
+    "sci": "Emberiza citrinella"
+  }
+}

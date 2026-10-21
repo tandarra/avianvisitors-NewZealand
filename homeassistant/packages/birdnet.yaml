@@ -1,0 +1,72 @@
+# BirdNET-Go detections via MQTT (topic: birdnet)
+# Drop into config/packages/ in Home Assistant.
+mqtt:
+  sensor:
+    - name: BirdNET Last Bird
+      unique_id: birdnet_last_bird
+      state_topic: birdnet
+      icon: mdi:bird
+      value_template: "{{ value_json.CommonName | default('unknown') }}"
+      json_attributes_topic: birdnet
+      json_attributes_template: >
+        {{ {
+          'scientific_name': value_json.ScientificName | default(''),
+          'confidence': ((value_json.Confidence | default(0)) * 100) | round(0),
+          'source': value_json.sourceName | default(''),
+          'time': value_json.Time | default(''),
+          'date': value_json.Date | default(''),
+          'clip': value_json.ClipName | default('')
+        } | tojson }}
+
+# Running list of today's species (feeds the Field Journal card).
+# Builds on its own previous value; resets at midnight; survives HA restarts.
+template:
+  - trigger:
+      - trigger: mqtt
+        topic: birdnet
+        id: bird
+      - trigger: time
+        at: "00:00:00"
+        id: reset
+    action:
+      - variables:
+          today: "{{ now().date() | string }}"
+          p: "{{ trigger.payload_json if trigger.id == 'bird' and trigger.payload_json is defined else {} }}"
+          name: "{{ p.get('CommonName', '') }}"
+          sci: "{{ p.get('ScientificName', '') }}"
+          conf: >
+            {% set c = p.get('Confidence', 0) | float(0) %}
+            {{ ((c * 100) if c <= 1 else c) | round(0) | int }}
+          src: "{{ p.get('sourceName', '') }}"
+          t: "{{ now().strftime('%H:%M') }}"
+    sensor:
+      - name: BirdNET Today
+        unique_id: birdnet_today
+        icon: mdi:feather
+        unit_of_measurement: species
+        state: >
+          {% set a = this.attributes if this is defined and this.attributes is defined else {} %}
+          {% set prev = a.get('species', {}) if a.get('date') == today else {} %}
+          {{ prev | count + (1 if name and name not in prev else 0) }}
+        attributes:
+          date: "{{ today }}"
+          species: >
+            {% set a = this.attributes if this is defined and this.attributes is defined else {} %}
+            {% set prev = a.get('species', {}) if a.get('date') == today else {} %}
+            {% if name %}
+              {% set e = prev.get(name, {'n': 0, 'first': t, 'conf': 0}) %}
+              {{ dict(prev, **{name: {'n': e.n + 1, 'first': e.first, 'last': t, 'sci': sci,
+                                      'conf': [e.conf | int(0), conf | int(0)] | max, 'src': src}}) }}
+            {% else %}
+              {{ prev }}
+            {% endif %}
+          last_name: >
+            {{ name if name else (this.attributes.last_name if this is defined and this.attributes.last_name is defined else '') }}
+          last_sci: >
+            {{ sci if name else (this.attributes.last_sci if this is defined and this.attributes.last_sci is defined else '') }}
+          last_conf: >
+            {{ conf if name else (this.attributes.last_conf if this is defined and this.attributes.last_conf is defined else 0) }}
+          last_src: >
+            {{ src if name else (this.attributes.last_src if this is defined and this.attributes.last_src is defined else '') }}
+          last_time: >
+            {{ t if name else (this.attributes.last_time if this is defined and this.attributes.last_time is defined else '') }}

@@ -1,0 +1,18 @@
+# API keys — never commit
+bird_keys.txt
+*.env
+.env
+
+# Large originals and personal reference photos stay on your PC
+birds/raw/
+birds/refs/
+birds/birds/
+style.png
+
+# Audio clips, caches
+*.wav
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+desktop.ini

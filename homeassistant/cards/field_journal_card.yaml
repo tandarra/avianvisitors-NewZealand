@@ -1,0 +1,121 @@
+type: custom:button-card
+entity: sensor.birdnet_today
+triggers_update:
+  - sensor.birdnet_last_bird
+  - sensor.ebird_nearby_species
+  - sensor.ebird_nearby_latest
+  - sensor.ebird_notable_nearby
+show_icon: false
+show_name: false
+show_state: false
+tap_action:
+  action: more-info
+styles:
+  card:
+    - padding: 0
+    - background: "#efebe1"
+    - color: "#141414"
+    - border-radius: 6px
+    - border: 1px solid #d6d0c2
+    - box-shadow: 0 1px 0 rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.25)
+    - overflow: hidden
+  grid:
+    - grid-template-areas: '"j"'
+    - grid-template-columns: 1fr
+  custom_fields:
+    j:
+      - width: 100%
+      - text-align: left
+extra_styles: |
+  .fj { font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif; padding: 18px 20px 14px;
+        background-image: radial-gradient(rgba(0,0,0,.04) 1px, transparent 1px); background-size: 3px 3px; }
+  .top { display:flex; justify-content:space-between; font:600 10px/1.2 'Courier New',monospace;
+         letter-spacing:.18em; text-transform:uppercase; }
+  .rule { height:3px; background:#141414; margin:8px 0 14px; }
+  .rule.thin { height:1px; margin:14px 0 12px; }
+  .kicker { font:11px 'Courier New',monospace; letter-spacing:.08em; text-transform:uppercase; color:#555; }
+  .hero { font-size:34px; line-height:1.05; font-weight:700; margin:6px 0 4px; letter-spacing:-.01em; }
+  .hero.muted { color:#777; }
+  .sci { font-style:italic; font-size:15px; color:#333; }
+  .herowrap { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end; }
+  .bird { width:132px; height:132px; object-fit:contain; mix-blend-mode:multiply; margin:-6px -4px -4px 0; }
+  .conf { font:11px 'Courier New',monospace; font-style:normal; border:1px solid #141414;
+          padding:1px 5px; margin-left:6px; vertical-align:2px; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .stats b { display:block; font-size:24px; line-height:1; }
+  .stats span { font:10px 'Courier New',monospace; text-transform:uppercase; letter-spacing:.08em; color:#555; }
+  .list { margin-top:14px; border-top:1px dashed #141414; padding-top:6px; }
+  .row { display:grid; grid-template-columns:1fr 70px 26px 42px; align-items:center; gap:8px;
+         padding:5px 0; font-size:14px; border-bottom:1px dotted rgba(0,0,0,.25); }
+  .nm { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bar { height:6px; background:repeating-linear-gradient(90deg, rgba(0,0,0,.15) 0 2px, transparent 2px 4px); }
+  .bar i { display:block; height:100%; background:#141414; }
+  .ct { font:12px 'Courier New',monospace; text-align:right; }
+  .tm { font:11px 'Courier New',monospace; color:#555; text-align:right; }
+  .more { font:11px 'Courier New',monospace; color:#555; padding-top:6px; }
+  .foot { display:flex; justify-content:space-between; gap:8px; margin-top:14px;
+          font:10px 'Courier New',monospace; letter-spacing:.1em; text-transform:uppercase; color:#444; }
+  .foot em { color:#b3261e; font-style:normal; font-weight:700; }
+custom_fields:
+  j: |
+    [[[
+      const ok = id => { const e = states[id]; return e && !['unknown','unavailable'].includes(e.state) ? e.state : '–'; };
+      const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      const a = (states['sensor.birdnet_today'] || {}).attributes || {};
+      const lastEnt = states['sensor.birdnet_last_bird'];
+      const name = a.last_name || (ok('sensor.birdnet_last_bird') !== '–' ? lastEnt.state : '');
+      const sci  = a.last_sci  || (lastEnt?.attributes?.scientific_name || '');
+      const conf = a.last_conf || lastEnt?.attributes?.confidence || '';
+      const src  = a.last_src  || '';
+      const when = a.last_time || '';
+      const sp = a.species || {};
+      const rows = Object.entries(sp).sort((x, y) => (y[1].last || '').localeCompare(x[1].last || ''));
+      const calls = rows.reduce((s, [, v]) => s + (+v.n || 0), 0);
+      const maxN = Math.max(1, ...rows.map(([, v]) => +v.n || 0));
+      const date = new Date().toLocaleDateString('en-NZ', { weekday: 'long', day: 'numeric', month: 'long' });
+
+      const slug = String(sci).toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '');
+      // Rotate pose with each detection: perched (<slug>.webp), flight 1 (<slug>-2.webp), flight 2 (<slug>-3.webp).
+      // A missing pose falls back to perched; if that's missing too, the image hides.
+      const pick = (parseInt(String(when).replace(':', ''), 10) || 0) % 3;
+      const suffix = ['', '-2', '-3'][pick];
+      const base = `/local/birds/${slug}`;
+      const img = slug
+        ? `<img class="bird" src="${base}${suffix}.webp" alt=""
+             onerror="if(!this.dataset.f&&/-[23]\\.webp/.test(this.src)){this.dataset.f=1;this.src='${base}.webp'}else{this.style.display='none'}">`
+        : '';
+      const hero = name
+        ? `<div class="herowrap"><div>
+             <div class="kicker">Last heard${when ? ' · ' + esc(when) : ''}${src ? ' · ' + esc(src) : ''}</div>
+             <div class="hero">${esc(name)}</div>
+             <div class="sci">${esc(sci)}${conf ? `<span class="conf">${esc(conf)}%</span>` : ''}</div>
+           </div>${img}</div>`
+        : `<div class="kicker">Listening…</div>
+           <div class="hero muted">No calls yet</div>
+           <div class="sci">First birds usually arrive with the dawn chorus</div>`;
+
+      const list = rows.slice(0, 8).map(([k, v]) =>
+        `<div class="row"><span class="nm">${esc(k)}</span>
+           <span class="bar"><i style="width:${Math.round((+v.n || 0) / maxN * 100)}%"></i></span>
+           <span class="ct">${+v.n || 0}</span><span class="tm">${esc(v.first)}</span></div>`).join('');
+      const more = rows.length > 8 ? `<div class="more">+ ${rows.length - 8} more today</div>` : '';
+
+      const notable = ok('sensor.ebird_notable_nearby');
+      const footR = (notable !== '–' && notable !== '0')
+        ? `<em>★ ${esc(notable)} notable nearby</em>`
+        : `eBird latest: ${esc(ok('sensor.ebird_nearby_latest'))}`;
+
+      return `<div class="fj">
+        <div class="top"><span>Field Journal</span><span>${esc(date)}</span></div>
+        <div class="rule"></div>
+        ${hero}
+        <div class="rule thin"></div>
+        <div class="stats">
+          <div><b>${rows.length}</b><span>species today</span></div>
+          <div><b>${calls}</b><span>calls logged</span></div>
+          <div><b>${esc(ok('sensor.ebird_nearby_species'))}</b><span>nearby · eBird</span></div>
+        </div>
+        ${rows.length ? `<div class="list">${list}${more}</div>` : ''}
+        <div class="foot"><span>Pōkeno · BirdNET</span><span>${footR}</span></div>
+      </div>`;
+    ]]]
