@@ -37,6 +37,12 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .legend div{break-inside:avoid;display:flex;justify-content:space-between;gap:10px;font-size:15px;
   padding:4px 0;border-bottom:1px dotted rgba(20,20,20,.25)}
 .legend em{font:12px var(--mono);font-style:normal;color:var(--mute)}
+.legend div{cursor:pointer}.legend div:hover{background:rgba(20,20,20,.05)}
+.legend div.on{font-weight:700}.legend div.on span::before{content:"▶ ";color:var(--red)}
+.now{position:absolute;left:clamp(16px,4vw,56px);bottom:14px;font:12px var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  background:var(--paper2);border:1px solid var(--ink);padding:7px 12px;box-shadow:3px 3px 0 rgba(20,20,20,.15);display:none;align-items:center;gap:10px}
+.now b{font:700 15px var(--serif);letter-spacing:0;text-transform:none}
+.now .v{color:var(--red)}.now button{font:inherit;border:1px solid var(--ink);background:transparent;padding:2px 8px;cursor:pointer}
 footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px clamp(16px,4vw,56px) 26px;
   font:11px/1.7 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 footer a{color:var(--ink)}
@@ -53,7 +59,7 @@ footer a{color:var(--ink)}
 </header>
 <div class="summary" id="summary"><span>Listening</span></div>
 <main id="stage"><canvas id="c" aria-label="Collage of birds heard in the last 24 hours" role="img"></canvas>
-  <div class="state" id="state">Gathering the flock…</div><div class="tip" id="tip"></div></main>
+  <div class="state" id="state">Gathering the flock…</div><div class="tip" id="tip"></div><div class="now" id="now"></div></main>
 <div class="legend" id="legend"></div>
 <footer>
   <div>Heard by a BirdNET-Go microphone in a Pōkeno garden · Sized by how often each bird called</div>
@@ -182,19 +188,53 @@ footer a{color:var(--ink)}
     const r = stage.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, t = hit(x, y);
     cv.style.cursor = t ? "help" : "default";
     if (!t) { tip.style.opacity = 0; return; }
-    tip.innerHTML = `<b>${esc(t.s.com)}</b><i>${esc(t.s.sci)}</i><small>${t.s.count} call${t.s.count === 1 ? "" : "s"}${t.s.last ? " · last " + esc(t.s.last) : ""}</small>`;
+    tip.innerHTML = `<b>${esc(t.s.com)}</b><i>${esc(t.s.sci)}</i><small>${t.s.count} call${t.s.count === 1 ? "" : "s"}${t.s.last ? " · last " + esc(t.s.last) : ""} · ▶ tap to hear</small>`;
     tip.style.left = Math.min(r.width - 250, x + 14) + "px"; tip.style.top = Math.max(8, y - 70) + "px"; tip.style.opacity = 1;
   }
   stage.addEventListener("mousemove", showTip);
   stage.addEventListener("mouseleave", () => tip.style.opacity = 0);
-  stage.addEventListener("click", showTip);
+  stage.addEventListener("click", (e) => {
+    showTip(e);
+    const r = stage.getBoundingClientRect(), t = hit(e.clientX - r.left, e.clientY - r.top);
+    if (t) play(t.s); else stop();
+  });
+
+  // ---- sound: best clip per species (your "correct" reviews first, then highest confidence)
+  const player = new Audio(); player.preload = "none";
+  const nowEl = document.getElementById("now"), clipCache = new Map();
+  let playing = null;
+  function stop() {
+    player.pause(); playing = null; nowEl.style.display = "none";
+    document.querySelectorAll(".legend div.on").forEach((d) => d.classList.remove("on"));
+  }
+  async function play(s) {
+    if (playing === s.sci) { stop(); return; }
+    stop(); playing = s.sci;
+    nowEl.style.display = "flex"; nowEl.innerHTML = `<b>${esc(s.com)}</b> finding the best recording…`;
+    document.querySelectorAll(`.legend div[data-sci="${CSS.escape(s.sci)}"]`).forEach((d) => d.classList.add("on"));
+    try {
+      let c = clipCache.get(s.sci);
+      if (!c) {
+        const r = await fetch("/api/clip?sci=" + encodeURIComponent(s.sci));
+        c = r.ok ? await r.json() : null; clipCache.set(s.sci, c);
+      }
+      if (playing !== s.sci) return;
+      if (!c || !c.audio) { nowEl.innerHTML = `<b>${esc(s.com)}</b> no recording kept`; setTimeout(() => playing === s.sci && stop(), 2500); return; }
+      nowEl.innerHTML = `<b>${esc(s.com)}</b><span>${Math.round(c.confidence * 100)}% sure</span>${c.verified ? '<span class="v">✓ verified</span>' : ""}<span>${esc(c.date || "")} ${esc(c.time || "")}</span><button type="button">Stop</button>`;
+      nowEl.querySelector("button").onclick = stop;
+      player.src = c.audio; await player.play();
+    } catch (e) { if (playing === s.sci) { nowEl.innerHTML = `<b>${esc(s.com)}</b> couldn't play that one`; setTimeout(stop, 2500); } }
+  }
+  player.addEventListener("ended", stop);
 
   function text() {
     const sp = data.species, top = sp[0];
     document.getElementById("summary").innerHTML = sp.length
-      ? `<span>${sp.length} species</span><span>${data.calls} calls</span>${top ? `<span>Most heard: ${esc(top.com)}</span>` : ""}`
+      ? `<span>${sp.length} species</span><span>${data.calls} calls</span>${top ? `<span>Most heard: ${esc(top.com)}</span>` : ""}<span>Tap a bird to hear it</span>`
       : `<span>Quiet so far</span>`;
-    document.getElementById("legend").innerHTML = sp.map((s) => `<div>${esc(s.com)}<em>${s.count}</em></div>`).join("");
+    const lg = document.getElementById("legend");
+    lg.innerHTML = sp.map((s) => `<div data-sci="${esc(s.sci)}" title="Play ${esc(s.com)}"><span>${esc(s.com)}</span><em>${s.count}</em></div>`).join("");
+    lg.querySelectorAll("div").forEach((d) => d.onclick = () => { const s = sp.find((x) => x.sci === d.dataset.sci); if (s) play(s); });
     const u = new Date(data.updated);
     document.getElementById("updated").textContent = "updated " + u.toLocaleTimeString("en-NZ", { hour: "numeric", minute: "2-digit" });
   }

@@ -8,7 +8,7 @@
 //   CF_ACCESS_CLIENT_SECRET
 //   TIMEZONE              default Pacific/Auckland
 
-const DEFAULT_ORIGIN = "https://birdnet-api.tandarra.net";
+import { origin as birdnetOrigin, headers as birdnetHeaders } from "../../lib/birdnet.js";
 
 function parts(date, tz) {
   const f = new Intl.DateTimeFormat("en-CA", {
@@ -43,12 +43,8 @@ export async function onRequestGet({ request, env, waitUntil }) {
   if (hit) return hit;
 
   const tz = env.TIMEZONE || "Pacific/Auckland";
-  const origin = (env.BIRDNET_ORIGIN || DEFAULT_ORIGIN).replace(/\/$/, "");
-  const headers = { "User-Agent": "birds.tandarra.net" };
-  if (env.CF_ACCESS_CLIENT_ID) {
-    headers["CF-Access-Client-Id"] = env.CF_ACCESS_CLIENT_ID;
-    headers["CF-Access-Client-Secret"] = env.CF_ACCESS_CLIENT_SECRET || "";
-  }
+  const origin = birdnetOrigin(env);
+  const headers = birdnetHeaders(env);
 
   const now = parts(new Date(), tz);
   const back = hours - (now.hour + 1);
