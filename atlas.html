@@ -44,6 +44,17 @@ padding:4px 8px;font:11px 'Courier New',monospace;color:var(--mute);white-space:
 .world b{font-size:22px}.world span{font:12px 'Courier New',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .world .bar{position:relative;margin:8px 0 0}.world .bar i{position:absolute;left:0;top:0}.world .bar i.half{background:#a8a093}
 .find{margin:14px 0 0;display:flex;gap:8px}
+.find{flex-wrap:wrap}.bsearch{position:relative;flex:1;max-width:360px;display:flex}.bsearch input{max-width:none}
+#bsug{position:absolute;top:100%;left:0;right:0;z-index:20;margin:2px 0 0;padding:0;list-style:none;background:var(--paper2);
+  border:1px solid var(--ink);box-shadow:0 6px 18px rgba(20,20,20,.18);max-height:420px;overflow:auto}
+#bsug li{display:flex;gap:10px;align-items:center;padding:6px 10px;cursor:pointer;border-bottom:1px solid var(--line)}
+#bsug li.on,#bsug li:hover{background:#fff8ec}
+#bsug .t{width:44px;height:34px;flex:none;display:grid;place-items:center}#bsug .t img{max-width:44px;max-height:34px}
+#bsug .t i{width:10px;height:10px;border-radius:50%;border:1px solid var(--mute)}
+#bsug .nm{font-size:15px;line-height:1.2}#bsug .nm small{display:block;font-style:italic;color:var(--mute);font-size:12px}
+#bsug .st{margin-left:auto;font:10px 'Courier New',monospace;text-transform:uppercase;color:var(--mute)}
+#bsug .more{cursor:default;font:11px 'Courier New',monospace;color:var(--mute)}
+.ctry a{color:inherit;cursor:pointer}
 .find input{flex:1;max-width:360px;font:15px Georgia,serif;padding:7px 10px;border:1px solid var(--ink);background:var(--paper2);color:var(--ink)}
 .pick[hidden]{display:none!important}
 #land path.fine{stroke-width:.25}#land path.fine.live{stroke-width:.3}.sea.ocean{cursor:pointer}
@@ -148,6 +159,8 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
     <div class="find">
       <input id="find" list="clist" placeholder="Find a country…" aria-label="Find a country" autocomplete="off">
       <datalist id="clist"></datalist>
+      <div class="bsearch"><input id="bfind" placeholder="Find a bird…" aria-label="Find a bird" autocomplete="off"
+        role="combobox" aria-expanded="false" aria-controls="bsug"><ul id="bsug" role="listbox" hidden></ul></div>
     </div>
     <div class="mapbox"><div id="mapwrap" aria-busy="true"></div>
       <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">&minus;</button><button id="zhome" aria-label="Reset view">&#8634;</button></div>
@@ -632,7 +645,7 @@ async function drawMap() {
     leaveT = setTimeout(() => { cam = null; wake(); }, 600);   // drift home; the bird finishes its landing
   });
   wrap.removeAttribute("aria-busy");
-  worldTracker(); searchBox();
+  worldTracker(); searchBox(); birdSearch();
 }
 
 // mouse click opens the checklist; a tap on a touchscreen selects first (card at the bottom)
@@ -705,6 +718,53 @@ function searchBox() {
   };
   $("#find").addEventListener("change", find);
   $("#find").addEventListener("keydown", e => { if (e.key === "Enter") find(); });
+}
+// ---------- bird search: any of the eBird species, opens its card
+const birdOf = i => { const [sci, com, code] = WORLD.species[i], slug = WORLD.slugs[i];
+  return {com, sci, slug, code, idx: i, wide: WORLD.wide[i], status: paintState(slug), pose2: "in flight"}; };
+let bIdx = null, bHits = [], bOn = -1;
+function birdSearch() {
+  if (!WORLD) { $(".bsearch").hidden = true; return; }
+  const inp = $("#bfind"), box = $("#bsug");
+  const norm = t => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z ]+/g, " ").trim();
+  const close = () => { box.hidden = true; inp.setAttribute("aria-expanded", "false"); bOn = -1; };
+  const open = i => { close(); shown = bHits.map(birdOf); showSpecies(i); };
+  const render = () => {
+    const total = bHits.length, hits = bHits.slice(0, 12);
+    box.innerHTML = hits.map((i, n) => { const sl = WORLD.slugs[i], a = ART[sl] || {}, img = (a.p && a.p.url) || (a.f && a.f.url);
+      const st = paintState(sl);
+      return `<li role="option" data-n="${n}" class="${n === bOn ? "on" : ""}"><span class="t">${img ? `<img src="${img}" alt="" loading="lazy">` : "<i></i>"}</span>
+        <span class="nm">${WORLD.species[i][1]}<small>${WORLD.species[i][0]}</small></span>
+        <span class="st">${st === "ok" ? "painted" : st === "part" ? "half done" : "not yet"}${AUDIO[sl] ? " · ♪" : ""}</span></li>`; }).join("")
+      + (total > 12 ? `<li class="more">${total - 12} more — keep typing</li>` : "")
+      + (!total ? `<li class="more">No bird matches</li>` : "");
+    box.hidden = false; inp.setAttribute("aria-expanded", "true");
+    box.querySelectorAll("li[data-n]").forEach(li => li.onmousedown = e => { e.preventDefault(); open(+li.dataset.n); });
+  };
+  inp.addEventListener("input", () => {
+    const v = norm(inp.value);
+    if (v.length < 2) return close();
+    bIdx = bIdx || WORLD.species.map(([sci, com]) => [norm(com), norm(sci)]);
+    const words = v.split(" ");
+    const scored = [];
+    bIdx.forEach(([c, s], i) => {
+      if (!words.every(w => c.includes(w) || s.includes(w))) return;
+      const score = (c === v || s === v ? 0 : c.startsWith(v) || s.startsWith(v) ? 1 : c.split(" ").some(w => w.startsWith(words[0])) ? 2 : 3)
+        * 1e5 - WORLD.wide[i];                                 // then the more widespread species first
+      scored.push([score, i]);
+    });
+    bHits = scored.sort((a, b) => a[0] - b[0]).map(x => x[1]); bOn = bHits.length ? 0 : -1; render();
+  });
+  inp.addEventListener("keydown", e => {
+    if (box.hidden) return;
+    const n = Math.min(bHits.length, 12);
+    if (e.key === "ArrowDown") { bOn = (bOn + 1) % n; render(); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { bOn = (bOn - 1 + n) % n; render(); e.preventDefault(); }
+    else if (e.key === "Enter" && bOn >= 0) { open(bOn); e.preventDefault(); }
+    else if (e.key === "Escape") close();
+  });
+  inp.addEventListener("blur", () => setTimeout(close, 150));
+  inp.addEventListener("focus", () => { if (norm(inp.value).length >= 2) render(); });
 }
 function pick(R) {
   if (lastPointer !== "touch" || !$("#find").matches(":focus")) $("#find").value = R.name;
@@ -798,7 +858,9 @@ function showSpecies(i) {
   $("#spchips").innerHTML = `<span class="${a.p ? "ok" : "miss"}">perched</span>
     <span class="${a.f ? "ok" : "miss"}">${b.pose2}</span>`;
   const cr = credits(b.slug);
+  const where = b.idx != null && WORLD ? WORLD.countries.filter(c => c.sp.includes(b.idx)).sort((x, y) => x.name.localeCompare(y.name)) : [];
   $("#spmeta").innerHTML = (b.wide ? `Recorded by eBird in ${b.wide} ${b.wide === 1 ? "country" : "countries"}` : "") +
+    (where.length && where.length <= 40 ? `<span class="ctry">: ${where.map(c => `<a data-c="${c.code}">${c.name}</a>`).join(", ")}</span>` : "") +
     (cr.length ? `<br>Illustration: ${cr.map(s => `<a href="${s.url}" target="_blank" rel="noopener">${s.creator}</a> · ${s.region}${s.license ? " · " + s.license : ""}`).join("; ")}` : "");
   const r = AUDIO[b.slug];
   if (playing && playing !== b.slug) stopSound();
@@ -812,6 +874,7 @@ function showSpecies(i) {
     `<a href="https://xeno-canto.org/explore?query=${q}" target="_blank" rel="noopener">xeno-canto</a>
     <a href="https://en.wikipedia.org/wiki/Special:Search?search=${q}" target="_blank" rel="noopener">Wikipedia</a>`;
   $("#sppos").textContent = `${spAt + 1} of ${shown.length}`;
+  $("#spmeta").querySelectorAll("[data-c]").forEach(a => a.onclick = () => { $("#sp").close(); openRegion(a.dataset.c); });
   if (!$("#sp").open) $("#sp").showModal();
 }
 $("#spprev").onclick = () => showSpecies(spAt - 1);

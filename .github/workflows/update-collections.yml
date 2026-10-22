@@ -60,6 +60,7 @@ jobs:
           else
             git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
               commit -m "Daily update: illustration sets, eBird codes, bird sounds"
+            git pull --rebase -X theirs origin main || git pull --rebase origin main   # in case main moved during the run
             git push
           fi
 
