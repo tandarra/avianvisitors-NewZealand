@@ -38,6 +38,16 @@ padding:4px 8px;font:11px 'Courier New',monospace;color:var(--mute);white-space:
 #land path.live{fill:var(--fill);stroke:var(--ink);stroke-width:.7;cursor:pointer}
 .legend{margin:4px 0 28px;gap:8px}.legend .ramp{display:inline-block;width:160px;height:10px;border:1px solid var(--ink)}
 .legend .hint{margin-left:auto}
+.world{margin:16px 0 0}.world .wl{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.world b{font-size:22px}.world span{font:12px 'Courier New',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.world .bar{position:relative;margin:8px 0 0}.world .bar i{position:absolute;left:0;top:0}.world .bar i.half{background:#a8a093}
+.find{margin:14px 0 0;display:flex;gap:8px}
+.find input{flex:1;max-width:360px;font:15px Georgia,serif;padding:7px 10px;border:1px solid var(--ink);background:var(--paper2);color:var(--ink)}
+.pick{border:1px solid var(--ink2);background:var(--paper2);padding:12px 14px;margin:0 0 28px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.pick b{font-size:20px}.pick .m{font:12px 'Courier New',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.pick .bar{flex:1 1 200px;margin:0}.pick button{font:13px 'Courier New',monospace;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:7px 12px;cursor:pointer}
+#land path.has{cursor:pointer}
+#land path.sel{stroke:var(--ink);stroke-width:1.8}
 /* checklist panel */
 #panel[hidden]{display:none}
 #panel header{position:sticky;top:0;background:var(--paper);border-bottom:3px solid var(--ink);padding:14px 0 12px;z-index:3}
@@ -68,13 +78,22 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
   <header class="top">
     <div class="kicker">Kachō-e field guides</div>
     <h1>Bird Atlas</h1>
-    <div class="sub" id="tag">Click a shaded country to open its checklist</div>
+    <div class="sub" id="tag">Click a country to open its checklist</div>
     <img class="flier" src="birds/prosthemadera-novaeseelandiae-2.webp" alt="">
   </header>
 
   <section id="atlas">
+    <div class="world" id="world" hidden>
+      <div class="wl"><b id="wnum"></b><span id="wtxt"></span></div>
+      <div class="bar"><i id="wbar"></i><i id="wbar2" class="half"></i></div>
+    </div>
+    <div class="find">
+      <input id="find" list="clist" placeholder="Find a country…" aria-label="Find a country" autocomplete="off">
+      <datalist id="clist"></datalist>
+    </div>
     <div class="mapbox"><div id="mapwrap" aria-busy="true"></div></div>
     <div class="legend" id="legend"></div>
+    <div class="pick" id="pick" hidden></div>
   </section>
 
   <section id="panel" hidden>
@@ -100,11 +119,11 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
 <script src="vendor/d3-geo.min.js"></script>
 <script src="vendor/topojson-client.min.js"></script>
 <script>
-// Countries with birds. To add one: build birds/progress_<code>.json with --progress --region <code>
-// and add a line here (ids = ISO 3166 numeric codes of the map shapes it covers; at = tap target).
-const REGIONS = [
-  {code: "NZ", name: "New Zealand", ids: ["554"], at: [172.5, -41.5]},
-];
+// Data: birds/world.json (eBird world species list + each country's list, built by
+// `nz_bird_illustrations.py --world`) and birds/painted.json (cut-outs per species, written by --progress).
+// Until world.json exists the atlas falls back to the New Zealand checklist (birds/progress_NZ.json).
+const C = {};                 // country code -> {code, name, iso, sp?: [species indexes], prog?: progress json}
+let WORLD = null, PAINTED = {};
 const NS = "http://www.w3.org/2000/svg";
 // Overhead albatross (mollymawk), drawn facing +x: long narrow dark wings, white body, grey head, yellow bill.
 const ALBATROSS = `
@@ -123,8 +142,10 @@ const ALBATROSS = `
 <path d="M5.2,-2.3 C7.8,-2.2 9.8,-1.6 11,-0.6 L11,0.6 C9.8,1.6 7.8,2.2 5.2,2.3 Z" fill="#b9b7b1"/>
 <path d="M11.2,-0.75 C13,-0.6 15,-0.3 16.2,0 C15,0.3 13,0.6 11.2,0.75 Z" fill="#e0a52a" stroke="#141414" stroke-width=".3"/>
 <circle cx="10.2" cy="-1.05" r=".38" fill="#141414"/><circle cx="10.2" cy="1.05" r=".38" fill="#141414"/>`;
-const progress = {};          // code -> loaded progress json
 const $ = s => document.querySelector(s);
+const slugOf = sci => sci.toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-+|-+$/g, "");
+const getJSON = url => fetch(url, {cache: "no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null);
+const fmt = n => n.toLocaleString();
 
 function el(tag, attrs = {}, parent) {
   const e = document.createElementNS(NS, tag);
@@ -133,22 +154,50 @@ function el(tag, attrs = {}, parent) {
   return e;
 }
 
-async function loadProgress(code) {
-  if (progress[code]) return progress[code];
-  const r = await fetch(`birds/progress_${code}.json`, {cache: "no-cache"});
-  if (!r.ok) throw new Error(r.status);
-  return progress[code] = await r.json();
+async function loadData() {
+  const [world, painted, nz] = await Promise.all([getJSON("birds/world.json"), getJSON("birds/painted.json"), getJSON("birds/progress_NZ.json")]);
+  PAINTED = painted || {};
+  if (!painted && nz) nz.birds.forEach(b => { if (b.webp.length) PAINTED[b.slug] = b.webp; });
+  if (world) {
+    WORLD = world;
+    WORLD.slugs = world.species.map(([sci]) => slugOf(sci));
+    for (const c of world.countries) C[c.code] = {code: c.code, name: c.name, iso: c.iso, sp: c.sp};
+  } else if (nz) {
+    C.NZ = {code: "NZ", name: "New Zealand", iso: "554", prog: nz};
+  }
+  for (const c of Object.values(C)) c.s = stats(c);
+}
+function paintState(slug) {
+  const w = PAINTED[slug] || [];
+  return w.includes(slug + ".webp") && w.includes(slug + "-2.webp") ? "ok" : w.length ? "part" : "miss";
+}
+function stats(c) {
+  if (c.prog) return {total: c.prog.total, done: c.prog.done, part: c.prog.part};
+  let done = 0, part = 0;
+  for (const i of c.sp) { const st = paintState(WORLD.slugs[i]); if (st === "ok") done++; else if (st === "part") part++; }
+  return {total: c.sp.length, done, part};
+}
+// full checklist for a country, in the shape the panel draws
+function checklist(c) {
+  if (c.prog) return c.prog;
+  const birds = c.sp.map(i => {
+    const [sci, com] = WORLD.species[i], slug = WORLD.slugs[i], webp = PAINTED[slug] || [];
+    return {com, sci, slug, webp, status: paintState(slug), pose2: "second pose"};
+  }).sort((a, b) => a.com.localeCompare(b.com));
+  const s = c.s, images = birds.reduce((n, b) => n + b.webp.length, 0);
+  return {total: s.total, done: s.done, part: s.part, miss: s.total - s.done - s.part, images, updated: WORLD.updated, birds};
 }
 
 // shade = share of the checklist painted (partials count half): pale wash -> deep vermilion
 const SHADE = ["#f1d9cc", "#e3a98f", "#cf7356", "#b8432b", "#8a2a18"];
+const frac = p => p.total ? Math.max(0, Math.min(1, (p.done + p.part / 2) / p.total)) : 0;
 function shade(p) {
-  const t = Math.max(0, Math.min(1, (p.done + p.part / 2) / p.total)) * (SHADE.length - 1);
+  const t = Math.sqrt(frac(p)) * (SHADE.length - 1);          // square root: a few percent still shows
   const i = Math.min(SHADE.length - 2, Math.floor(t)), f = t - i;
   const c = k => parseInt(SHADE[i].slice(k, k + 2), 16) * (1 - f) + parseInt(SHADE[i + 1].slice(k, k + 2), 16) * f;
   return `rgb(${c(1) | 0},${c(3) | 0},${c(5) | 0})`;
 }
-const pct = p => Math.round(p.done / p.total * 100);
+const pct = p => { const v = p.total ? p.done / p.total * 100 : 0; return v > 0 && v < 1 ? v.toFixed(1) : Math.round(v); };
 
 // ---------- live map: turns toward the country under the mouse, zooms a touch, inks its border
 const W = 1000, ZOOM = 1.18, DWELL = 220;
@@ -178,8 +227,9 @@ let proj, path, H, base, render = () => {};
 async function drawMap() {
   const wrap = $("#mapwrap");
   const topo = await (await fetch("birds/world-110m.json")).json();
-  await Promise.all(REGIONS.map(R => loadProgress(R.code).then(p => R.p = p).catch(() => null)));
-  const live = REGIONS.filter(R => R.p);
+  await loadData();
+  const byIso = {};
+  Object.values(C).forEach(c => { if (c.iso) byIso[c.iso] = c; });
   const countries = topojson.feature(topo, topo.objects.countries).features.filter(f => f.id !== "010");
   const byId = Object.fromEntries(countries.map(f => [f.id, f]));
 
@@ -205,15 +255,16 @@ async function drawMap() {
   const grat = el("path", {class: "grat"}, svg);
   const graticule = d3.geoGraticule().step([30, 30])();
   const land = el("g", {id: "land"}, svg);
-  const regionOf = {};
-  live.forEach(R => R.ids.forEach(id => regionOf[id] = R));
   const paths = countries.map(f => {
-    const R = regionOf[f.id];
-    const p = el("path", R ? {class: "live", style: `--fill:${shade(R.p)}`} : {}, land);
+    const R = byIso[f.id], painted = R && R.s.done + R.s.part > 0;
+    const p = el("path", R ? (painted ? {class: "live has", style: `--fill:${shade(R.s)}`} : {class: "has"}) : {}, land);
     p.__f = f; p.__R = R; p.__name = R ? R.name : f.properties.name;
-    if (R) p.addEventListener("click", () => openRegion(R.code));
+    if (R) { R.f = f; R.path = p; p.addEventListener("click", () => openRegion(R.code)); }
     return p;
   });
+  // small countries with birds get a generous invisible tap target
+  const live = Object.values(C).filter(R => R.f && R.s.done + R.s.part > 0 && d3.geoArea(R.f) < 2.5e-3)
+    .map(R => Object.assign(R, {at: d3.geoCentroid(R.f)}));
   // keep coloured countries on top so their bold border isn't covered by neighbours
   paths.filter(p => p.__R).forEach(p => land.appendChild(p));
   // generous tap target for small countries
@@ -224,10 +275,10 @@ async function drawMap() {
   shadow.innerHTML = ALBATROSS.replace(/fill="[^"]*"/g, 'fill="#141414"').replace(/stroke="[^"]*"/g, 'stroke="none"');
   bird.innerHTML = ALBATROSS;
   const wings = [...bird.querySelectorAll(".wing"), ...shadow.querySelectorAll(".wing")];
-  const alba = {pos: [...REGIONS[0].at], hdg: 0, spd: 0, turn: 0, alt: 0, target: null, up: false};
+  const alba = {pos: [172.5, -41.5], hdg: 0, spd: 0, turn: 0, alt: 0, target: null, up: false};   // home: NZ
   for (const R of live) {
-    R.hit = el("circle", {r: 22, class: "hit"}, over);
-    R.hit.__R = R; R.hit.__name = R.name; R.hit.__f = byId[R.ids[0]];
+    R.hit = el("circle", {r: 18, class: "hit"}, over);
+    R.hit.__R = R; R.hit.__name = R.name; R.hit.__f = R.f;
     R.hit.addEventListener("click", () => openRegion(R.code));
   }
 
@@ -259,8 +310,8 @@ async function drawMap() {
   render();
 
   // legend: the shading scale
-  $("#legend").innerHTML = `<span>Illustrated: 0%</span><i class="ramp" style="background:linear-gradient(90deg,${SHADE.join(",")})"></i>
-    <span>100%</span><span class="hint">Hover a country &middot; click a shaded one to open its checklist</span>`;
+  $("#legend").innerHTML = `<span>Illustrated: 0%</span><i class="ramp" style="background:linear-gradient(90deg,${SHADE.join(",")})"
+    title="25% sits halfway along"></i><span>100%</span><span class="hint">Hover a country &middot; click one to open its checklist</span>`;
 
   // ---- one animation loop: bird physics + camera springs, sleeping when everything has settled
   let cam = null, raf = 0, last = 0;                  // cam = [lon, lat] the camera is visiting, or null = home
@@ -328,11 +379,17 @@ async function drawMap() {
     const p = node.parentNode === land ? node : paths.find(x => x.__R === node.__R);
     if (p) { p.classList.add("hov"); land.appendChild(p); hovered = p; }
     const R = node.__R;
-    tip.innerHTML = `<b>${node.__name}</b>` + (R ? `${R.p.done} of ${R.p.total} species illustrated (${pct(R.p)}%)<br>click to open checklist` : "");
+    tip.innerHTML = `<b>${node.__name}</b>` + (R ? `${fmt(R.s.done)} of ${fmt(R.s.total)} species illustrated (${pct(R.s)}%)<br>click to open checklist` : "");
     tip.style.opacity = 1;
     if (calm.matches) return;                          // reduced motion: highlight only
     dwell = setTimeout(() => visit(d3.geoCentroid(node.__f)), DWELL);
   }
+  let sel = null;
+  window.mapSelect = R => {                            // used by the search box
+    if (sel) sel.classList.remove("sel");
+    sel = R.path || null;
+    if (sel) { sel.classList.add("sel"); land.appendChild(sel); if (!calm.matches) visit(d3.geoCentroid(R.f)); }
+  };
   svg.addEventListener("pointermove", ev => {
     clearTimeout(leaveT);
     const r = wrap.getBoundingClientRect();
@@ -347,16 +404,60 @@ async function drawMap() {
     leaveT = setTimeout(() => { cam = null; wake(); }, 600);   // drift home; the bird finishes its landing
   });
   wrap.removeAttribute("aria-busy");
+  worldTracker(); searchBox();
+}
+
+// ---------- world tracker + search
+function worldTracker() {
+  if (!WORLD) return;
+  let done = 0, part = 0;
+  WORLD.slugs.forEach(sl => { const st = paintState(sl); if (st === "ok") done++; else if (st === "part") part++; });
+  const n = WORLD.species.length, cs = Object.values(C);
+  const withBirds = cs.filter(c => c.s.done + c.s.part > 0).length, full = cs.filter(c => c.s.total && c.s.done === c.s.total).length;
+  $("#wnum").textContent = `${fmt(done)} of ${fmt(n)}`;
+  $("#wtxt").textContent = `eBird species illustrated worldwide (${pct({done, total: n})}%) · birds painted for ${withBirds} of ${cs.length} countries` + (full ? ` · ${full} complete` : "");
+  $("#wbar").style.width = (done / n * 100).toFixed(2) + "%";
+  $("#wbar2").style.cssText = `left:${(done / n * 100).toFixed(2)}%;width:${(part / n * 100).toFixed(2)}%`;
+  $("#world").hidden = false;
+}
+function searchBox() {
+  const list = Object.values(C).sort((a, b) => a.name.localeCompare(b.name));
+  $("#clist").innerHTML = list.map(c => `<option value="${c.name}"></option>`).join("");
+  const find = () => {
+    const v = $("#find").value.trim().toLowerCase();
+    if (!v) return;
+    const R = list.find(c => c.name.toLowerCase() === v || c.code.toLowerCase() === v)
+      || list.find(c => c.name.toLowerCase().startsWith(v)) || list.find(c => c.name.toLowerCase().includes(v));
+    if (R) pick(R); else showPick(null, $("#find").value);
+  };
+  $("#find").addEventListener("change", find);
+  $("#find").addEventListener("keydown", e => { if (e.key === "Enter") find(); });
+}
+function pick(R) {
+  $("#find").value = R.name;
+  showPick(R);
+  window.mapSelect?.(R);
+}
+function showPick(R, q) {
+  const box = $("#pick");
+  if (!R) { box.innerHTML = `<span class="m">No country matches “${q.replace(/[<&]/g, "")}”</span>`; box.hidden = false; return; }
+  const s = R.s, w = s.total ? (s.done / s.total * 100).toFixed(1) : 0;
+  box.innerHTML = `<div><b>${R.name}</b><div class="m">${fmt(s.done)} of ${fmt(s.total)} species illustrated (${pct(s)}%)` +
+    `${s.part ? ` · ${fmt(s.part)} partial` : ""}${R.f ? "" : " · too small to show on this map"}</div></div>
+    <div class="bar"><i style="width:${w}%"></i></div><button id="pickopen">Open checklist &rarr;</button>`;
+  box.hidden = false;
+  $("#pickopen").onclick = () => openRegion(R.code);
 }
 
 // ---------- checklist panel
 let cur = null, f = "all", q = "";
 async function openRegion(code) {
-  const R = REGIONS.find(r => r.code === code);
+  const R = C[code] || Object.values(C).find(c => c.code.toLowerCase() === String(code).toLowerCase());
   if (!R) return;
+  code = R.code;
   if (location.hash !== "#" + code) history.pushState(null, "", "#" + code);
   let p;
-  try { p = await loadProgress(code); } catch (e) { alert("Couldn't load the " + R.name + " checklist."); return; }
+  p = checklist(R);
   cur = p; f = "all"; q = ""; $("#q").value = "";
   document.querySelectorAll("button.f").forEach(b => b.classList.toggle("on", b.dataset.f === "all"));
   $("#pname").textContent = R.name;
@@ -368,7 +469,7 @@ async function openRegion(code) {
 }
 function closeRegion(push = true) {
   if (push) history.pushState(null, "", location.pathname);
-  $("#panel").hidden = true; $("#atlas").hidden = false; $("#tag").textContent = "Click a shaded country to open its checklist";
+  $("#panel").hidden = true; $("#atlas").hidden = false; $("#tag").textContent = "Click a country to open its checklist";
 }
 function draw() {
   const list = cur.birds.filter(b => (f === "all" || b.status === f) && (b.com + " " + b.sci).toLowerCase().includes(q));

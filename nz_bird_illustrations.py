@@ -20,6 +20,7 @@ Typical runs:
     python nz_bird_illustrations.py --region NZ-WKO    # whole Waikato list (bigger, costs more)
     python nz_bird_illustrations.py --region NZ --list-only   # whole-NZ master list + cost estimate
     python nz_bird_illustrations.py --progress                # master index: birds/master_index.csv + .html
+    python nz_bird_illustrations.py --world                   # world + per-country eBird lists for atlas.html
     python nz_bird_illustrations.py --species "Tui"    # redo one bird (use --force to overwrite)
 
   Batch the NZ list with your best image as the style guide (+ optional photos in birds/refs/<slug>.jpg):
@@ -130,6 +131,50 @@ def species_region(key, region):
             if t.get("category") == "species" and is_species(t.get("sciName", "")):
                 out[t["sciName"]] = t["comName"]
     return out
+
+
+# ISO 3166-1 alpha-2 (eBird country codes) -> numeric (map shape ids)
+ISO_NUM = {"AF":"004","AL":"008","DZ":"012","AS":"016","AD":"020","AO":"024","AI":"660","AQ":"010","AG":"028","AR":"032","AM":"051","AW":"533","AU":"036","AT":"040","AZ":"031","BS":"044","BH":"048","BD":"050","BB":"052","BY":"112","BE":"056","BZ":"084","BJ":"204","BM":"060","BT":"064","BO":"068","BA":"070","BW":"072","BV":"074","BR":"076","IO":"086","BN":"096","BG":"100","BF":"854","BI":"108","KH":"116","CM":"120","CA":"124","CV":"132","KY":"136","CF":"140","TD":"148","CL":"152","CN":"156","CX":"162","CC":"166","CO":"170","KM":"174","CG":"178","CD":"180","CK":"184","CR":"188","CI":"384","HR":"191","CU":"192","CY":"196","CZ":"203","DK":"208","DJ":"262","DM":"212","DO":"214","EC":"218","EG":"818","SV":"222","GQ":"226","ER":"232","EE":"233","ET":"231","FK":"238","FO":"234","FJ":"242","FI":"246","FR":"250","GF":"254","PF":"258","TF":"260","GA":"266","GM":"270","GE":"268","DE":"276","GH":"288","GI":"292","GR":"300","GL":"304","GD":"308","GP":"312","GU":"316","GT":"320","GN":"324","GW":"624","GY":"328","HT":"332","HM":"334","VA":"336","HN":"340","HK":"344","HU":"348","IS":"352","IN":"356","ID":"360","IR":"364","IQ":"368","IE":"372","IL":"376","IT":"380","JM":"388","JP":"392","JO":"400","KZ":"398","KE":"404","KI":"296","KP":"408","KR":"410","KW":"414","KG":"417","LA":"418","LV":"428","LB":"422","LS":"426","LR":"430","LY":"434","LI":"438","LT":"440","LU":"442","MO":"446","MG":"450","MW":"454","MY":"458","MV":"462","ML":"466","MT":"470","MH":"584","MQ":"474","MR":"478","MU":"480","YT":"175","MX":"484","FM":"583","MD":"498","MC":"492","MN":"496","MS":"500","MA":"504","MZ":"508","MM":"104","NA":"516","NR":"520","NP":"524","NL":"528","NC":"540","NZ":"554","NI":"558","NE":"562","NG":"566","NU":"570","NF":"574","MP":"580","MK":"807","NO":"578","OM":"512","PK":"586","PW":"585","PS":"275","PA":"591","PG":"598","PY":"600","PE":"604","PH":"608","PN":"612","PL":"616","PT":"620","PR":"630","QA":"634","RE":"638","RO":"642","RU":"643","RW":"646","SH":"654","KN":"659","LC":"662","PM":"666","VC":"670","WS":"882","SM":"674","ST":"678","SA":"682","SN":"686","SC":"690","SL":"694","SG":"702","SK":"703","SI":"705","SB":"090","SO":"706","ZA":"710","GS":"239","ES":"724","LK":"144","SD":"729","SR":"740","SJ":"744","SZ":"748","SE":"752","CH":"756","SY":"760","TW":"158","TJ":"762","TZ":"834","TH":"764","TL":"626","TG":"768","TK":"772","TO":"776","TT":"780","TN":"788","TR":"792","TM":"795","TC":"796","TV":"798","UG":"800","UA":"804","AE":"784","GB":"826","US":"840","UM":"581","UY":"858","UZ":"860","VU":"548","VE":"862","VN":"704","VG":"092","VI":"850","WF":"876","EH":"732","YE":"887","ZM":"894","ZW":"716","AX":"248","BQ":"535","CW":"531","GG":"831","IM":"833","JE":"832","ME":"499","BL":"652","MF":"663","RS":"688","SX":"534","SS":"728","XK":"983"}
+
+
+def build_world(key, out):
+    """birds/world.json: eBird's world species list plus each country's species list (as indexes)."""
+    tax = [t for t in ebird_get("/ref/taxonomy/ebird", key, fmt="json", cat="species")
+           if is_species(t.get("sciName", ""))]
+    idx = {t["speciesCode"]: i for i, t in enumerate(tax)}
+    countries = ebird_get("/ref/region/list/country/world", key)
+    print(f"eBird taxonomy: {len(tax)} species; {len(countries)} countries")
+    rows = []
+    for n, c in enumerate(countries, 1):
+        for attempt in range(3):
+            try:
+                codes = ebird_get(f"/product/spplist/{c['code']}", key)
+                break
+            except Exception as e:
+                if attempt == 2:
+                    print(f"  {c['name']}: skipped ({e})"); codes = None
+                time.sleep(2 + attempt * 3)
+        if codes is None:
+            continue
+        sp = sorted({idx[k] for k in codes if k in idx})
+        rows.append({"code": c["code"], "name": c["name"], "iso": ISO_NUM.get(c["code"], ""), "sp": sp})
+        print(f"  [{n}/{len(countries)}] {c['name']}: {len(sp)} species")
+        time.sleep(0.15)
+    import datetime
+    data = {"updated": datetime.datetime.now().isoformat(timespec="minutes"),
+            "source": "eBird taxonomy (species) and country species lists",
+            "species": [[t["sciName"], t["comName"]] for t in tax], "countries": rows}
+    (out / "world.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"Wrote {out / 'world.json'}")
+
+
+def write_painted(out):
+    """birds/painted.json: every cut-out by species slug, for the atlas."""
+    pics = {}
+    for p in sorted(out.glob("*.webp")):
+        m = re.fullmatch(r"(.+?)(-[2-9])?", p.stem)
+        pics.setdefault(m.group(1), []).append(p.name)
+    (out / "painted.json").write_text(json.dumps(pics, separators=(",", ":")), encoding="utf-8")
 
 
 def img_part(path):
@@ -293,6 +338,8 @@ def main():
     ap.add_argument("--list-only", action="store_true", help="just print the species list")
     ap.add_argument("--progress", action="store_true",
                     help="write birds/master_index.csv + .html for the whole-NZ list (default region NZ)")
+    ap.add_argument("--world", action="store_true",
+                    help="write birds/world.json: eBird's world species list + every country's list (for atlas.html)")
     ap.add_argument("--cutout-only", action="store_true",
                     help="no API calls: cut out every image already saved in birds/raw/")
     a = ap.parse_args()
@@ -327,6 +374,13 @@ def main():
                     and "paste-your" not in v:
                 os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
     ekey, gkey = os.environ.get("EBIRD_API_KEY"), os.environ.get("GEMINI_API_KEY")
+    if a.world:
+        if not ekey:
+            sys.exit("No eBird key: add EBIRD_API_KEY=... to bird_keys.txt next to this script.")
+        out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
+        build_world(ekey, out)
+        write_painted(out)
+        return
     if a.progress:
         region = a.region or "NZ"
         out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
@@ -344,6 +398,7 @@ def main():
             for v in json.loads((out / "index.json").read_text(encoding="utf-8")).values():
                 master.setdefault(v["sci"], v["com"])
         build_progress(master, out, out / "raw", region)
+        write_painted(out)
         return
     if not gkey and not a.list_only:
         sys.exit("No Gemini key: add GEMINI_API_KEY=... to bird_keys.txt next to this script.")
