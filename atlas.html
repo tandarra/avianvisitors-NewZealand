@@ -175,8 +175,10 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
     <h3 id="pnt"></h3><p class="m" id="pnm"></p>
     <div class="tools"><label class="m">How many <select id="pncount"><option>25</option><option selected>50</option><option>100</option><option>250</option></select></label>
       <button class="f on" id="pndl">Download list</button><button class="f" id="pncp">Copy command</button></div>
-    <p class="m">Save <b id="pnfile"></b> in Downloads, then run this from Downloads:</p>
-    <textarea id="pncmd" readonly rows="2" spellcheck="false">py nz_bird_illustrations.py --list paint_next.txt --style-ref "birds\raw\prosthemadera-novaeseelandiae.png"</textarea>
+    <p class="m">Save <b id="pnfile"></b>, then paint it with:</p>
+    <textarea id="pncmd" readonly rows="2" spellcheck="false"></textarea>
+    <p class="m">Needs a copy of <a href="https://github.com/tandarra/avianvisitors-NewZealand">the project</a>, Python, and your own
+      Gemini key in bird_keys.txt (see the README). Run it in the project folder and put the list there too.</p>
     <ol id="pnlist"></ol>
   </div></dialog>
 
@@ -190,7 +192,7 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
 <script src="vendor/topojson-client.min.js"></script>
 <script>
 // Data: birds/world.json (eBird world species list + each country's list, built by
-// `nz_bird_illustrations.py --world`) and birds/painted.json (cut-outs per species, written by --progress).
+// `bird_illustrations.py --world`) and birds/painted.json (cut-outs per species, written by --progress).
 // Until world.json exists the atlas falls back to the New Zealand checklist (birds/progress_NZ.json).
 const C = {};                 // country code -> {code, name, iso, sp?: [species indexes], prog?: progress json}
 let WORLD = null, PAINTED = {};
@@ -696,7 +698,7 @@ function paintNext(R) {
   const d = new Date(), z = n => String(n).padStart(2, "0");
   const stamp = `${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}`;
   const file = `paint_next_${R ? R.code : "world"}_top${todo.length}_${stamp}.txt`;
-  $("#pncmd").value = `py nz_bird_illustrations.py --list ${file} --style-ref "birds\\raw\\prosthemadera-novaeseelandiae.png"`;
+  $("#pncmd").value = `python bird_illustrations.py --list ${file} --style-ref birds/raw/prosthemadera-novaeseelandiae.png`;
   $("#pnfile").textContent = file;
   $("#pndl").onclick = () => {
     const a = document.createElement("a");

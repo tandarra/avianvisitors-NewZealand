@@ -35,7 +35,7 @@ every species eBird has recorded in New Zealand (389), with what's been illustra
 | `functions/api/today.js` | Last-24h species counts from BirdNET-Go via a path-restricted tunnel |
 | `functions/api/clip.js`, `functions/api/audio/[id].js` | Click-to-play: best clip per species (your BirdNET-Go "correct" reviews first, else highest confidence), audio proxied and cached |
 | `worker.js`, `wrangler.jsonc` | Same site deployed as a Cloudflare Worker instead of Pages |
-| `nz_bird_illustrations.py` | Generator, cut-out tool and progress builder |
+| `bird_illustrations.py` | Generator, cut-out tool, progress and world-list builder (`nz_bird_illustrations.py` is the old name, kept as a shim) |
 | `homeassistant/packages/birdnet.yaml` | MQTT sensors for BirdNET-Go detections + today's running species list |
 | `homeassistant/cards/field_journal_card.yaml` | e-ink style dashboard card (needs `button-card`) |
 
@@ -66,22 +66,25 @@ EBIRD_API_KEY=...
 
 ```powershell
 # See what's left and what it will cost
-py nz_bird_illustrations.py --region NZ --list-only
+python bird_illustrations.py --region NZ --list-only
 
 # Paint everything missing, matching the tūī's style
-py nz_bird_illustrations.py --region NZ --style-ref "birds\raw\prosthemadera-novaeseelandiae.png"
+python bird_illustrations.py --region NZ --style-ref "birds\raw\prosthemadera-novaeseelandiae.png"
+
+# Paint a list downloaded from the atlas's "Paint next"
+python bird_illustrations.py --list paint_next_world_top50_<date>.txt --style-ref birds/raw/prosthemadera-novaeseelandiae.png
 
 # Images made by hand (Gemini app): save as birds\raw\<slug>.png / <slug>2.png, then
-py nz_bird_illustrations.py --cutout-only
+python bird_illustrations.py --cutout-only
 
 # Redo a dud: delete its PNG from birds\raw\ and run again for that bird
-py nz_bird_illustrations.py --species "Mallard" --style-ref "birds\raw\prosthemadera-novaeseelandiae.png"
+python bird_illustrations.py --species "Mallard" --style-ref "birds\raw\prosthemadera-novaeseelandiae.png"
 
 # Rebuild the progress checklist
-py nz_bird_illustrations.py --progress
+python bird_illustrations.py --progress
 
 # Refresh the world + per-country eBird lists for the atlas (a few minutes, ~250 eBird calls)
-py nz_bird_illustrations.py --world
+python bird_illustrations.py --world
 ```
 
 Then commit and push, and copy `birds\*.webp` to Home Assistant at `/config/www/birds/`.
