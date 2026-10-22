@@ -1,29 +1,143 @@
 {
   "sets": [
-    {"id": "nzc", "repo": "Calebhino/AvianVisitors", "branch": "avian-visitors", "region": "New Zealand",
-     "creator": "Caleb Ion (Calebhino)", "covers": ["NZ"], "prefer": true},
-    {"id": "lva", "repo": "EvijaDaukste/AvianVisitorsLV", "branch": "avian-visitors", "region": "Latvia (Līču Putni)",
-     "creator": "Evija Ciematniece (EvijaDaukste)", "covers": ["LV"]},
-    {"id": "dni", "repo": "bilibb/AvianVisitors", "branch": "de-ni", "region": "Lower Saxony, Germany",
-     "creator": "bilibb", "covers": ["DE"]},
-    {"id": "gbr", "repo": "arturoabruzzini/AvianVisitors", "branch": "avian-visitors", "region": "United Kingdom",
-     "creator": "Arturo Abruzzini", "covers": ["GB"]},
-    {"id": "ceu", "repo": "cyril-0815/AvianVisitors", "branch": "avian-visitors", "region": "Central Europe",
-     "creator": "Cyril Michel (cyril-0815)", "covers": ["CH", "FR"]},
-    {"id": "rdp", "repo": "tadeongmi/AvianVisitors", "branch": "avian-visitors", "region": "Río de la Plata (Uruguay / Argentina)",
-     "creator": "Tadeo (tadeongmi)", "covers": ["UY", "AR"]},
-    {"id": "nen", "repo": "dylanberry/BirdUp", "branch": "avian-visitors", "region": "Northeastern North America",
-     "creator": "Dylan Berry", "covers": ["US", "CA"]},
-    {"id": "nea", "repo": "jgrushack/AvianVisitors", "branch": "avian-visitors", "region": "Northeast US",
-     "creator": "Jesse G (jgrushack)", "covers": ["US"]},
-    {"id": "eus", "repo": "scott-friedman/AvianVisitors", "branch": "avian-visitors", "region": "Eastern US (Indian Ridge Road)",
-     "creator": "Scott Friedman", "covers": ["US"]},
-    {"id": "nam", "repo": "corychainsman/AvianVisitors", "branch": "avian-visitors", "region": "North America",
-     "creator": "corychainsman", "covers": ["US", "CA"]},
-    {"id": "orc", "repo": "gregorycullen1/AvianVisitors", "branch": "avian-visitors", "region": "Orange County, California",
-     "creator": "gregorycullen1", "covers": ["US"]}
+    {
+      "id": "nzc",
+      "repo": "Calebhino/AvianVisitors",
+      "branch": "avian-visitors",
+      "region": "New Zealand",
+      "creator": "Caleb Ion (Calebhino)",
+      "covers": [
+        "NZ"
+      ],
+      "prefer": true
+    },
+    {
+      "id": "lva",
+      "repo": "EvijaDaukste/AvianVisitorsLV",
+      "branch": "avian-visitors",
+      "region": "Latvia (Līču Putni)",
+      "creator": "Evija Ciematniece (EvijaDaukste)",
+      "covers": [
+        "LV"
+      ]
+    },
+    {
+      "id": "dni",
+      "repo": "bilibb/AvianVisitors",
+      "branch": "de-ni",
+      "region": "Lower Saxony, Germany",
+      "creator": "bilibb",
+      "covers": [
+        "DE"
+      ]
+    },
+    {
+      "id": "gbr",
+      "repo": "arturoabruzzini/AvianVisitors",
+      "branch": "avian-visitors",
+      "region": "United Kingdom",
+      "creator": "Arturo Abruzzini",
+      "covers": [
+        "GB"
+      ]
+    },
+    {
+      "id": "ceu",
+      "repo": "cyril-0815/AvianVisitors",
+      "branch": "avian-visitors",
+      "region": "Central Europe",
+      "creator": "Cyril Michel (cyril-0815)",
+      "covers": [
+        "CH",
+        "FR"
+      ]
+    },
+    {
+      "id": "rdp",
+      "repo": "tadeongmi/AvianVisitors",
+      "branch": "avian-visitors",
+      "region": "Río de la Plata (Uruguay / Argentina)",
+      "creator": "Tadeo (tadeongmi)",
+      "covers": [
+        "UY",
+        "AR"
+      ]
+    },
+    {
+      "id": "nen",
+      "repo": "dylanberry/BirdUp",
+      "branch": "avian-visitors",
+      "region": "Northeastern North America",
+      "creator": "Dylan Berry",
+      "covers": [
+        "US",
+        "CA"
+      ]
+    },
+    {
+      "id": "nea",
+      "repo": "jgrushack/AvianVisitors",
+      "branch": "avian-visitors",
+      "region": "Northeast US",
+      "creator": "Jesse G (jgrushack)",
+      "covers": [
+        "US"
+      ]
+    },
+    {
+      "id": "eus",
+      "repo": "scott-friedman/AvianVisitors",
+      "branch": "avian-visitors",
+      "region": "Eastern US (Indian Ridge Road)",
+      "creator": "Scott Friedman",
+      "covers": [
+        "US"
+      ]
+    },
+    {
+      "id": "nam",
+      "repo": "corychainsman/AvianVisitors",
+      "branch": "avian-visitors",
+      "region": "North America",
+      "creator": "corychainsman",
+      "covers": [
+        "US",
+        "CA"
+      ]
+    },
+    {
+      "id": "orc",
+      "repo": "gregorycullen1/AvianVisitors",
+      "branch": "avian-visitors",
+      "region": "Orange County, California",
+      "creator": "gregorycullen1",
+      "covers": [
+        "US"
+      ]
+    },
+    {
+      "id": "nlg",
+      "repo": "sjoerdcoen/AvianVisitors",
+      "branch": "avian-visitors",
+      "region": "Netherlands (garden birds)",
+      "creator": "sjoerdcoen",
+      "covers": [
+        "NL"
+      ]
+    },
+    {
+      "id": "gbs",
+      "repo": "robsnow68/AvianVisitors",
+      "branch": "avian-visitors",
+      "region": "United Kingdom",
+      "creator": "robsnow68",
+      "covers": [
+        "GB"
+      ]
+    }
   ],
   "ignore": [
-    "SirShakesbeer/AvianVisitors"
+    "SirShakesbeer/AvianVisitors",
+    "Tofax/AvianVisitors"
   ]
 }
