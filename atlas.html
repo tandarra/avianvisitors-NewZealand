@@ -294,6 +294,13 @@ function travel([l, p], brg, d) {                    // point d radians along be
   const l2 = l + Math.atan2(Math.sin(brg) * Math.sin(d) * Math.cos(p), Math.cos(d) - Math.sin(p) * Math.sin(p2));
   return [wrap180(l2 * R2D), p2 * R2D];
 }
+// 3D unit vectors for the albatross: steering this way has no trouble spots at the poles
+const vec = ([l, p]) => { l *= D2R; p *= D2R; return [Math.cos(p) * Math.cos(l), Math.cos(p) * Math.sin(l), Math.sin(p)]; };
+const ll = ([x, y, z]) => [Math.atan2(y, x) * R2D, Math.asin(Math.max(-1, Math.min(1, z))) * R2D];
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const norm = a => { const n = Math.hypot(...a) || 1; return a.map(v => v / n); };
+const toward = (p, t) => norm(t.map((v, i) => v - dot(t, p) * p[i]));   // direction from p to t along the globe
 function spring(o, key, vkey, target, w, dt) {        // critically damped
   o[vkey] += (w * w * (target - o[key]) - 2 * w * o[vkey]) * dt;
   o[key] += o[vkey] * dt;
@@ -366,7 +373,9 @@ async function drawMap() {
   shadow.innerHTML = ALBATROSS.replace(/fill="[^"]*"/g, 'fill="#141414"').replace(/stroke="[^"]*"/g, 'stroke="none"');
   bird.innerHTML = ALBATROSS;
   const wings = [...bird.querySelectorAll(".wing"), ...shadow.querySelectorAll(".wing")];
-  const alba = {pos: [172.5, -41.5], hdg: 0, spd: 0, turn: 0, alt: 0, target: null, up: false};   // home: NZ
+  // home: NZ. p = position, v = flight direction (both unit vectors), pos = p as [lon, lat]
+  const alba = {pos: [172.5, -41.5], p: vec([172.5, -41.5]), v: toward(vec([172.5, -41.5]), vec([0, 0])),
+    spd: 0, turn: 0, alt: 0, target: null, up: false};
   for (const R of live) {
     const painted = R.s.done + R.s.part > 0;
     R.hit = el("circle", {r: 4.5, class: "hit isle" + (painted ? " live" : ""), style: painted ? `--fill:${shade(R.s)}` : ""}, over);
@@ -385,7 +394,8 @@ async function drawMap() {
     for (const p of paths) p.setAttribute("d", path(p.__f) || "");
     for (const R of live) { const a = proj(R.at); if (a) { R.hit.setAttribute("cx", a[0]); R.hit.setAttribute("cy", a[1]); } }
     if (alba.up) {
-      const a = proj(alba.pos), b = proj(travel(alba.pos, alba.hdg, .02));
+      const ahead = norm(alba.p.map((v, i) => v + .02 * alba.v[i]));
+      const a = proj(alba.pos), b = proj(ll(ahead));
       if (a && b) {
         const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * R2D, alt = alba.alt;
         const sc = (.78 + .42 * alt) * Math.min(1.2, view.k);
@@ -412,22 +422,28 @@ async function drawMap() {
     const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
     // bird
     if (alba.target) {
-      const dist = d3.geoDistance(alba.pos, alba.target);
+      const t = vec(alba.target), dist = Math.acos(Math.max(-1, Math.min(1, dot(alba.p, t))));
       if (dist < .006) {
-        alba.pos = [...alba.target]; alba.target = null;
-      } else if (dist < .05) {
-        // final approach: glide straight in (no turning circle to get caught in)
-        alba.hdg = bearing(alba.pos, alba.target); alba.turn *= .8;
-        alba.pos = travel(alba.pos, alba.hdg, Math.min(Math.max(alba.spd, .08) * dt, dist));
+        alba.p = t; alba.target = null;
       } else {
-        const err = wrapPi(bearing(alba.pos, alba.target) - alba.hdg);
-        const maxTurn = 1.4 + 6 * (1 - Math.min(1, dist / .6));          // rad/s: wide arcs far out, tight near the end
-        alba.turn += (Math.max(-maxTurn, Math.min(maxTurn, err * 3.5)) - alba.turn) * Math.min(1, dt * 6);
-        alba.hdg = wrapPi(alba.hdg + alba.turn * dt);
+        const want = toward(alba.p, t);
+        // signed angle from the current heading to the wanted one, measured around the bird's "up"
+        const err = Math.atan2(dot(cross(alba.v, want), alba.p), dot(alba.v, want));
+        if (dist < .05) { alba.v = want; alba.turn *= .8; }                // final approach: glide straight in
+        else {
+          const maxTurn = 1.4 + 6 * (1 - Math.min(1, dist / .6));          // rad/s: wide arcs far out, tight near the end
+          alba.turn += (Math.max(-maxTurn, Math.min(maxTurn, err * 3.5)) - alba.turn) * Math.min(1, dt * 6);
+          const a = alba.turn * dt, side = cross(alba.p, alba.v);         // rotate heading about the local vertical
+          alba.v = norm(alba.v.map((v, i) => v * Math.cos(a) + side[i] * Math.sin(a)));
+        }
         const cruise = Math.max(.1, Math.min(1.35, dist * 2.2)) * Math.max(.3, Math.cos(err / 2) ** 2);
         alba.spd += (cruise - alba.spd) * Math.min(1, dt * 2.5);           // gentle take-off, no snapping
-        alba.pos = travel(alba.pos, alba.hdg, Math.min(alba.spd * dt, dist));
+        const step = Math.min(Math.max(alba.spd, dist < .05 ? .08 : 0) * dt, dist);
+        const p = alba.p, v = alba.v;                                      // move along the great circle
+        alba.p = norm(p.map((x, i) => x * Math.cos(step) + v[i] * Math.sin(step)));
+        alba.v = norm(v.map((x, i) => x * Math.cos(step) - p[i] * Math.sin(step)));
       }
+      alba.pos = ll(alba.p);
     } else { alba.spd *= .9; alba.turn *= .9; }
     const flying = !!alba.target;
     const altT = flying ? Math.min(1, d3.geoDistance(alba.pos, alba.target) / .3) : 0;
@@ -439,8 +455,8 @@ async function drawMap() {
     let lonT = man ? man.lon : 0, latT = man ? man.lat : 0, kT = baseK;
     if (cam) {
       if (flying) {
-        const dl = wrap180(alba.target[0] - alba.pos[0]);
-        lonT = alba.pos[0] + .35 * dl; latT = alba.pos[1] + .35 * (alba.target[1] - alba.pos[1]);
+        // turn steadily toward where the bird is going (following the bird itself whips round near a pole)
+        lonT = alba.target[0]; latT = alba.pos[1] + .5 * (alba.target[1] - alba.pos[1]);
         kT = Math.max(baseK, ZOOM) - (Math.max(baseK, ZOOM) - .98) * alba.alt;   // ease out while airborne
       } else { lonT = cam[0]; latT = cam[1]; kT = Math.max(baseK, ZOOM); }
     }
@@ -464,12 +480,12 @@ async function drawMap() {
     const c = d3.geoCentroid(f);
     return [c[0], Math.max(-75, Math.min(80, c[1]))];
   }
-  window.mapAim = aimFor;
+  window.mapAim = aimFor; window.alba = alba;
   const wake = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } };
   function visit(lonlat) {
     cam = lonlat;
     if (d3.geoDistance(alba.pos, lonlat) > .03 || alba.target) {
-      if (!alba.target && !alba.up) alba.hdg = bearing(alba.pos, lonlat);  // take off facing the way it's going
+      if (!alba.target && !alba.up) alba.v = toward(alba.p, vec(lonlat));  // take off facing the way it's going
       alba.target = lonlat;
     }
     wake();
