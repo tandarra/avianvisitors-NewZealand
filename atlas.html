@@ -174,8 +174,8 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
     <button class="x" id="pnx" aria-label="Close">&times;</button>
     <h3 id="pnt"></h3><p class="m" id="pnm"></p>
     <div class="tools"><label class="m">How many <select id="pncount"><option>25</option><option selected>50</option><option>100</option><option>250</option></select></label>
-      <button class="f on" id="pndl">Download paint_next.txt</button><button class="f" id="pncp">Copy command</button></div>
-    <p class="m">Save paint_next.txt in Downloads, then run this from Downloads:</p>
+      <button class="f on" id="pndl">Download list</button><button class="f" id="pncp">Copy command</button></div>
+    <p class="m">Save <b id="pnfile"></b> in Downloads, then run this from Downloads:</p>
     <textarea id="pncmd" readonly rows="2" spellcheck="false">py nz_bird_illustrations.py --list paint_next.txt --style-ref "birds\raw\prosthemadera-novaeseelandiae.png"</textarea>
     <ol id="pnlist"></ol>
   </div></dialog>
@@ -692,10 +692,16 @@ function paintNext(R) {
   $("#pnm").textContent = `${todo.length} species · ${imgs} images · about US$${(imgs * .034).toFixed(2)} on Nano Banana 2.1 · ranked by how many countries record them`;
   $("#pnlist").innerHTML = todo.map(b => `<li>${b.com} <small>${b.wide ? b.wide + " countries" : ""}${b.status === "part" ? " · 1 pose left" : ""}</small></li>`).join("");
   const txt = todo.map(b => `${b.com} (${b.sci})`).join("\r\n") + "\r\n";
+  // a unique file name per list: what it covers, how many, and when it was made
+  const d = new Date(), z = n => String(n).padStart(2, "0");
+  const stamp = `${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}`;
+  const file = `paint_next_${R ? R.code : "world"}_top${todo.length}_${stamp}.txt`;
+  $("#pncmd").value = `py nz_bird_illustrations.py --list ${file} --style-ref "birds\\raw\\prosthemadera-novaeseelandiae.png"`;
+  $("#pnfile").textContent = file;
   $("#pndl").onclick = () => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([txt], {type: "text/plain"}));
-    a.download = "paint_next.txt"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    a.download = file; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };
   $("#pncp").onclick = async () => {
     const box = $("#pncmd"), btn = $("#pncp"), done = msg => { btn.textContent = msg; setTimeout(() => btn.textContent = "Copy command", 1800); };
