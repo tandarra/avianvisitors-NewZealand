@@ -85,7 +85,7 @@ def best(recs):
         kind = 0 if "song" in t else 1 if "call" in t else 2
         s = seconds(r.get("length"))
         fit = 0 if 8 <= s <= 60 else 1
-        return (q, kind, fit)
+        return (q > 1, kind, q, fit)            # a good song first, then a good call, then the rest
     recs = [r for r in recs if r.get("file") and not r.get("also") == "?"]
     return min(recs, key=score) if recs else None
 
@@ -104,22 +104,28 @@ def add_audio(key, limit):
             wide[i] = wide.get(i, 0) + 1
     today = datetime.date.today()
     recheck = (today - datetime.timedelta(days=60)).isoformat()
-    todo = [(slug(sp[0]) not in illustrated, -wide.get(i, 0), sp[0]) for i, sp in enumerate(world["species"])
+    todo = [(slug(sp[0]) not in illustrated, -wide.get(i, 0), sp[0], sp[1]) for i, sp in enumerate(world["species"])
             if slug(sp[0]) not in have and none.get(slug(sp[0]), "") < recheck]
     todo.sort()
     print(f"xeno-canto: {len(have)} species have a recording, {len(todo)} to look up, doing up to {limit}")
     done = found = 0
-    for _, _, sci in todo[:limit]:
-        q = urllib.parse.quote(f'sp:"{sci}"')
-        try:
-            res = json.loads(get(f"{XC}?query={q}&key={urllib.parse.quote(key)}&per_page=100"))
-        except urllib.error.HTTPError as e:
-            if e.code in (401, 403):
-                print(f"xeno-canto refused the key ({e.code}); stopping"); break
-            print(f"  {sci}: HTTP {e.code}"); continue
-        except Exception as e:
-            print(f"  {sci}: {e.__class__.__name__}"); continue
-        r = best(res.get("recordings") or [])
+    stop = False
+    for _, _, sci, com in todo[:limit]:
+        r = None
+        # scientific name first; xeno-canto sometimes uses an older name, so fall back to the English name
+        for query in (f'sp:"{sci}"', f'en:"{com}"'):
+            try:
+                res = json.loads(get(f"{XC}?query={urllib.parse.quote(query)}&key={urllib.parse.quote(key)}&per_page=100"))
+            except urllib.error.HTTPError as e:
+                if e.code in (401, 403):
+                    print(f"xeno-canto refused the key ({e.code}); stopping"); stop = True; break
+                print(f"  {sci}: HTTP {e.code}"); res = {}
+            except Exception as e:
+                print(f"  {sci}: {e.__class__.__name__}"); res = {}
+            time.sleep(1.0)
+            r = best(res.get("recordings") or [])
+            if r: break
+        if stop: break
         s = slug(sci)
         if r:
             have[s] = [r["id"], r.get("rec", ""), lic_short(r.get("lic")), (r.get("type") or "").split(",")[0].strip(),
@@ -130,7 +136,6 @@ def add_audio(key, limit):
         done += 1
         if done % 200 == 0:
             print(f"  {done} looked up, {found} found")
-        time.sleep(1.0)
     out = {"updated": data.get("updated", ""), "source": "xeno-canto.org (each recording under its recordist's licence)",
            "a": dict(sorted(have.items())), "none": dict(sorted(none.items()))}
     if done:
