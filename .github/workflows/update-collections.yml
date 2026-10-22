@@ -1,0 +1,68 @@
+# Daily: look for new Avian Visitors illustration sets and refresh the atlas data.
+# - Japanese Woodblock packs in the official catalogue (avianvisitors.com/bundles) are added automatically.
+# - Other forks that recently added illustrations are listed in an issue for you to review
+#   (approve by adding them to tools/extra_sets.json, or ignore them there).
+# Commits only when something actually changed; Cloudflare Pages redeploys the site on push.
+name: Update illustration sets
+
+on:
+  schedule:
+    - cron: "23 17 * * *"     # 17:23 UTC = about 6:23 am in New Zealand
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: update-collections
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none      # repo has large images; the job only needs the data files
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restore clone cache
+        uses: actions/cache@v4
+        with:
+          path: .collections-cache
+          key: collections-${{ github.run_id }}
+          restore-keys: collections-
+
+      - name: Build collections
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/build_collections.py --forks
+
+      - name: Commit changes
+        run: |
+          git add birds/collections.json COLLECTIONS.md
+          if git diff --cached --quiet; then
+            echo "No changes today."
+          else
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Daily update of community illustration sets"
+            git push
+          fi
+
+      - name: Report forks to review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="New illustration sets to review"
+          num=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          if [ -f candidates.md ]; then
+            if [ -n "$num" ]; then gh issue edit "$num" --body-file candidates.md
+            else gh issue create --title "$title" --body-file candidates.md; fi
+          elif [ -n "$num" ]; then
+            gh issue close "$num" --comment "Nothing left to review."
+          fi

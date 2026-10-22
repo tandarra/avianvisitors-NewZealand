@@ -111,6 +111,12 @@ repository and how complete each country is. Images stay in the artists' reposit
 the set that painted them first. To install or share a set, use the official bundle library at
 [avianvisitors.com/bundles](https://avianvisitors.com/bundles). Refresh with `python tools/build_collections.py`.
 
+This runs **automatically every day on GitHub** (`.github/workflows/update-collections.yml`, about 6:20 am NZ).
+New Japanese Woodblock packs in the official catalogue are added on their own; other forks that recently
+added illustrations are listed in a *New illustration sets to review* issue. To accept one, add it to
+`tools/extra_sets.json` under `sets` (`repo`, `branch`, `region`, `creator`, `covers`); to dismiss it, put
+`"owner/repo"` under `ignore`. Run it on demand from the repo's **Actions** tab → *Update illustration sets* → *Run workflow*.
+
 ## Licence
 
 Illustrations and code are shared under
