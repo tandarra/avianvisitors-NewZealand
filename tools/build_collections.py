@@ -226,7 +226,8 @@ def scan_forks(sets, token, days=60, limit=60):
             if len(sp) >= 10 and (not best or len(sp) > best[1]):
                 msgs = [c["commit"]["message"].splitlines()[0] for c in cmp.get("commits", [])
                         if c.get("author") is None or c["author"].get("login") == f["owner"]["login"]]
-                note = next((m for m in reversed(msgs) if re.search(r"(?i)illustrat|bird|species", m)), msgs[-1] if msgs else "")
+                pick = lambda rx: next((m for m in reversed(msgs) if re.search(rx, m)), None)
+                note = pick(r"(?i)illustrat") or pick(r"(?i)\bspecies\b|\bbirds\b") or (msgs[-1] if msgs else "")
                 best = (b, len(sp), sp, note)
         if best:
             out.append({"repo": f["full_name"], "branch": best[0], "species_added": best[1], "pushed": f["pushed_at"][:10],
