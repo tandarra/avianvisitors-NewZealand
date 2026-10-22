@@ -26,6 +26,9 @@ header.top img.flier{position:absolute;right:8px;top:6px;height:88px;mix-blend-m
 #land path{fill:var(--land);stroke:var(--ink2);stroke-width:.35;stroke-linejoin:round;transition:stroke-width .2s,fill .2s,filter .2s}
 #land path.hov{stroke:var(--ink);stroke-width:1.6;fill:#efe6cf;filter:drop-shadow(0 1.5px 0 rgba(20,20,20,.35))}
 #land path.live.hov{stroke:var(--ink);stroke-width:1.8;filter:drop-shadow(0 1.5px 0 rgba(20,20,20,.35))}
+.bird,.bird-shadow{pointer-events:none;opacity:0;transition:opacity .35s}
+.bird.up{opacity:1}.bird-shadow.up{opacity:var(--o,.2)}
+.bird{filter:drop-shadow(0 .5px 0 rgba(20,20,20,.25))}
 .tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .15s;background:var(--paper2);border:1px solid var(--ink);
 padding:4px 8px;font:11px 'Courier New',monospace;color:var(--mute);white-space:nowrap;z-index:2;box-shadow:2px 2px 0 rgba(20,20,20,.2)}
 .tip b{display:block;font:700 14px Georgia,serif;color:var(--ink)}
@@ -103,6 +106,23 @@ const REGIONS = [
   {code: "NZ", name: "New Zealand", ids: ["554"], at: [172.5, -41.5]},
 ];
 const NS = "http://www.w3.org/2000/svg";
+// Overhead albatross (mollymawk), drawn facing +x: long narrow dark wings, white body, grey head, yellow bill.
+const ALBATROSS = `
+<g class="wing"><path d="M3,-2.2 C4.6,-8 5.6,-12 5,-15.5 C3.6,-22 0.6,-29 -3.8,-35.5 C-4.6,-36.3 -5.4,-35.6 -5,-34.6
+ C-4.2,-28 -4.6,-21 -4.8,-15.8 C-4.9,-10 -4.6,-6 -4.2,-2.2 Z" fill="#2c2a26" stroke="#141414" stroke-width=".5"/>
+ <path d="M2.6,-3 C3.8,-8 4.4,-11.5 3.9,-14.6 L-2.6,-14.2 C-3,-10 -3,-6 -2.8,-3 Z" fill="#4a4640"/>
+ <path d="M-4.6,-16 C-4.4,-22 -3.6,-28 -4.4,-34" fill="none" stroke="#efebe1" stroke-width=".35" opacity=".45"/></g>
+<g class="wing"><path d="M3,2.2 C4.6,8 5.6,12 5,15.5 C3.6,22 0.6,29 -3.8,35.5 C-4.6,36.3 -5.4,35.6 -5,34.6
+ C-4.2,28 -4.6,21 -4.8,15.8 C-4.9,10 -4.6,6 -4.2,2.2 Z" fill="#2c2a26" stroke="#141414" stroke-width=".5"/>
+ <path d="M2.6,3 C3.8,8 4.4,11.5 3.9,14.6 L-2.6,14.2 C-3,10 -3,6 -2.8,3 Z" fill="#4a4640"/>
+ <path d="M-4.6,16 C-4.4,22 -3.6,28 -4.4,34" fill="none" stroke="#efebe1" stroke-width=".35" opacity=".45"/></g>
+<path d="M-12.5,-2 L-9,-1.4 L-9,1.4 L-12.5,2 C-13.2,0.8 -13.2,-0.8 -12.5,-2 Z" fill="#3a3732" stroke="#141414" stroke-width=".4"/>
+<path d="M9.2,-1.8 C10.6,-1.6 11.4,-0.8 11.6,0 C11.4,0.8 10.6,1.6 9.2,1.8 C3,2.9 -4,3.1 -9.6,1.7 C-10.6,1 -10.6,-1 -9.6,-1.7
+ C-4,-3.1 3,-2.9 9.2,-1.8 Z" fill="#f6f3ea" stroke="#141414" stroke-width=".5"/>
+<path d="M-3.6,-2.6 C-0.6,-2.9 2.4,-2.7 3.2,-2.2 L3.2,2.2 C2.4,2.7 -0.6,2.9 -3.6,2.6 Z" fill="#3a3732"/>
+<path d="M5.2,-2.3 C7.8,-2.2 9.8,-1.6 11,-0.6 L11,0.6 C9.8,1.6 7.8,2.2 5.2,2.3 Z" fill="#b9b7b1"/>
+<path d="M11.2,-0.75 C13,-0.6 15,-0.3 16.2,0 C15,0.3 13,0.6 11.2,0.75 Z" fill="#e0a52a" stroke="#141414" stroke-width=".3"/>
+<circle cx="10.2" cy="-1.05" r=".38" fill="#141414"/><circle cx="10.2" cy="1.05" r=".38" fill="#141414"/>`;
 const progress = {};          // code -> loaded progress json
 const $ = s => document.querySelector(s);
 
@@ -179,6 +199,12 @@ async function drawMap() {
   paths.filter(p => p.__R).forEach(p => land.appendChild(p));
   // generous tap target for small countries
   const over = el("g", {}, svg);
+  // the albatross: overhead view, flying along the great circle while the map turns underneath
+  const shadow = el("g", {class: "bird-shadow"}, svg), bird = el("g", {class: "bird"}, svg);
+  shadow.innerHTML = ALBATROSS.replace(/fill="[^"]*"/g, 'fill="#141414"').replace(/stroke="[^"]*"/g, 'stroke="none"');
+  bird.innerHTML = ALBATROSS;
+  const wingsOf = g => [...g.querySelectorAll(".wing")];
+  const flight = {on: false, e: 0, interp: null, heading: 0};
   for (const R of live) {
     R.hit = el("circle", {r: 22, class: "hit"}, over);
     R.hit.__R = R; R.hit.__name = R.name; R.hit.__f = byId[R.ids[0]];
@@ -194,6 +220,20 @@ async function drawMap() {
     grat.setAttribute("d", path(graticule));
     for (const p of paths) p.setAttribute("d", path(p.__f) || "");
     for (const R of live) { const a = proj(R.at); if (a) { R.hit.setAttribute("cx", a[0]); R.hit.setAttribute("cy", a[1]); } }
+    if (flight.on) {
+      const e = flight.e, a = proj(flight.interp(e)), b = proj(flight.interp(Math.min(1, e + .02)));
+      if (a && b && Math.hypot(b[0] - a[0], b[1] - a[1]) > .05) flight.heading = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+      if (a) {
+        const alt = Math.sin(Math.PI * e), sc = (.8 + .45 * alt) * Math.min(1.25, view.k);
+        // slow dynamic-soaring wing flex: mostly gliding, a gentle beat now and then
+        const flex = 1 - .1 * Math.pow(Math.sin(performance.now() / 260), 8);
+        const at = `translate(${a[0].toFixed(1)},${a[1].toFixed(1)}) rotate(${flight.heading.toFixed(1)}) scale(${sc.toFixed(3)})`;
+        bird.setAttribute("transform", at);
+        shadow.setAttribute("transform", `translate(${(a[0] + 3 + 14 * alt).toFixed(1)},${(a[1] + 4 + 20 * alt).toFixed(1)}) rotate(${flight.heading.toFixed(1)}) scale(${(sc * .92).toFixed(3)})`);
+        shadow.style.setProperty("--o", (.24 - .1 * alt).toFixed(2));
+        for (const w of [...wingsOf(bird), ...wingsOf(shadow)]) w.setAttribute("transform", `scale(1,${flex.toFixed(3)})`);
+      }
+    }
   };
   render();
 
@@ -204,15 +244,33 @@ async function drawMap() {
   // ---- hover: ink the border at once; turn + zoom after a short dwell, only when the mouse itself moved
   let hoverNode = null, hovered = null, dwell = null, leaveT = null, lastMove = 0, animEnd = 0, anim = null;
   const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  function animateTo(lam, k, focus) {
+  let birdAt = REGIONS[0].at, fadeT = null;          // where the albatross last landed (starts at home)
+  function animateTo(lam, k, focus, fly) {
     cancelAnimationFrame(anim);
     const from = {...view}, d = ((lam - from.lam + 540) % 360) - 180, t0 = performance.now();
     if (focus) view.focus = focus;
+    let dur = DUR;
+    if (fly) {
+      const start = flight.on ? flight.interp(flight.e) : birdAt;     // mid-air re-route starts where it is
+      const dist = d3.geoDistance(start, fly);
+      if (dist > .03) {
+        Object.assign(flight, {on: true, e: 0, interp: d3.geoInterpolate(start, fly)});
+        dur = 1000 + 1100 * Math.min(1, dist / Math.PI);
+        clearTimeout(fadeT); bird.classList.add("up"); shadow.classList.add("up");
+      }
+      birdAt = fly;
+    }
     const step = now => {
-      const t = Math.min(1, (now - t0) / DUR), e = ease(t);
+      const t = Math.min(1, (now - t0) / dur), e = ease(t);
       view.lam = from.lam + d * e; view.k = from.k + (k - from.k) * e;
+      if (flight.on) flight.e = e;
       render();
-      if (t < 1) anim = requestAnimationFrame(step); else animEnd = performance.now();
+      if (t < 1) anim = requestAnimationFrame(step);
+      else {
+        animEnd = performance.now();
+        if (flight.on) fadeT = setTimeout(() => { bird.classList.remove("up"); shadow.classList.remove("up");
+          setTimeout(() => flight.on = false, 400); }, 250);
+      }
     };
     anim = requestAnimationFrame(step);
   }
@@ -230,7 +288,7 @@ async function drawMap() {
     dwell = setTimeout(() => {
       if (lastMove < animEnd || calm.matches) return;   // don't chase when the map moved under a still mouse
       const c = d3.geoCentroid(node.__f);
-      animateTo(-c[0], ZOOM, c);
+      animateTo(-c[0], ZOOM, c, c);
     }, 160);
   }
   svg.addEventListener("pointermove", ev => {
