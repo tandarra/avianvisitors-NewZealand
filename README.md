@@ -19,7 +19,7 @@ every species eBird has recorded in New Zealand (389), with what's been illustra
 
 | Path | What it is |
 |---|---|
-| `birds/raw/` | Full-size master originals as generated (PNG) |
+| `birds/raw/` | Master paintings as generated, trimmed to the bird (`tools/trim_masters.py`, lossless). Note: Gemini returns JPEG data in these `.png` files |
 | `birds/<slug>.webp` | Perched pose, background removed (slug = scientific name, lowercase, hyphenated) |
 | `birds/<slug>-2.webp` | Second pose: in flight (penguins swim; kiwi, kākāpō, takahē, weka, ratites walk) |
 | `birds/<slug>-3.webp` | Optional extra pose |
