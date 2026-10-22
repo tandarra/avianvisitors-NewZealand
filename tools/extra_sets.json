@@ -134,6 +134,27 @@
       "covers": [
         "GB"
       ]
+    },
+    {
+      "id": "bra",
+      "repo": "bramatti/Passaredo",
+      "branch": "pt-br",
+      "region": "Brazil (Passaredo)",
+      "creator": "bramatti",
+      "covers": [
+        "BR"
+      ]
+    },
+    {
+      "id": "sea",
+      "repo": "lohchan279/avianvisitors",
+      "branch": "merge-trial",
+      "region": "Singapore / Southeast Asia",
+      "creator": "Joel (lohchan279)",
+      "covers": [
+        "SG",
+        "MY"
+      ]
     }
   ],
   "ignore": [
