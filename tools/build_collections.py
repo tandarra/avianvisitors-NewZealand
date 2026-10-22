@@ -358,7 +358,19 @@ def write_index():
         for cc in s["covers"]:
             by_country[cc].append(s)
     lic = lambda s: s["license"] or "none stated"
+    total = sum(1 for sl in slugs if len(poses[sl]) == 2)
+    part = sum(1 for sl in slugs if len(poses[sl]) == 1)
+    pct = total / len(slugs) * 100
+    bar = "█" * round(pct / 2.5) + "░" * (40 - round(pct / 2.5))
+    artists = {s["creator"] for s in sets}
+    full = [countries[cc]["name"] for cc in by_country if done(countries[cc]["sp"]) >= 0.99 * len(countries[cc]["sp"])]
     lines = ["# Illustration sets by country", "",
+             f"## 🌏 World: {pct:.1f}% illustrated", "",
+             f"`{bar}` **{total:,} / {len(slugs):,}** eBird species", "",
+             f"**{len(sets)} sets** by **{len(artists)} artists** across **{len(by_country)} countries**"
+             + (f" · {part:,} more species half done (one pose)" if part else "")
+             + (f" · complete or nearly: {', '.join(sorted(full))}" if full else "")
+             + f" · updated {col['updated'][:10]}", "",
              "Kachō-e / Japanese woodblock bird illustrations in the [Avian Visitors](https://theodore.net/projects/AvianVisitors/) style, "
              "listed by country. Each set lives in its artist's own repository; follow the links for the images. "
              "\"Illustrated\" counts species with both poses painted by any set, against that country's eBird species list. "
@@ -374,7 +386,6 @@ def write_index():
     lines += ["", "## All sets", "", "| Set | Artist | Repository | Species first painted here | Licence |", "|---|---|---|---|---|"]
     for s in sorted(sets, key=lambda s: -s["species"]):
         lines.append(f"| {s['region']} | {s['creator']} | [{s['repo']}]({s['url']}) | {s['species']:,} | {lic(s)} |")
-    total = sum(1 for sl in slugs if len(poses[sl]) == 2)
     lines += ["", f"**World:** {total:,} of {len(slugs):,} eBird species illustrated ({total / len(slugs) * 100:.1f}%), "
               f"updated {col['updated'][:10]}.", "",
               "Sets are those in the Avian Visitors \"Japanese Woodblock\" community bundle catalogue "

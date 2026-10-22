@@ -1,5 +1,11 @@
 # Illustration sets by country
 
+## 🌏 World: 20.2% illustrated
+
+`████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░` **2,253 / 11,167** eBird species
+
+**28 sets** by **28 artists** across **16 countries** · 4 more species half done (one pose) · complete or nearly: Latvia, Singapore · updated 2026-10-23
+
 Kachō-e / Japanese woodblock bird illustrations in the [Avian Visitors](https://theodore.net/projects/AvianVisitors/) style, listed by country. Each set lives in its artist's own repository; follow the links for the images. "Illustrated" counts species with both poses painted by any set, against that country's eBird species list. Explore it all on the map: **[Bird Atlas](https://birds.tandarra.net/atlas.html)**.
 
 > **Official bundles:** to install a set on your own Avian Visitors station, or to share yours, use the official bundle library at **[avianvisitors.com/bundles](https://avianvisitors.com/bundles)**. This page is an index of the sets; the bundle library is where they are published.
