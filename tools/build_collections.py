@@ -164,6 +164,9 @@ def write_index():
              "listed by country. Each set lives in its artist's own repository; follow the links for the images. "
              "\"Illustrated\" counts species with both poses painted by any set, against that country's eBird species list. "
              "Explore it all on the map: **[Bird Atlas](https://birds.tandarra.net/atlas.html)**.", "",
+             "> **Official bundles:** to install a set on your own Avian Visitors station, or to share yours, use the "
+             "official bundle library at **[avianvisitors.com/bundles](https://avianvisitors.com/bundles)**. "
+             "This page is an index of the sets; the bundle library is where they are published.", "",
              "| Country | Illustrated | Illustration sets |", "|---|---|---|"]
     for cc in sorted(by_country, key=lambda c: countries[c]["name"]):
         c = countries[cc]; d = done(c["sp"]); n = len(c["sp"])
@@ -175,9 +178,11 @@ def write_index():
     total = sum(1 for sl in slugs if len(poses[sl]) == 2)
     lines += ["", f"**World:** {total:,} of {len(slugs):,} eBird species illustrated ({total / len(slugs) * 100:.1f}%), "
               f"updated {col['updated'][:10]}.", "",
-              "Sets are those in the Avian Visitors \"Japanese Woodblock\" community bundle catalogue. Each image is credited "
+              "Sets are those in the Avian Visitors \"Japanese Woodblock\" community bundle catalogue "
+              "([avianvisitors.com/bundles](https://avianvisitors.com/bundles)). Each image is credited "
               "to the set that added it first, so forks are credited only for the birds they added. Sets without a licence "
-              "file are counted and linked but their images are not reproduced here. Know of another set? Open an issue.", ""]
+              "file are counted and linked but their images are not reproduced here. Know of another set? Publish it at "
+              "[avianvisitors.com/bundles](https://avianvisitors.com/bundles) and open an issue here.", ""]
     (ROOT / "COLLECTIONS.md").write_text("\n".join(lines), encoding="utf-8")
     print(f"Wrote COLLECTIONS.md ({len(by_country)} countries, {len(sets)} sets)")
 

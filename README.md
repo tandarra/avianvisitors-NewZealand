@@ -108,7 +108,8 @@ vs *Chalcites lucidus*). If a detected bird shows no picture, add a copy of its
 **[COLLECTIONS.md](COLLECTIONS.md)** indexes every Avian Visitors woodblock set by country (Australia, Canada,
 Germany, the Netherlands, New Zealand, Spain, Switzerland, the UK and the US), with links to each artist's
 repository and how complete each country is. Images stay in the artists' repositories and are credited to
-the set that painted them first. Refresh with `python tools/build_collections.py`.
+the set that painted them first. To install or share a set, use the official bundle library at
+[avianvisitors.com/bundles](https://avianvisitors.com/bundles). Refresh with `python tools/build_collections.py`.
 
 ## Licence
 

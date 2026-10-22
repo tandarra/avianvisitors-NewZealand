@@ -2,6 +2,8 @@
 
 Kachō-e / Japanese woodblock bird illustrations in the [Avian Visitors](https://theodore.net/projects/AvianVisitors/) style, listed by country. Each set lives in its artist's own repository; follow the links for the images. "Illustrated" counts species with both poses painted by any set, against that country's eBird species list. Explore it all on the map: **[Bird Atlas](https://birds.tandarra.net/atlas.html)**.
 
+> **Official bundles:** to install a set on your own Avian Visitors station, or to share yours, use the official bundle library at **[avianvisitors.com/bundles](https://avianvisitors.com/bundles)**. This page is an index of the sets; the bundle library is where they are published.
+
 | Country | Illustrated | Illustration sets |
 |---|---|---|
 | [Australia](https://birds.tandarra.net/atlas.html#AU) | 514 / 934 (55%) | [Victoria, Australia](https://github.com/TheWillni/AusVicVisitors/tree/main) by TheWillni<br>[Canberra / ACT, Australia](https://github.com/opurtell/AvianVisitorsACT/tree/main) by opurtell |
@@ -32,4 +34,4 @@ Kachō-e / Japanese woodblock bird illustrations in the [Avian Visitors](https:/
 
 **World:** 1,514 of 11,167 eBird species illustrated (13.6%), updated 2026-10-23.
 
-Sets are those in the Avian Visitors "Japanese Woodblock" community bundle catalogue. Each image is credited to the set that added it first, so forks are credited only for the birds they added. Sets without a licence file are counted and linked but their images are not reproduced here. Know of another set? Open an issue.
+Sets are those in the Avian Visitors "Japanese Woodblock" community bundle catalogue ([avianvisitors.com/bundles](https://avianvisitors.com/bundles)). Each image is credited to the set that added it first, so forks are credited only for the birds they added. Sets without a licence file are counted and linked but their images are not reproduced here. Know of another set? Publish it at [avianvisitors.com/bundles](https://avianvisitors.com/bundles) and open an issue here.
