@@ -83,6 +83,7 @@ dialog::backdrop{background:rgba(20,20,20,.45)}
 .spnav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
 .spnav button{font:18px Georgia,serif;border:1px solid var(--ink);background:transparent;width:40px;height:34px;cursor:pointer}
 #pn h3{margin:0 0 4px;font-size:22px}
+#pncmd{width:100%;font:13px 'Courier New',monospace;background:var(--paper2);border:1px solid var(--ink2);padding:8px;resize:none;color:var(--ink)}
 #pnlist{columns:2 260px;font-size:14px;margin:12px 0 0;padding-left:28px}#pnlist li{margin:0 0 4px;break-inside:avoid}
 #pnlist small{color:var(--mute);font:11px 'Courier New',monospace}
 /* checklist panel */
@@ -174,6 +175,8 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
     <h3 id="pnt"></h3><p class="m" id="pnm"></p>
     <div class="tools"><label class="m">How many <select id="pncount"><option>25</option><option selected>50</option><option>100</option><option>250</option></select></label>
       <button class="f on" id="pndl">Download paint_next.txt</button><button class="f" id="pncp">Copy command</button></div>
+    <p class="m">Save paint_next.txt in Downloads, then run this from Downloads:</p>
+    <textarea id="pncmd" readonly rows="2" spellcheck="false">py nz_bird_illustrations.py --list paint_next.txt --style-ref "birds\raw\prosthemadera-novaeseelandiae.png"</textarea>
     <ol id="pnlist"></ol>
   </div></dialog>
 
@@ -695,9 +698,11 @@ function paintNext(R) {
     a.download = "paint_next.txt"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };
   $("#pncp").onclick = async () => {
-    const cmd = 'py nz_bird_illustrations.py --list paint_next.txt --style-ref "birds\\raw\\prosthemadera-novaeseelandiae.png"';
-    try { await navigator.clipboard.writeText(cmd); $("#pncp").textContent = "Copied"; setTimeout(() => $("#pncp").textContent = "Copy command", 1500); }
-    catch (e) { prompt("Run this in your Downloads folder:", cmd); }
+    const box = $("#pncmd"), btn = $("#pncp"), done = msg => { btn.textContent = msg; setTimeout(() => btn.textContent = "Copy command", 1800); };
+    try { await navigator.clipboard.writeText(box.value); return done("Copied ✓"); } catch (e) { /* clipboard API blocked */ }
+    box.focus(); box.select(); box.setSelectionRange(0, box.value.length);
+    let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+    done(ok ? "Copied ✓" : "Selected: press Ctrl+C");
   };
   if (!$("#pn").open) $("#pn").showModal();
 }
