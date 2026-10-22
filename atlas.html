@@ -83,6 +83,14 @@ dialog::backdrop{background:rgba(20,20,20,.45)}
 .spbody h3{margin:14px 0 2px;font-size:26px}
 .links{display:flex;gap:8px;flex-wrap:wrap}.links a{font:12px 'Courier New',monospace;border:1px solid var(--ink);padding:5px 9px;text-decoration:none}
 .links a:hover{background:#fff8ec}
+.c{position:relative}
+.play{position:absolute;top:6px;right:6px;z-index:2;width:30px;height:30px;border-radius:50%;border:1px solid var(--ink);
+  background:#f7f1e3;color:var(--ink);font-size:12px;line-height:1;cursor:pointer;padding:0;display:grid;place-items:center}
+.play:hover,.play.on{background:var(--ink);color:#f7f1e3}
+.play.big{position:static;width:44px;height:44px;font-size:16px;flex:none}
+.sound{display:flex;gap:12px;align-items:center;margin:10px 0 4px;font:12px 'Courier New',monospace;text-transform:uppercase;letter-spacing:.04em}
+.sound small{text-transform:none;letter-spacing:0}.sound a{color:inherit}
+.sound[hidden]{display:none}
 .spnav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
 .spnav button{font:18px Georgia,serif;border:1px solid var(--ink);background:transparent;width:40px;height:34px;cursor:pointer}
 #pn h3{margin:0 0 4px;font-size:22px}
@@ -181,7 +189,7 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
     <button class="x" id="spx" aria-label="Close">&times;</button>
     <div class="spimgs" id="spimgs"></div>
     <div class="spbody"><h3 id="spname"></h3><div class="s" id="spsci"></div><div class="chips" id="spchips"></div>
-      <p class="m" id="spmeta"></p><div class="links" id="splinks"></div></div>
+      <div class="sound" id="spsound" hidden></div><p class="m" id="spmeta"></p><div class="links" id="splinks"></div></div>
     <div class="spnav"><button id="spprev" aria-label="Previous">&larr;</button><span id="sppos"></span><button id="spnext" aria-label="Next">&rarr;</button></div>
   </div></dialog>
   <dialog id="pn" aria-label="Paint next"><div class="spin">
@@ -243,6 +251,7 @@ function el(tag, attrs = {}, parent) {
 async function loadData() {
   const [world, painted, nz, col] = await Promise.all([getJSON("birds/world.json"), getJSON("birds/painted.json"),
     getJSON("birds/progress_NZ.json"), getJSON("birds/collections.json")]);
+  getJSON("birds/audio.json").then(a => { AUDIO = (a && a.a) || {}; if (cur && !$("#panel").hidden) draw(); });
   PAINTED = painted || {};
   if (!painted && nz) nz.birds.forEach(b => { if (b.webp.length) PAINTED[b.slug] = b.webp; });
   COL = col;
@@ -262,6 +271,24 @@ async function loadData() {
 // Our own paintings come first (unless a set is marked prefer); otherwise the community set that painted it first (birds/collections.json).
 const HOME = {id: "home", creator: "Tandarra", region: "New Zealand (this atlas)", license: "CC BY-NC-SA 4.0",
   url: "https://github.com/tandarra/avianvisitors-NewZealand"};
+// ---------- bird sounds: one xeno-canto recording per species (birds/audio.json, built by tools/build_audio.py)
+let AUDIO = {}, player = null, playing = null;
+const xcSrc = id => `https://xeno-canto.org/${id}/download`;
+function stopSound() {
+  if (player) { player.pause(); player.src = ""; }
+  playing = null; document.querySelectorAll(".play.on").forEach(b => { b.classList.remove("on"); b.textContent = "▶"; });
+  const sb = $("#spplay"); if (sb) sb.classList.remove("on");
+}
+function toggleSound(slug) {
+  const r = AUDIO[slug]; if (!r) return;
+  if (playing === slug) return stopSound();
+  stopSound();
+  player = player || new Audio();
+  player.src = xcSrc(r[0]); player.play().catch(() => stopSound());
+  player.onended = stopSound;
+  playing = slug;
+  document.querySelectorAll(`.play[data-s="${slug}"]`).forEach(b => { b.classList.add("on"); b.textContent = "■"; });
+}
 function buildArt() {
   ART = {};
   for (const [slug, files] of Object.entries(PAINTED)) {
@@ -730,11 +757,12 @@ function draw() {
     .sort(SORTS[sortBy] || SORTS.az);
   shown = list;
   $("#grid").innerHTML = list.length ? list.map((b, i) => `
-    <div class="c" data-i="${i}" tabindex="0" role="button" aria-label="${b.com}"><div class="imgs">${cardArt(b.slug)}</div>
+    <div class="c" data-i="${i}" tabindex="0" role="button" aria-label="${b.com}">${AUDIO[b.slug] ? `<button class="play${playing === b.slug ? " on" : ""}" data-s="${b.slug}" aria-label="Play ${b.com} ${AUDIO[b.slug][3] || "sound"}">${playing === b.slug ? "■" : "▶"}</button>` : ""}<div class="imgs">${cardArt(b.slug)}</div>
     <div class="n">${b.com}</div><div class="s">${b.sci}</div><div class="chips">
     <span class="${ART[b.slug]?.p ? "ok" : "miss"}">perched</span>
     <span class="${ART[b.slug]?.f ? "ok" : "miss"}">${b.pose2}</span></div>${byline(b.slug)}</div>`).join("")
     : '<div class="empty">No species match.</div>';
+  $("#grid").querySelectorAll(".play").forEach(p => p.onclick = e => { e.stopPropagation(); toggleSound(p.dataset.s); });
   $("#grid").querySelectorAll(".c").forEach(c => {
     c.onclick = () => showSpecies(+c.dataset.i);
     c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showSpecies(+c.dataset.i); } };
@@ -770,10 +798,15 @@ function showSpecies(i) {
   const cr = credits(b.slug);
   $("#spmeta").innerHTML = (b.wide ? `Recorded by eBird in ${b.wide} ${b.wide === 1 ? "country" : "countries"}` : "") +
     (cr.length ? `<br>Illustration: ${cr.map(s => `<a href="${s.url}" target="_blank" rel="noopener">${s.creator}</a> · ${s.region}${s.license ? " · " + s.license : ""}`).join("; ")}` : "");
+  const r = AUDIO[b.slug];
+  if (playing && playing !== b.slug) stopSound();
+  $("#spsound").innerHTML = r ? `<button class="play big${playing === b.slug ? " on" : ""}" data-s="${b.slug}" id="spplay">${playing === b.slug ? "■" : "▶"}</button>
+    <span>${(r[3] || "sound").replace(/^./, c => c.toUpperCase())}${r[5] ? ` · ${r[5]} s` : ""}<br><small>Recording: <a href="https://xeno-canto.org/${r[0]}" target="_blank" rel="noopener">${r[1]} · XC${r[0]}</a>${r[4] ? " · " + r[4] : ""} · ${r[2]}</small></span>` : "";
+  $("#spsound").hidden = !r;
+  if (r) $("#spplay").onclick = () => toggleSound(b.slug);
   const q = encodeURIComponent(b.sci);
   $("#splinks").innerHTML = (b.code ? `<a href="https://ebird.org/species/${b.code}" target="_blank" rel="noopener">eBird</a>
-    <a href="https://media.ebird.org/catalog?taxonCode=${b.code}&mediaType=audio" target="_blank" rel="noopener">Calls (Macaulay)</a>`
-    : `<a href="https://ebird.org/explore?q=${encodeURIComponent(b.com)}" target="_blank" rel="noopener">eBird</a>`) +
+    <a href="https://media.ebird.org/catalog?taxonCode=${b.code}&mediaType=audio" target="_blank" rel="noopener">Calls (Macaulay)</a>` : "") +
     `<a href="https://xeno-canto.org/explore?query=${q}" target="_blank" rel="noopener">xeno-canto</a>
     <a href="https://en.wikipedia.org/wiki/Special:Search?search=${q}" target="_blank" rel="noopener">Wikipedia</a>`;
   $("#sppos").textContent = `${spAt + 1} of ${shown.length}`;
@@ -782,6 +815,7 @@ function showSpecies(i) {
 $("#spprev").onclick = () => showSpecies(spAt - 1);
 $("#spnext").onclick = () => showSpecies(spAt + 1);
 $("#spx").onclick = () => $("#sp").close();
+$("#sp").addEventListener("close", stopSound);
 $("#sp").addEventListener("keydown", e => { if (e.key === "ArrowLeft") showSpecies(spAt - 1); if (e.key === "ArrowRight") showSpecies(spAt + 1); });
 $("#sp").addEventListener("click", e => { if (e.target === $("#sp")) $("#sp").close(); });
 $("#sort").onchange = e => { sortBy = e.target.value; draw(); };

@@ -1,4 +1,4 @@
-# Daily: look for new Avian Visitors illustration sets and refresh the atlas data.
+# Daily: look for new Avian Visitors illustration sets, eBird codes and bird sounds, and refresh the atlas data.
 # - Japanese Woodblock packs in the official catalogue (avianvisitors.com/bundles) are added automatically.
 # - Other forks that recently added illustrations are listed in an issue for you to review
 #   (approve by adding them to tools/extra_sets.json, or ignore them there).
@@ -21,7 +21,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,14 +43,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python tools/build_collections.py --forks
 
+      - name: eBird codes and bird sounds
+        env:
+          XC_KEY: ${{ secrets.XC_KEY }}      # free xeno-canto API key; sounds are skipped until it's added
+        run: python tools/build_audio.py --max 2500
+
       - name: Commit changes
         run: |
-          git add birds/collections.json COLLECTIONS.md
+          git add birds/collections.json COLLECTIONS.md birds/world.json birds/audio.json 2>/dev/null || git add birds/collections.json COLLECTIONS.md birds/world.json
           if git diff --cached --quiet; then
             echo "No changes today."
           else
             git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-              commit -m "Daily update of community illustration sets"
+              commit -m "Daily update: illustration sets, eBird codes, bird sounds"
             git push
           fi
 
