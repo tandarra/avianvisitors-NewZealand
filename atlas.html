@@ -273,10 +273,12 @@ const HOME = {id: "home", creator: "Tandarra", region: "New Zealand (this atlas)
   url: "https://github.com/tandarra/avianvisitors-NewZealand"};
 // ---------- bird sounds: one xeno-canto recording per species (birds/audio.json, built by tools/build_audio.py)
 let AUDIO = {}, player = null, playing = null;
+const ICON_PLAY = '<svg viewBox="0 0 10 10" width="40%" height="40%" aria-hidden="true"><path d="M2 1 L9 5 L2 9 Z" fill="currentColor"/></svg>',
+  ICON_STOP = '<svg viewBox="0 0 10 10" width="34%" height="34%" aria-hidden="true"><rect x="1" y="1" width="8" height="8" fill="currentColor"/></svg>';
 const xcSrc = id => `https://xeno-canto.org/${id}/download`;
 function stopSound() {
   if (player) { player.pause(); player.src = ""; }
-  playing = null; document.querySelectorAll(".play.on").forEach(b => { b.classList.remove("on"); b.textContent = "▶"; });
+  playing = null; document.querySelectorAll(".play.on").forEach(b => { b.classList.remove("on"); b.innerHTML = ICON_PLAY; });
   const sb = $("#spplay"); if (sb) sb.classList.remove("on");
 }
 function toggleSound(slug) {
@@ -287,7 +289,7 @@ function toggleSound(slug) {
   player.src = xcSrc(r[0]); player.play().catch(() => stopSound());
   player.onended = stopSound;
   playing = slug;
-  document.querySelectorAll(`.play[data-s="${slug}"]`).forEach(b => { b.classList.add("on"); b.textContent = "■"; });
+  document.querySelectorAll(`.play[data-s="${slug}"]`).forEach(b => { b.classList.add("on"); b.innerHTML = ICON_STOP; });
 }
 function buildArt() {
   ART = {};
@@ -757,7 +759,7 @@ function draw() {
     .sort(SORTS[sortBy] || SORTS.az);
   shown = list;
   $("#grid").innerHTML = list.length ? list.map((b, i) => `
-    <div class="c" data-i="${i}" tabindex="0" role="button" aria-label="${b.com}">${AUDIO[b.slug] ? `<button class="play${playing === b.slug ? " on" : ""}" data-s="${b.slug}" aria-label="Play ${b.com} ${AUDIO[b.slug][3] || "sound"}">${playing === b.slug ? "■" : "▶"}</button>` : ""}<div class="imgs">${cardArt(b.slug)}</div>
+    <div class="c" data-i="${i}" tabindex="0" role="button" aria-label="${b.com}">${AUDIO[b.slug] ? `<button class="play${playing === b.slug ? " on" : ""}" data-s="${b.slug}" aria-label="Play ${b.com} ${AUDIO[b.slug][3] || "sound"}">${playing === b.slug ? ICON_STOP : ICON_PLAY}</button>` : ""}<div class="imgs">${cardArt(b.slug)}</div>
     <div class="n">${b.com}</div><div class="s">${b.sci}</div><div class="chips">
     <span class="${ART[b.slug]?.p ? "ok" : "miss"}">perched</span>
     <span class="${ART[b.slug]?.f ? "ok" : "miss"}">${b.pose2}</span></div>${byline(b.slug)}</div>`).join("")
@@ -800,7 +802,7 @@ function showSpecies(i) {
     (cr.length ? `<br>Illustration: ${cr.map(s => `<a href="${s.url}" target="_blank" rel="noopener">${s.creator}</a> · ${s.region}${s.license ? " · " + s.license : ""}`).join("; ")}` : "");
   const r = AUDIO[b.slug];
   if (playing && playing !== b.slug) stopSound();
-  $("#spsound").innerHTML = r ? `<button class="play big${playing === b.slug ? " on" : ""}" data-s="${b.slug}" id="spplay">${playing === b.slug ? "■" : "▶"}</button>
+  $("#spsound").innerHTML = r ? `<button class="play big${playing === b.slug ? " on" : ""}" data-s="${b.slug}" id="spplay">${playing === b.slug ? ICON_STOP : ICON_PLAY}</button>
     <span>${(r[3] || "sound").replace(/^./, c => c.toUpperCase())}${r[5] ? ` · ${r[5]} s` : ""}<br><small>Recording: <a href="https://xeno-canto.org/${r[0]}" target="_blank" rel="noopener">${r[1]} · XC${r[0]}</a>${r[4] ? " · " + r[4] : ""} · ${r[2]}</small></span>` : "";
   $("#spsound").hidden = !r;
   if (r) $("#spplay").onclick = () => toggleSound(b.slug);
