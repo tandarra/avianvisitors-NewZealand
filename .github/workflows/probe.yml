@@ -10,6 +10,5 @@ jobs:
                    "https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json&species=abetow" \
                    "https://search.macaulaylibrary.org/api/v1/search?taxonCode=abetow&mediaType=audio&sort=rating_rank_desc&count=2" \
                    "https://search.macaulaylibrary.org/api/v2/search?taxonCode=abetow&mediaType=audio&sort=rating_rank_desc"; do
-            echo "== $u"; curl -s -m 20 -A "Mozilla/5.0 bird-atlas" -D - "$u" | head -c 1500; echo; done
-          curl -s -m 60 "https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=csv" | head -c 400; echo
-          curl -s -m 60 -o tax.csv -w "%{http_code} %{size_download}\n" "https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=csv"
+            r=$(curl -s -m 20 -A "Mozilla/5.0 bird-atlas" -w "\nHTTP %{http_code}" "$u" | head -c 900 | tr '\n\r' '  '); echo "::notice title=${u:8:60}::$r"; done
+          echo "::notice title=taxcsv::$(curl -s -m 60 -o tax.csv -w '%{http_code} %{size_download}' 'https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=csv') $(head -c 300 tax.csv | tr '\n\r' '  ')"
