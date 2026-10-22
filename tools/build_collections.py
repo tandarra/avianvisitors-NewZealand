@@ -263,7 +263,8 @@ def main():
         first.setdefault(f[7], f)
     img = collections.defaultdict(dict)       # current slug -> pose -> [set, original slug, dir, ext]
     credit = collections.defaultdict(set)
-    for f in sorted(first.values()):          # earliest painting of each pose wins the display slot
+    # display slot: sets marked "prefer" first, then the earliest painting of each pose
+    for f in sorted(first.values(), key=lambda f: (not usable[f[1]].get("prefer"), f)):
         added, i, cur, pose, orig, dirp, ext, _ = f
         img[cur].setdefault(pose, [i, orig, dirp, ext])
         credit[i].add(cur)
@@ -273,6 +274,7 @@ def main():
                 "credit goes to the set that added each image first.",
         "sources": [{"id": s["id"], "repo": s["repo"], "branch": s["branch"], "region": s["region"], "creator": s["creator"],
                      "license": s["license"], "covers": s.get("covers", []),
+                     **({"prefer": True} if s.get("prefer") else {}),
                      "url": f"https://github.com/{s['repo']}/tree/{s['branch']}", "species": len(credit[i])}
                     for i, s in enumerate(usable)],
         "img": {k: {p: v for p, v in poses.items()} for k, poses in sorted(img.items())},

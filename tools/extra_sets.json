@@ -1,4 +1,7 @@
 {
-  "sets": [],
+  "sets": [
+    {"id": "nzc", "repo": "Calebhino/AvianVisitors", "branch": "avian-visitors", "region": "New Zealand",
+     "creator": "Caleb Ion (Calebhino)", "covers": ["NZ"], "prefer": true}
+  ],
   "ignore": []
 }

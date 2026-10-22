@@ -259,7 +259,7 @@ async function loadData() {
   for (const c of Object.values(C)) c.s = stats(c);
 }
 // ART[slug] = {p, f}: the perched and flying illustration, each {url (null = not shown), src}.
-// Our own paintings come first; otherwise the community set that painted it first (birds/collections.json).
+// Our own paintings come first (unless a set is marked prefer); otherwise the community set that painted it first (birds/collections.json).
 const HOME = {id: "home", creator: "Tandarra", region: "New Zealand (this atlas)", license: "CC BY-NC-SA 4.0",
   url: "https://github.com/tandarra/avianvisitors-NewZealand"};
 function buildArt() {
@@ -273,8 +273,9 @@ function buildArt() {
   for (const [slug, poses] of Object.entries(COL.img)) {
     const a = ART[slug] = ART[slug] || {};
     for (const [pose, key] of [["", "p"], ["-2", "f"]]) {
-      if (a[key] || !poses[pose]) continue;
+      if (!poses[pose]) continue;
       const [i, orig, dir, ext] = poses[pose], src = COL.sources[i];
+      if (a[key] && !(src.prefer && src.license)) continue;      // a "prefer" set is shown ahead of our own
       a[key] = {src, url: src.license ? `https://raw.githubusercontent.com/${src.repo}/${src.branch}/${dir}illustrations/${orig}${pose}.${ext}` : null};
     }
   }

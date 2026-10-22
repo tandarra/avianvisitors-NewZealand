@@ -6,11 +6,11 @@ Kachō-e / Japanese woodblock bird illustrations in the [Avian Visitors](https:/
 
 | Country | Illustrated | Illustration sets |
 |---|---|---|
-| [Australia](https://birds.tandarra.net/atlas.html#AU) | 514 / 934 (55%) | [Victoria, Australia](https://github.com/TheWillni/AusVicVisitors/tree/main) by TheWillni<br>[Canberra / ACT, Australia](https://github.com/opurtell/AvianVisitorsACT/tree/main) by opurtell |
+| [Australia](https://birds.tandarra.net/atlas.html#AU) | 515 / 934 (55%) | [Victoria, Australia](https://github.com/TheWillni/AusVicVisitors/tree/main) by TheWillni<br>[Canberra / ACT, Australia](https://github.com/opurtell/AvianVisitorsACT/tree/main) by opurtell |
 | [Canada](https://birds.tandarra.net/atlas.html#CA) | 674 / 802 (84%) | [Western North America](https://github.com/Twarner491/AvianVisitors/tree/avian-visitors) by Teddy Warner (Avian Visitors) |
 | [Germany](https://birds.tandarra.net/atlas.html#DE) | 533 / 597 (89%) | [Germany](https://github.com/bassrelic/AvianVisitors-German-Fork/tree/add_german_species) by bassrelic |
 | [Netherlands](https://birds.tandarra.net/atlas.html#NL) | 529 / 588 (90%) | [Netherlands](https://github.com/peterdeboer-nl/AvianVisitors/tree/avian-visitors) by peterdeboer-nl |
-| [New Zealand](https://birds.tandarra.net/atlas.html#NZ) | 302 / 389 (78%) | [New Zealand](https://github.com/tandarra/avianvisitors-NewZealand) by Tandarra (this repo) |
+| [New Zealand](https://birds.tandarra.net/atlas.html#NZ) | 313 / 389 (80%) | [New Zealand](https://github.com/Calebhino/AvianVisitors/tree/avian-visitors) by Caleb Ion (Calebhino)<br>[New Zealand](https://github.com/tandarra/avianvisitors-NewZealand) by Tandarra (this repo) |
 | [Spain](https://birds.tandarra.net/atlas.html#ES) | 655 / 795 (82%) | [Iberian Peninsula (Madrid, Castilla-La Mancha)](https://github.com/RoqueAlonso/AvianVisitors/tree/iberia-illustrations) by RoqueAlonso |
 | [Switzerland](https://birds.tandarra.net/atlas.html#CH) | 492 / 561 (88%) | [Switzerland](https://github.com/theskyisthelimit/AvianVisitors/tree/europe-illustrations) by theskyisthelimit |
 | [United Kingdom](https://birds.tandarra.net/atlas.html#GB) | 761 / 876 (87%) | [England, UK](https://github.com/lloydalexporter/AvianAssets_GB-ENG/tree/main) by lloydalexporter<br>[Derbyshire, UK](https://github.com/jonnywright/AvianAssets/tree/main) by jonnywright |
@@ -29,9 +29,10 @@ Kachō-e / Japanese woodblock bird illustrations in the [Avian Visitors](https:/
 | Switzerland | theskyisthelimit | [theskyisthelimit/AvianVisitors](https://github.com/theskyisthelimit/AvianVisitors/tree/europe-illustrations) | 293 | CC BY-NC-SA 4.0 |
 | Netherlands | peterdeboer-nl | [peterdeboer-nl/AvianVisitors](https://github.com/peterdeboer-nl/AvianVisitors/tree/avian-visitors) | 289 | CC BY-NC-SA 4.0 |
 | New Zealand | Tandarra (this repo) | [tandarra/avianvisitors-NewZealand](https://github.com/tandarra/avianvisitors-NewZealand) | 225 | CC BY-NC-SA 4.0 |
+| New Zealand | Caleb Ion (Calebhino) | [Calebhino/AvianVisitors](https://github.com/Calebhino/AvianVisitors/tree/avian-visitors) | 83 | CC BY-NC-SA 4.0 |
 | Germany | bassrelic | [bassrelic/AvianVisitors-German-Fork](https://github.com/bassrelic/AvianVisitors-German-Fork/tree/add_german_species) | 36 | CC BY-NC-SA 4.0 |
 | Canberra / ACT, Australia | opurtell | [opurtell/AvianVisitorsACT](https://github.com/opurtell/AvianVisitorsACT/tree/main) | 6 | CC BY-NC-SA 4.0 |
 
-**World:** 1,514 of 11,167 eBird species illustrated (13.6%), updated 2026-10-23.
+**World:** 1,525 of 11,167 eBird species illustrated (13.7%), updated 2026-10-23.
 
 Sets are those in the Avian Visitors "Japanese Woodblock" community bundle catalogue ([avianvisitors.com/bundles](https://avianvisitors.com/bundles)). Each image is credited to the set that added it first, so forks are credited only for the birds they added. Sets without a licence file are counted and linked but their images are not reproduced here. Know of another set? Publish it at [avianvisitors.com/bundles](https://avianvisitors.com/bundles) and open an issue here.
