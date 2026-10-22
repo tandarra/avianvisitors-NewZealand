@@ -11,6 +11,8 @@ collaged and sized by how often each one called.
 **Bird Atlas:** [`atlas.html`](https://birds.tandarra.net/atlas.html) — a world map where each
 country with illustrations is shaded by how much of its checklist is painted; click it to open the checklist.
 
+**Sets by country:** [`COLLECTIONS.md`](COLLECTIONS.md) — every community Avian Visitors set, linked by country.
+
 **Illustration checklist:** [`birds/master_index.html`](https://birds.tandarra.net/birds/master_index.html) —
 every species eBird has recorded in New Zealand (389), with what's been illustrated so far
 (also as [`birds/master_index.csv`](birds/master_index.csv)).
@@ -103,24 +105,10 @@ vs *Chalcites lucidus*). If a detected bird shows no picture, add a copy of its
 
 ## Community illustration sets
 
-The atlas tracks world completion across everyone painting in the Avian Visitors "Japanese Woodblock"
-style (the community bundles in Avian Visitors' catalogue). Images stay in each artist's repository and
-are credited to the set that added them first; sets without a licence are counted and linked, not shown.
-
-| Region | Artist | Repository |
-|---|---|---|
-| Western North America | Teddy Warner (Avian Visitors) | [Twarner491/AvianVisitors](https://github.com/Twarner491/AvianVisitors) |
-| England, UK | lloydalexporter | [lloydalexporter/AvianAssets_GB-ENG](https://github.com/lloydalexporter/AvianAssets_GB-ENG) |
-| Derbyshire, UK | jonnywright | [jonnywright/AvianAssets](https://github.com/jonnywright/AvianAssets) |
-| Iberian Peninsula | RoqueAlonso | [RoqueAlonso/AvianVisitors](https://github.com/RoqueAlonso/AvianVisitors/tree/iberia-illustrations) |
-| Florida, US | SupraBitKid | [SupraBitKid/AvianVisitors](https://github.com/SupraBitKid/AvianVisitors) |
-| Victoria, Australia | TheWillni | [TheWillni/AusVicVisitors](https://github.com/TheWillni/AusVicVisitors) |
-| Canberra / ACT, Australia | opurtell | [opurtell/AvianVisitorsACT](https://github.com/opurtell/AvianVisitorsACT) |
-| Switzerland | theskyisthelimit | [theskyisthelimit/AvianVisitors](https://github.com/theskyisthelimit/AvianVisitors/tree/europe-illustrations) |
-| Netherlands | peterdeboer-nl | [peterdeboer-nl/AvianVisitors](https://github.com/peterdeboer-nl/AvianVisitors/tree/avian-visitors) |
-| Germany | bassrelic | [bassrelic/AvianVisitors-German-Fork](https://github.com/bassrelic/AvianVisitors-German-Fork/tree/add_german_species) |
-
-Refresh with `python tools/build_collections.py`.
+**[COLLECTIONS.md](COLLECTIONS.md)** indexes every Avian Visitors woodblock set by country (Australia, Canada,
+Germany, the Netherlands, New Zealand, Spain, Switzerland, the UK and the US), with links to each artist's
+repository and how complete each country is. Images stay in the artists' repositories and are credited to
+the set that painted them first. Refresh with `python tools/build_collections.py`.
 
 ## Licence
 
