@@ -231,7 +231,7 @@ document.getElementById('q').oninput=e=>{q=e.target.value.toLowerCase();draw()};
 </script></body></html>"""
 
 
-def build_progress(birds, out, raw):
+def build_progress(birds, out, raw, region="NZ"):
     import csv, datetime
     rows = []
     for sci, com in sorted(birds.items(), key=lambda kv: kv[1]):
@@ -248,7 +248,8 @@ def build_progress(birds, out, raw):
         rows.append(dict(com=com, sci=sci, slug=s, perched=perched, second=second,
                          pose2=(sp["pose"] if sp else "in-flight"), extra=extra, uncut=uncut,
                          status=status, webp=webps))
-    with open(out / "master_index.csv", "w", newline="", encoding="utf-8-sig") as fh:
+    tag = "" if region == "NZ" else f"_{region}"
+    with open(out / f"master_index{tag}.csv", "w", newline="", encoding="utf-8-sig") as fh:
         w = csv.writer(fh)
         w.writerow(["Common name", "Scientific name", "File name", "Perched", "Second pose", "Second pose type",
                     "Extra poses", "Raw not yet cut out", "Status"])
@@ -259,14 +260,21 @@ def build_progress(birds, out, raw):
     n = len(rows); done = sum(r["status"] == "ok" for r in rows)
     part = sum(r["status"] == "part" for r in rows); miss = n - done - part
     imgs = sum(len(r["webp"]) for r in rows)
+    when = datetime.datetime.now()
+    # compact per-region data for atlas.html (status per species, image file names)
+    (out / f"progress_{region}.json").write_text(json.dumps({
+        "region": region, "updated": when.isoformat(timespec="minutes"), "total": n, "done": done,
+        "part": part, "miss": miss, "images": imgs,
+        "birds": [{k: r[k] for k in ("com", "sci", "slug", "status", "pose2", "webp")} for r in rows]},
+        ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     page = (PAGE.replace("__DATA__", json.dumps(rows, ensure_ascii=False))
             .replace("__DONE__", str(done)).replace("__TOTAL__", str(n)).replace("__PART__", str(part))
             .replace("__MISS__", str(miss)).replace("__IMGS__", str(imgs))
             .replace("__PCT__", f"{done / n * 100 if n else 0:.1f}")
-            .replace("__WHEN__", datetime.datetime.now().strftime("%d %b %Y %H:%M")))
-    (out / "master_index.html").write_text(page, encoding="utf-8")
+            .replace("__WHEN__", when.strftime("%d %b %Y %H:%M")))
+    (out / f"master_index{tag}.html").write_text(page, encoding="utf-8")
     print(f"\n{done}/{n} complete, {part} partial, {miss} not started, {imgs} images.")
-    print(f"Wrote {out / 'master_index.csv'} and {out / 'master_index.html'}")
+    print(f"Wrote {out / f'master_index{tag}.csv'}, .html and {out / f'progress_{region}.json'}")
 
 
 def main():
@@ -335,7 +343,7 @@ def main():
         if (out / "index.json").exists():
             for v in json.loads((out / "index.json").read_text(encoding="utf-8")).values():
                 master.setdefault(v["sci"], v["com"])
-        build_progress(master, out, out / "raw")
+        build_progress(master, out, out / "raw", region)
         return
     if not gkey and not a.list_only:
         sys.exit("No Gemini key: add GEMINI_API_KEY=... to bird_keys.txt next to this script.")

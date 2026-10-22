@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bird Atlas</title>
+<meta name="description" content="Kachō-e style bird illustrations by region. Pick a country to see its checklist and what's been painted.">
+<style>
+:root{--paper:#efebe1;--paper2:#f6f3ea;--land:#e2dac7;--ink:#141414;--ink2:#3a352c;--mute:#6b665c;--line:#d6d0c2;
+--live:#b8432b;--live2:#9c3622;--soon:#2f4a6b;--ok:#2f6b3a;--part:#a8741a;--miss:#b3261e}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:Georgia,'Times New Roman',serif}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header.top{border-bottom:3px solid var(--ink);padding:22px 0 14px;position:relative;overflow:hidden}
+header.top h1{margin:0;font-size:34px;letter-spacing:.01em}
+.kicker,.sub{font:12px 'Courier New',monospace;color:var(--mute);letter-spacing:.08em;text-transform:uppercase}
+.sub{margin-top:6px}
+header.top img.flier{position:absolute;right:8px;top:6px;height:88px;mix-blend-mode:multiply;transform:scaleX(-1);opacity:.95}
+.mapbox{margin:18px 0 10px;border:1px solid var(--ink2);background:var(--paper2);padding:10px;position:relative}
+.mapbox::after{content:"";position:absolute;inset:4px;border:1px solid var(--line);pointer-events:none}
+#mapwrap{position:relative;width:100%;aspect-ratio:1000/439}
+#mapwrap svg{width:100%;height:100%;display:block}
+.sea{fill:url(#waves);stroke:var(--ink2);stroke-width:.8}
+.grat{fill:none;stroke:#b9b09c;stroke-width:.35;stroke-dasharray:2 3}
+#land path{fill:var(--land);stroke:var(--ink2);stroke-width:.35;stroke-linejoin:round}
+#land path.live,.vic.live{fill:var(--live);stroke:var(--ink);stroke-width:.6;cursor:pointer;transition:fill .15s}
+#land path.soon,.vic.soon{fill:url(#hatch);stroke:var(--ink);stroke-width:.5}
+#land path.live:hover,.vic.live:hover,#land path.live.hl{fill:var(--live2)}
+.hit{fill:transparent;cursor:pointer}
+.callout line{stroke:var(--ink);stroke-width:.7}
+.callout circle.dot{fill:var(--ink)}
+.callout text{font-family:'Courier New',monospace;font-size:10.5px;fill:var(--ink);letter-spacing:.04em}
+.callout text.big{font-family:Georgia,serif;font-size:13px;font-weight:700;letter-spacing:0}
+.callout.live{cursor:pointer}.callout.live text.big{fill:var(--live2)}
+.callout.soon text{fill:var(--soon)}
+.callout rect{fill:var(--paper2);stroke:var(--ink);stroke-width:.7}
+.callout.live:hover rect{fill:#fff8ec}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font:12px 'Courier New',monospace;color:var(--mute);align-items:center;margin:2px 0 6px}
+.legend i{display:inline-block;width:14px;height:10px;border:1px solid var(--ink);vertical-align:-1px;margin-right:6px}
+.legend .l{background:var(--live)}.legend .s{background:repeating-linear-gradient(45deg,var(--soon) 0 1px,transparent 1px 4px)}
+.regions{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:12px 0 28px}
+.region{border:1px solid var(--ink2);background:var(--paper2);padding:10px 12px;text-align:left;font:inherit;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.region:disabled{cursor:default;opacity:.75;border-style:dashed}
+.region b{font-size:17px}.region span{font:11px 'Courier New',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.region:not(:disabled):hover{background:#fff8ec}
+.region .mini{height:6px;background:repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 2px,transparent 2px 4px);margin-top:4px}
+.region .mini i{display:block;height:100%;background:var(--live)}
+/* checklist panel */
+#panel[hidden]{display:none}
+#panel header{position:sticky;top:0;background:var(--paper);border-bottom:3px solid var(--ink);padding:14px 0 12px;z-index:3}
+#panel h2{margin:0;font-size:28px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+#panel h2 small{font:12px 'Courier New',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-weight:400}
+.bar{height:10px;background:repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 2px,transparent 2px 4px);margin:10px 0 8px}
+.bar i{display:block;height:100%;background:var(--ink)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button.f,input,button.back{font:13px 'Courier New',monospace;border:1px solid var(--ink);background:transparent;padding:5px 10px;color:var(--ink);cursor:pointer}
+button.f.on{background:var(--ink);color:var(--paper)}
+input{flex:1;min-width:160px;cursor:text}
+button.back{margin-right:4px}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;padding:16px 0 40px}
+.c{border:1px solid var(--line);background:var(--paper2);padding:10px;display:flex;flex-direction:column;gap:6px}
+.imgs{display:flex;gap:4px;height:84px;align-items:center;justify-content:center}
+.imgs img{max-height:84px;max-width:50%;object-fit:contain;mix-blend-mode:multiply}
+.ph{width:60px;height:60px;border:1px dashed var(--line)}
+.n{font-weight:700;font-size:15px;line-height:1.15}.s{font-style:italic;font-size:12px;color:var(--mute)}
+.chips{display:flex;gap:4px;flex-wrap:wrap}.chips span{font:10px 'Courier New',monospace;border:1px solid currentColor;padding:1px 5px;text-transform:uppercase}
+.ok{color:var(--ok)}.part{color:var(--part)}.miss{color:var(--miss)}
+.empty{font:13px 'Courier New',monospace;color:var(--mute);padding:20px 0}
+footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier New',monospace;color:var(--mute)}
+@media (max-width:640px){header.top h1{font-size:26px}header.top img.flier{height:60px}.callout text{font-size:14px}.callout text.big{font-size:17px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Kachō-e field guides</div>
+    <h1>Bird Atlas</h1>
+    <div class="sub" id="tag">Pick a region to open its checklist</div>
+    <img class="flier" src="birds/prosthemadera-novaeseelandiae-2.webp" alt="">
+  </header>
+
+  <section id="atlas">
+    <div class="mapbox"><div id="mapwrap" aria-busy="true"></div></div>
+    <div class="legend"><span><i class="l"></i>Checklist open</span><span><i class="s"></i>Coming soon</span></div>
+    <div class="regions" id="regions"></div>
+  </section>
+
+  <section id="panel" hidden>
+    <header>
+      <h2><span id="pname"></span><small id="psub"></small></h2>
+      <div class="bar"><i id="pbar"></i></div>
+      <div class="tools">
+        <button class="back" id="back">&larr; Map</button>
+        <button class="f on" data-f="all">All</button><button class="f" data-f="ok">Complete</button>
+        <button class="f" data-f="part">Partial</button><button class="f" data-f="miss">Missing</button>
+        <input id="q" placeholder="Search name..." aria-label="Search species">
+      </div>
+    </header>
+    <main id="grid"></main>
+  </section>
+
+  <footer>Illustrations generated in the style of <a href="https://theodore.net/projects/AvianVisitors/">Avian Visitors</a> &middot;
+    CC BY-NC-SA 4.0 &middot; Species lists from eBird &middot; Map: Natural Earth &middot;
+    <a href="https://github.com/tandarra/avianvisitors-NewZealand">GitHub</a></footer>
+</div>
+
+<script>
+// Regions: add a master list + progress file (birds/progress_<code>.json) and flip status to "live".
+// lon/lat = where the callout points; lx/ly = label position in map units (1000 x 439).
+const REGIONS = [
+  {code:"NZ",  name:"New Zealand",     status:"live", ids:["554"], at:[920.6,391.3], label:[992,322], anchor:"end"},
+  {code:"US",  name:"United States",   status:"soon", ids:["840"], at:[257.2,103.5], label:[150,190], anchor:"middle", credit:"Avian Visitors"},
+  {code:"GB",  name:"Great Britain",   status:"soon", ids:["826"], at:[494.5,58.1],  label:[400,26],  anchor:"middle", credit:"Avian Visitors"},
+  {code:"DE",  name:"Germany",         status:"soon", ids:["276"], at:[523.6,66.2],  label:[600,26],  anchor:"middle", credit:"Avian Visitors"},
+  {code:"VIC", name:"Victoria, Aus.",  status:"soon", vic:true,   at:[861.8,377.3], label:[745,405], anchor:"middle", credit:"Avian Visitors"},
+];
+const NS = "http://www.w3.org/2000/svg";
+const progress = {};          // code -> loaded progress json
+const $ = s => document.querySelector(s);
+
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+async function loadProgress(code) {
+  if (progress[code]) return progress[code];
+  const r = await fetch(`birds/progress_${code}.json`, {cache: "no-cache"});
+  if (!r.ok) throw new Error(r.status);
+  return progress[code] = await r.json();
+}
+
+async function drawMap() {
+  const wrap = $("#mapwrap");
+  wrap.innerHTML = await (await fetch("birds/world_map.svg")).text();
+  const svg = wrap.querySelector("svg");
+  // woodblock textures: seigaiha-ish waves for the sea, diagonal hatching for "coming soon"
+  const defs = el("defs", {}, svg); svg.prepend(defs);
+  const w = el("pattern", {id:"waves", width:14, height:7, patternUnits:"userSpaceOnUse"}, defs);
+  el("rect", {width:14, height:7, fill:"#f2eee4"}, w);
+  el("path", {d:"M0 7 A7 7 0 0 1 14 7 M3 7 A4 4 0 0 1 11 7", fill:"none", stroke:"#cfd6d6", "stroke-width":.5}, w);
+  const h = el("pattern", {id:"hatch", width:3, height:3, patternUnits:"userSpaceOnUse", patternTransform:"rotate(45)"}, defs);
+  el("rect", {width:3, height:3, fill:"#e2dac7"}, h);
+  el("line", {x1:0, y1:0, x2:0, y2:3, stroke:"#2f4a6b", "stroke-width":1.1}, h);
+
+  const land = svg.querySelector("#land");
+  land.querySelectorAll("path").forEach(p => { const t = el("title", {}, p); t.textContent = p.dataset.name; });
+  const top = el("g", {}, svg);
+  for (const R of REGIONS) {
+    const go = () => R.status === "live" && openRegion(R.code);
+    if (R.vic) {
+      const au = svg.querySelector("#c036");
+      const v = el("path", {d: au.getAttribute("d"), "clip-path":"url(#vicclip)", class:"vic " + R.status}, top);
+      el("title", {}, v).textContent = R.name;
+      v.addEventListener("click", go);
+    }
+    for (const id of R.ids || []) {
+      const p = svg.querySelector("#c" + id);
+      if (!p) continue;
+      p.classList.add(R.status);
+      if (R.status === "live") { p.addEventListener("click", go); land.appendChild(p); }
+    }
+    // generous tap target for small places (NZ)
+    if (R.status === "live") {
+      const hit = el("circle", {cx:R.at[0], cy:R.at[1], r:26, class:"hit"}, top);
+      hit.addEventListener("click", go);
+      hit.addEventListener("mouseenter", () => R.ids.forEach(i => svg.querySelector("#c"+i)?.classList.add("hl")));
+      hit.addEventListener("mouseleave", () => R.ids.forEach(i => svg.querySelector("#c"+i)?.classList.remove("hl")));
+    }
+    // callout label
+    const g = el("g", {class:"callout " + R.status}, top);
+    const [lx, ly] = R.label, [ax, ay] = R.at;
+    el("line", {x1:ax, y1:ay, x2:lx, y2:ly}, g);
+    el("circle", {cx:ax, cy:ay, r:1.8, class:"dot"}, g);
+    const t1 = el("text", {x:lx, y:ly - 2, class:"big", "text-anchor":R.anchor}, g); t1.textContent = R.name;
+    const t2 = el("text", {x:lx, y:ly + 11, "text-anchor":R.anchor}, g);
+    t2.textContent = R.status === "live" ? "…" : "coming soon";
+    Object.assign(R, {g, t1, t2});
+    requestAnimationFrame(() => plate(R));
+    if (R.status === "live") g.addEventListener("click", go);
+  }
+  wrap.removeAttribute("aria-busy");
+}
+
+function plate(R) {
+  // paper label plate sized to the text behind it
+  if (!R.g) return;
+  R.g.querySelector("rect")?.remove();
+  const a = R.t1.getBBox(), c = R.t2.getBBox(), x = Math.min(a.x, c.x);
+  R.g.insertBefore(el("rect", {x:x - 5, y:a.y - 3, width:Math.max(a.x + a.width, c.x + c.width) - x + 10, height:c.y + c.height - a.y + 6}), R.t1);
+}
+
+function regionCards() {
+  $("#regions").innerHTML = REGIONS.map(R => `
+    <button class="region" data-code="${R.code}" ${R.status === "live" ? "" : "disabled"}>
+      <b>${R.name}</b>
+      <span id="rc-${R.code}">${R.status === "live" ? "loading…" : "coming soon" + (R.credit ? " · via " + R.credit : "")}</span>
+      ${R.status === "live" ? `<div class="mini"><i id="rb-${R.code}" style="width:0"></i></div>` : ""}
+    </button>`).join("");
+  document.querySelectorAll(".region:not(:disabled)").forEach(b => b.onclick = () => openRegion(b.dataset.code));
+  REGIONS.filter(R => R.status === "live").forEach(async R => {
+    try {
+      const p = await loadProgress(R.code);
+      const txt = `${p.total} species · ${p.done} painted`;
+      $("#rc-" + R.code).textContent = txt;
+      $("#rb-" + R.code).style.width = (p.done / p.total * 100).toFixed(1) + "%";
+      if (R.t2) { R.t2.textContent = txt; plate(R); }
+    } catch (e) { $("#rc-" + R.code).textContent = "checklist unavailable"; }
+  });
+}
+
+// ---------- checklist panel
+let cur = null, f = "all", q = "";
+async function openRegion(code) {
+  const R = REGIONS.find(r => r.code === code);
+  if (!R || R.status !== "live") return;
+  if (location.hash !== "#" + code) history.pushState(null, "", "#" + code);
+  let p;
+  try { p = await loadProgress(code); } catch (e) { alert("Couldn't load the " + R.name + " checklist."); return; }
+  cur = p; f = "all"; q = ""; $("#q").value = "";
+  document.querySelectorAll("button.f").forEach(b => b.classList.toggle("on", b.dataset.f === "all"));
+  $("#pname").textContent = R.name;
+  const when = new Date(p.updated).toLocaleDateString(undefined, {day:"numeric", month:"short", year:"numeric"});
+  $("#psub").textContent = `${p.done} of ${p.total} complete · ${p.part} partial · ${p.miss} not started · ${p.images} images · updated ${when}`;
+  $("#pbar").style.width = (p.done / p.total * 100).toFixed(1) + "%";
+  $("#atlas").hidden = true; $("#panel").hidden = false; $("#tag").textContent = R.name + " checklist";
+  draw(); window.scrollTo(0, 0);
+}
+function closeRegion(push = true) {
+  if (push) history.pushState(null, "", location.pathname);
+  $("#panel").hidden = true; $("#atlas").hidden = false; $("#tag").textContent = "Pick a region to open its checklist";
+}
+function draw() {
+  const list = cur.birds.filter(b => (f === "all" || b.status === f) && (b.com + " " + b.sci).toLowerCase().includes(q));
+  $("#grid").innerHTML = list.length ? list.map(b => `
+    <div class="c"><div class="imgs">${b.webp.length ? [...b.webp].sort((x, y) => (x === b.slug + ".webp" ? -1 : y === b.slug + ".webp" ? 1 : x < y ? -1 : 1)).slice(0, 3).map(w => `<img loading="lazy" src="birds/${w}" alt="">`).join("") : '<div class="ph"></div>'}</div>
+    <div class="n">${b.com}</div><div class="s">${b.sci}</div><div class="chips">
+    <span class="${b.webp.includes(b.slug + ".webp") ? "ok" : "miss"}">perched</span>
+    <span class="${b.webp.includes(b.slug + "-2.webp") ? "ok" : "miss"}">${b.pose2}</span></div></div>`).join("")
+    : '<div class="empty">No species match.</div>';
+}
+document.querySelectorAll("button.f").forEach(x => x.onclick = () => {
+  document.querySelectorAll("button.f").forEach(y => y.classList.remove("on")); x.classList.add("on"); f = x.dataset.f; draw(); });
+$("#q").oninput = e => { q = e.target.value.toLowerCase(); draw(); };
+$("#back").onclick = () => closeRegion();
+window.addEventListener("popstate", () => { const c = location.hash.slice(1); c ? openRegion(c) : closeRegion(false); });
+
+drawMap().then(regionCards).then(() => { const c = location.hash.slice(1); if (c) openRegion(c); });
+</script>
+</body>
+</html>
