@@ -29,6 +29,7 @@ every species eBird has recorded in New Zealand (389), with what's been illustra
 | `birds/progress_<region>.json` | Compact checklist data for the atlas, also written by `--progress` |
 | `birds/world.json` | eBird's world species list + every country's list, built by `--world` (powers search, shading and the world tracker) |
 | `birds/painted.json` | Cut-outs per species, written by `--progress` and `--world` |
+| `birds/collections.json` | Species illustrated by the community Avian Visitors sets (built by `tools/build_collections.py` from blobless clones, no images copied) |
 | `birds/world-extra.json` | Outlines for small islands and territories the base map leaves out, built by `tools/build_world_extra.py` |
 | `atlas.html`, `birds/world-110m.json`, `vendor/` | World map front page (d3-geo + Natural Earth 110m via world-atlas); turns and zooms toward the country under the mouse |
 | `index.html` | Public live collage page (Cloudflare Pages) |
@@ -99,6 +100,27 @@ Then commit and push, and copy `birds\*.webp` to Home Assistant at `/config/www/
 BirdNET sometimes uses an older scientific name than eBird (e.g. *Chrysococcyx lucidus*
 vs *Chalcites lucidus*). If a detected bird shows no picture, add a copy of its
 `.webp` under BirdNET's name.
+
+## Community illustration sets
+
+The atlas tracks world completion across everyone painting in the Avian Visitors "Japanese Woodblock"
+style (the community bundles in Avian Visitors' catalogue). Images stay in each artist's repository and
+are credited to the set that added them first; sets without a licence are counted and linked, not shown.
+
+| Region | Artist | Repository |
+|---|---|---|
+| Western North America | Teddy Warner (Avian Visitors) | [Twarner491/AvianVisitors](https://github.com/Twarner491/AvianVisitors) |
+| England, UK | lloydalexporter | [lloydalexporter/AvianAssets_GB-ENG](https://github.com/lloydalexporter/AvianAssets_GB-ENG) |
+| Derbyshire, UK | jonnywright | [jonnywright/AvianAssets](https://github.com/jonnywright/AvianAssets) |
+| Iberian Peninsula | RoqueAlonso | [RoqueAlonso/AvianVisitors](https://github.com/RoqueAlonso/AvianVisitors/tree/iberia-illustrations) |
+| Florida, US | SupraBitKid | [SupraBitKid/AvianVisitors](https://github.com/SupraBitKid/AvianVisitors) |
+| Victoria, Australia | TheWillni | [TheWillni/AusVicVisitors](https://github.com/TheWillni/AusVicVisitors) |
+| Canberra / ACT, Australia | opurtell | [opurtell/AvianVisitorsACT](https://github.com/opurtell/AvianVisitorsACT) |
+| Switzerland | theskyisthelimit | [theskyisthelimit/AvianVisitors](https://github.com/theskyisthelimit/AvianVisitors/tree/europe-illustrations) |
+| Netherlands | peterdeboer-nl | [peterdeboer-nl/AvianVisitors](https://github.com/peterdeboer-nl/AvianVisitors/tree/avian-visitors) |
+| Germany | bassrelic | [bassrelic/AvianVisitors-German-Fork](https://github.com/bassrelic/AvianVisitors-German-Fork/tree/add_german_species) |
+
+Refresh with `python tools/build_collections.py`.
 
 ## Licence
 

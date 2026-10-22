@@ -67,6 +67,7 @@ padding:4px 8px;font:11px 'Courier New',monospace;color:var(--mute);white-space:
 .rank .num{text-align:right;font-family:'Courier New',monospace;font-size:13px;white-space:nowrap}
 .rank tbody tr{cursor:pointer}.rank tbody tr:hover{background:#fff8ec}
 .rank .barc{width:30%}.rank .barc .bar{margin:0}
+#sets td:first-child{font:inherit;color:inherit;width:auto}#sets a{color:var(--ink)}
 .rank td:first-child{font:12px 'Courier New',monospace;color:var(--mute);width:2.5em}
 .c{cursor:pointer}.c:hover{border-color:var(--ink2);background:#fff8ec}
 select{font:13px 'Courier New',monospace;border:1px solid var(--ink);background:transparent;padding:5px 6px;color:var(--ink)}
@@ -107,6 +108,11 @@ button.back{margin-right:4px}
 .ph{width:60px;height:60px;border:1px dashed var(--line)}
 .n{font-weight:700;font-size:15px;line-height:1.15}.s{font-style:italic;font-size:12px;color:var(--mute)}
 .chips{display:flex;gap:4px;flex-wrap:wrap}.chips span{font:10px 'Courier New',monospace;border:1px solid currentColor;padding:1px 5px;text-transform:uppercase}
+.ext{font:10px 'Courier New',monospace;color:var(--mute);border:1px dashed var(--line);padding:10px 8px;text-align:center;line-height:1.4;word-break:break-word}
+.by{font:10px 'Courier New',monospace;color:var(--mute)}
+.extbig{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;border:1px dashed var(--line);
+padding:20px;font:15px Georgia,serif;color:var(--ink);text-decoration:none}.extbig small{font:11px 'Courier New',monospace;color:var(--mute)}
+#spmeta a{color:var(--ink)}
 .ok{color:var(--ok)}.part{color:var(--part)}.miss{color:var(--miss)}
 .empty{font:13px 'Courier New',monospace;color:var(--mute);padding:20px 0}
 footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier New',monospace;color:var(--mute)}
@@ -145,6 +151,11 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
         <div class="seg"><button class="f on" data-r="pct">% illustrated</button><button class="f" data-r="done">Species painted</button><button class="f" data-r="total">Biggest lists</button></div></div>
       <table><thead><tr><th>#</th><th>Country</th><th class="num">Illustrated</th><th class="num">%</th><th class="barc"></th></tr></thead><tbody id="rbody"></tbody></table>
       <button class="ghost" id="rmore"></button>
+    </section>
+    <section class="rank" id="sets" hidden>
+      <div class="rh"><h3>Illustration sets</h3><span class="m">every bird is credited to the set that painted it first</span></div>
+      <table><thead><tr><th>Region</th><th>Artist / repository</th><th class="num">Species</th><th>Licence</th></tr></thead><tbody id="setbody"></tbody></table>
+      <p class="m" id="setnote"></p>
     </section>
   </section>
 
@@ -185,7 +196,7 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
   </div></dialog>
 
   <footer>Illustrations generated in the style of <a href="https://theodore.net/projects/AvianVisitors/">Avian Visitors</a> &middot;
-    CC BY-NC-SA 4.0 &middot; Species lists from eBird &middot; Map: Natural Earth &middot;
+    CC BY-NC-SA 4.0 &middot; Community illustrations credited to their artists (see Illustration sets) &middot; Species lists from eBird &middot; Map: Natural Earth &middot;
     <a href="https://github.com/tandarra/avianvisitors-NewZealand">GitHub</a></footer>
 </div>
 
@@ -197,7 +208,7 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
 // `bird_illustrations.py --world`) and birds/painted.json (cut-outs per species, written by --progress).
 // Until world.json exists the atlas falls back to the New Zealand checklist (birds/progress_NZ.json).
 const C = {};                 // country code -> {code, name, iso, sp?: [species indexes], prog?: progress json}
-let WORLD = null, PAINTED = {};
+let WORLD = null, PAINTED = {}, COL = null, ART = {};
 const NS = "http://www.w3.org/2000/svg";
 // Overhead albatross (mollymawk), drawn facing +x: long narrow dark wings, white body, grey head, yellow bill.
 const ALBATROSS = `
@@ -229,9 +240,12 @@ function el(tag, attrs = {}, parent) {
 }
 
 async function loadData() {
-  const [world, painted, nz] = await Promise.all([getJSON("birds/world.json"), getJSON("birds/painted.json"), getJSON("birds/progress_NZ.json")]);
+  const [world, painted, nz, col] = await Promise.all([getJSON("birds/world.json"), getJSON("birds/painted.json"),
+    getJSON("birds/progress_NZ.json"), getJSON("birds/collections.json")]);
   PAINTED = painted || {};
   if (!painted && nz) nz.birds.forEach(b => { if (b.webp.length) PAINTED[b.slug] = b.webp; });
+  COL = col;
+  buildArt();
   if (world) {
     WORLD = world;
     WORLD.slugs = world.species.map(([sci]) => slugOf(sci));
@@ -243,9 +257,30 @@ async function loadData() {
   }
   for (const c of Object.values(C)) c.s = stats(c);
 }
+// ART[slug] = {p, f}: the perched and flying illustration, each {url (null = not shown), src}.
+// Our own paintings come first; otherwise the community set that painted it first (birds/collections.json).
+const HOME = {id: "home", creator: "Tandarra", region: "New Zealand (this atlas)", license: "CC BY-NC-SA 4.0",
+  url: "https://github.com/tandarra/avianvisitors-NewZealand"};
+function buildArt() {
+  ART = {};
+  for (const [slug, files] of Object.entries(PAINTED)) {
+    const a = ART[slug] = {};
+    if (files.includes(slug + ".webp")) a.p = {url: `birds/${slug}.webp`, src: HOME};
+    if (files.includes(slug + "-2.webp")) a.f = {url: `birds/${slug}-2.webp`, src: HOME};
+  }
+  if (!COL) return;
+  for (const [slug, poses] of Object.entries(COL.img)) {
+    const a = ART[slug] = ART[slug] || {};
+    for (const [pose, key] of [["", "p"], ["-2", "f"]]) {
+      if (a[key] || !poses[pose]) continue;
+      const [i, orig, dir, ext] = poses[pose], src = COL.sources[i];
+      a[key] = {src, url: src.license ? `https://raw.githubusercontent.com/${src.repo}/${src.branch}/${dir}illustrations/${orig}${pose}.${ext}` : null};
+    }
+  }
+}
 function paintState(slug) {
-  const w = PAINTED[slug] || [];
-  return w.includes(slug + ".webp") && w.includes(slug + "-2.webp") ? "ok" : w.length ? "part" : "miss";
+  const a = ART[slug];
+  return a && a.p && a.f ? "ok" : a && (a.p || a.f) ? "part" : "miss";
 }
 function stats(c) {
   if (c.prog) return {total: c.prog.total, done: c.prog.done, part: c.prog.part};
@@ -257,10 +292,10 @@ function stats(c) {
 function checklist(c) {
   if (c.prog) return c.prog;
   const birds = c.sp.map(i => {
-    const [sci, com, code] = WORLD.species[i], slug = WORLD.slugs[i], webp = PAINTED[slug] || [];
-    return {com, sci, slug, webp, code, idx: i, wide: WORLD.wide[i], status: paintState(slug), pose2: "in flight"};
+    const [sci, com, code] = WORLD.species[i], slug = WORLD.slugs[i];
+    return {com, sci, slug, code, idx: i, wide: WORLD.wide[i], status: paintState(slug), pose2: "in flight"};
   }).sort((a, b) => a.com.localeCompare(b.com));
-  const s = c.s, images = birds.reduce((n, b) => n + b.webp.length, 0);
+  const s = c.s, images = birds.reduce((n, b) => n + (ART[b.slug]?.p ? 1 : 0) + (ART[b.slug]?.f ? 1 : 0), 0);
   return {total: s.total, done: s.done, part: s.part, miss: s.total - s.done - s.part, images, updated: WORLD.updated, birds};
 }
 
@@ -480,7 +515,7 @@ async function drawMap() {
     const c = d3.geoCentroid(f);
     return [c[0], Math.max(-75, Math.min(80, c[1]))];
   }
-  window.mapAim = aimFor; window.alba = alba;
+  window.mapAim = aimFor;
   const wake = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } };
   function visit(lonlat) {
     cam = lonlat;
@@ -589,8 +624,24 @@ function worldTracker() {
   $("#wbar2").style.cssText = `left:${(done / n * 100).toFixed(2)}%;width:${(part / n * 100).toFixed(2)}%`;
   $("#world").hidden = false;
   $("#wnext").onclick = () => paintNext(null);
+  setsTable();
   $("#wshare").onclick = () => shareCard(null);
   rankings();
+}
+
+// ---------- illustration sets (credits)
+function setsTable() {
+  const homeN = Object.values(ART).filter(a => (a.p && a.p.src === HOME) || (a.f && a.f.src === HOME)).length;
+  const rows = [{...HOME, species: homeN}, ...(COL ? COL.sources : [])].sort((a, b) => b.species - a.species);
+  $("#setbody").innerHTML = rows.map(s => `<tr><td>${s.region}</td>
+    <td><a href="${s.url}" target="_blank" rel="noopener">${s.creator}</a></td><td class="num">${fmt(s.species)}</td>
+    <td class="m">${s.license || "none stated: counted, not shown"}</td></tr>`).join("");
+  $("#setnote").textContent = COL ? `Community sets are listed in the Avian Visitors "Japanese Woodblock" bundle catalogue. ` +
+    `Their images load from each artist's GitHub repository; sets without a licence are counted and linked but not displayed. ` +
+    `Updated ${new Date(COL.updated).toLocaleDateString()}.` : "";
+  $("#sets").hidden = false;
+  const n = rows.filter(r => r.species).length;
+  $("#wtxt").textContent += ` · from ${n} illustration sets`;
 }
 
 // ---------- country rankings
@@ -677,29 +728,46 @@ function draw() {
     .sort(SORTS[sortBy] || SORTS.az);
   shown = list;
   $("#grid").innerHTML = list.length ? list.map((b, i) => `
-    <div class="c" data-i="${i}" tabindex="0" role="button" aria-label="${b.com}"><div class="imgs">${b.webp.length ? [...b.webp].sort((x, y) => (x === b.slug + ".webp" ? -1 : y === b.slug + ".webp" ? 1 : x < y ? -1 : 1)).slice(0, 3).map(w => `<img loading="lazy" src="birds/${w}" alt="">`).join("") : '<div class="ph"></div>'}</div>
+    <div class="c" data-i="${i}" tabindex="0" role="button" aria-label="${b.com}"><div class="imgs">${cardArt(b.slug)}</div>
     <div class="n">${b.com}</div><div class="s">${b.sci}</div><div class="chips">
-    <span class="${b.webp.includes(b.slug + ".webp") ? "ok" : "miss"}">perched</span>
-    <span class="${b.webp.includes(b.slug + "-2.webp") ? "ok" : "miss"}">${b.pose2}</span></div></div>`).join("")
+    <span class="${ART[b.slug]?.p ? "ok" : "miss"}">perched</span>
+    <span class="${ART[b.slug]?.f ? "ok" : "miss"}">${b.pose2}</span></div>${byline(b.slug)}</div>`).join("")
     : '<div class="empty">No species match.</div>';
   $("#grid").querySelectorAll(".c").forEach(c => {
     c.onclick = () => showSpecies(+c.dataset.i);
     c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showSpecies(+c.dataset.i); } };
   });
 }
-const posesOf = b => [...b.webp].sort((x, y) => (x === b.slug + ".webp" ? -1 : y === b.slug + ".webp" ? 1 : x < y ? -1 : 1));
+// illustration helpers: shown images, a placeholder where the set's licence doesn't allow showing it
+function cardArt(slug) {
+  const a = ART[slug] || {}, out = [], hidden = new Set();
+  for (const k of ["p", "f"]) if (a[k]) a[k].url ? out.push(`<img loading="lazy" src="${a[k].url}" alt="">`) : hidden.add(a[k].src.creator);
+  // poses from a set without an open licence: one tile naming the artist instead of the image
+  if (hidden.size) out.push(`<span class="ext">illustrated by<br>${[...hidden].join(" & ")} ↗</span>`);
+  return out.length ? out.join("") : '<div class="ph"></div>';
+}
+function credits(slug) {
+  const a = ART[slug] || {}, seen = new Map();
+  for (const k of ["p", "f"]) if (a[k]) seen.set(a[k].src.creator, a[k].src);
+  return [...seen.values()];
+}
+const byline = slug => { const c = credits(slug).filter(s => s !== HOME);
+  return c.length ? `<div class="by">by ${c.map(s => s.creator).join(" & ")}</div>` : ""; };
 let spAt = 0;
 function showSpecies(i) {
   if (!shown.length) return;
   spAt = (i + shown.length) % shown.length;
-  const b = shown[spAt], poses = posesOf(b), names = ["perched", b.pose2, "third pose"];
-  $("#spimgs").innerHTML = poses.length ? poses.slice(0, 3).map((w, k) =>
-    `<figure><img src="birds/${w}" alt="${b.com}, ${names[k] || "pose"}"><figcaption>${names[k] || "pose"}</figcaption></figure>`).join("")
-    : '<figure><div class="ph"></div><figcaption>not painted yet</figcaption></figure>';
+  const b = shown[spAt], a = ART[b.slug] || {};
+  const figs = [["p", "perched"], ["f", b.pose2]].filter(([k]) => a[k]).map(([k, name]) => a[k].url
+    ? `<figure><img src="${a[k].url}" alt="${b.com}, ${name}"><figcaption>${name}</figcaption></figure>`
+    : `<figure><a class="extbig" href="${a[k].src.url}" target="_blank" rel="noopener">Illustrated by ${a[k].src.creator}<br><small>view in their ${a[k].src.region} set ↗</small></a><figcaption>${name}</figcaption></figure>`);
+  $("#spimgs").innerHTML = figs.length ? figs.join("") : '<figure><div class="ph"></div><figcaption>not painted yet</figcaption></figure>';
   $("#spname").textContent = b.com; $("#spsci").textContent = b.sci;
-  $("#spchips").innerHTML = `<span class="${b.webp.includes(b.slug + ".webp") ? "ok" : "miss"}">perched</span>
-    <span class="${b.webp.includes(b.slug + "-2.webp") ? "ok" : "miss"}">${b.pose2}</span>`;
-  $("#spmeta").textContent = b.wide ? `Recorded by eBird in ${b.wide} ${b.wide === 1 ? "country" : "countries"}` : "";
+  $("#spchips").innerHTML = `<span class="${a.p ? "ok" : "miss"}">perched</span>
+    <span class="${a.f ? "ok" : "miss"}">${b.pose2}</span>`;
+  const cr = credits(b.slug);
+  $("#spmeta").innerHTML = (b.wide ? `Recorded by eBird in ${b.wide} ${b.wide === 1 ? "country" : "countries"}` : "") +
+    (cr.length ? `<br>Illustration: ${cr.map(s => `<a href="${s.url}" target="_blank" rel="noopener">${s.creator}</a> · ${s.region}${s.license ? " · " + s.license : ""}`).join("; ")}` : "");
   const q = encodeURIComponent(b.sci);
   $("#splinks").innerHTML = (b.code ? `<a href="https://ebird.org/species/${b.code}" target="_blank" rel="noopener">eBird</a>
     <a href="https://media.ebird.org/catalog?taxonCode=${b.code}&mediaType=audio" target="_blank" rel="noopener">Calls (Macaulay)</a>`
@@ -757,7 +825,8 @@ $("#pnx").onclick = () => $("#pn").close();
 $("#pn").addEventListener("click", e => { if (e.target === $("#pn")) $("#pn").close(); });
 
 // ---------- share card: a 1200 x 630 image of a country (or the world) and its progress
-const loadImg = src => new Promise(r => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = src; });
+const loadImg = src => new Promise(r => { const im = new Image(); im.crossOrigin = "anonymous";
+  im.onload = () => r(im); im.onerror = () => r(null); im.src = src; });
 async function shareCard(R) {
   const cv = document.createElement("canvas"); cv.width = 1200; cv.height = 630;
   const g = cv.getContext("2d");
@@ -795,9 +864,10 @@ async function shareCard(R) {
   for (let x = 64; x < 584; x += 4) { g.fillStyle = "rgba(0,0,0,.12)"; g.fillRect(x, 344, 2, 14); }
   g.fillStyle = "#141414"; g.fillRect(64, 344, 520 * share, 14);
   // a row of painted birds from this place
-  const pool = (R ? checklist(R).birds : Object.keys(PAINTED).map(slug => ({slug, webp: PAINTED[slug], wide: 0})))
-    .filter(b => b.webp && b.webp.length).sort((a, b) => (b.wide || 0) - (a.wide || 0)).slice(0, 7);
-  const ims = await Promise.all(pool.map(b => loadImg("birds/" + (b.webp.includes(b.slug + ".webp") ? b.slug + ".webp" : b.webp[0]))));
+  const urlOf = slug => { const a = ART[slug] || {}; return (a.p && a.p.url) || (a.f && a.f.url) || null; };
+  const pool = (R ? checklist(R).birds : Object.keys(ART).map(slug => ({slug, wide: 0})))
+    .filter(b => urlOf(b.slug)).sort((a, b) => (b.wide || 0) - (a.wide || 0)).slice(0, 7);
+  const ims = await Promise.all(pool.map(b => loadImg(urlOf(b.slug))));
   let x = 64;
   g.globalCompositeOperation = "multiply";
   for (const im of ims.filter(Boolean)) {
