@@ -8,7 +8,11 @@ name: Update illustration sets
 on:
   schedule:
     - cron: "23 17 * * *"     # 17:23 UTC = about 6:23 am in New Zealand
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      max_sounds:
+        description: "Bird sound lookups this run"
+        default: "2500"
 
 permissions:
   contents: write
@@ -46,7 +50,7 @@ jobs:
       - name: eBird codes and bird sounds
         env:
           XC_KEY: ${{ secrets.XC_KEY }}      # free xeno-canto API key; sounds are skipped until it's added
-        run: python tools/build_audio.py --max 2500
+        run: python tools/build_audio.py --max ${{ github.event.inputs.max_sounds || '2500' }}
 
       - name: Commit changes
         run: |
