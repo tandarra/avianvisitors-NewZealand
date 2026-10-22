@@ -749,7 +749,7 @@ function birdSearch() {
     const scored = [];
     bIdx.forEach(([c, s], i) => {
       if (!words.every(w => c.includes(w) || s.includes(w))) return;
-      const score = (c === v || s === v ? 0 : c.startsWith(v) || s.startsWith(v) ? 1 : c.split(" ").some(w => w.startsWith(words[0])) ? 2 : 3)
+      const score = (c === v || s === v ? 0 : c.startsWith(v) ? 1 : c.split(" ").some(w => w.startsWith(words[0])) ? 2 : s.startsWith(v) ? 3 : 4)
         * 1e5 - WORLD.wide[i];                                 // then the more widespread species first
       scored.push([score, i]);
     });
