@@ -19,7 +19,7 @@ header.top h1{margin:0;font-size:34px;letter-spacing:.01em}
 header.top img.flier{position:absolute;right:8px;top:6px;height:88px;mix-blend-mode:multiply;transform:scaleX(-1);opacity:.95}
 .mapbox{margin:18px 0 10px;border:1px solid var(--ink2);background:var(--paper2);padding:10px;position:relative}
 .mapbox::after{content:"";position:absolute;inset:4px;border:1px solid var(--line);pointer-events:none}
-#mapwrap{position:relative;width:100%;aspect-ratio:1000/439;overflow:hidden}
+#mapwrap{position:relative;width:100%;aspect-ratio:1000/509;overflow:hidden}
 #mapwrap svg{width:100%;height:100%;display:block}
 .sea{fill:url(#waves);stroke:var(--ink2);stroke-width:.8}
 .grat{fill:none;stroke:#b9b09c;stroke-width:.35;stroke-dasharray:2 3}
@@ -45,6 +45,8 @@ padding:4px 8px;font:11px 'Courier New',monospace;color:var(--mute);white-space:
 .world .bar{position:relative;margin:8px 0 0}.world .bar i{position:absolute;left:0;top:0}.world .bar i.half{background:#a8a093}
 .find{margin:14px 0 0;display:flex;gap:8px}
 .find input{flex:1;max-width:360px;font:15px Georgia,serif;padding:7px 10px;border:1px solid var(--ink);background:var(--paper2);color:var(--ink)}
+.pick[hidden]{display:none!important}
+#land path.fine{stroke-width:.25}#land path.fine.live{stroke-width:.3}.sea.ocean{cursor:pointer}
 .pick{border:1px solid var(--ink2);background:var(--paper2);padding:12px 14px;margin:0 0 28px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 .pick b{font-size:20px}.pick .m{font:12px 'Courier New',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .pick .bar{flex:1 1 200px;margin:0}.pick button{font:13px 'Courier New',monospace;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:7px 12px;cursor:pointer}
@@ -312,14 +314,16 @@ async function drawMap() {
     f.geometry.coordinates = f.geometry.coordinates.map(poly =>
       d3.geoArea({type: "Polygon", coordinates: poly}) > 2 * Math.PI ? poly.map(r => [...r].reverse()) : poly);
   }
-  const countries = [...topojson.feature(topo, topo.objects.countries).features.filter(f => f.id !== "010"), ...extra];
+  const countries = [...topojson.feature(topo, topo.objects.countries).features, ...extra];
   const byId = Object.fromEntries(countries.map(f => [f.id, f]));
 
-  // fit: whole world across 1000 units, crop the far south (no Antarctica)
-  proj = d3.geoEqualEarth().fitWidth(W, {type: "Sphere"});
-  const top = proj([0, 90])[1], bottom = proj([0, -58])[1];
-  base = {scale: proj.scale(), tx: proj.translate()[0], ty: proj.translate()[1] - top};
-  H = Math.round(bottom - top);
+  // fit: the whole globe, pole to pole, with a little room round the edge so the Arctic and
+  // Antarctic coasts aren't pressed against the frame
+  const PAD = 12;
+  proj = d3.geoEqualEarth().fitWidth(W - 2 * PAD, {type: "Sphere"});
+  const top = proj([0, 90])[1], bottom = proj([0, -90])[1];
+  base = {scale: proj.scale(), tx: proj.translate()[0] + PAD, ty: proj.translate()[1] - top + PAD};
+  H = Math.round(bottom - top + 2 * PAD);
   path = d3.geoPath(proj);
   wrap.style.aspectRatio = `${W}/${H}`;
 
@@ -334,6 +338,9 @@ async function drawMap() {
   el("path", {d: "M0 7 A7 7 0 0 1 14 7 M3 7 A4 4 0 0 1 11 7", fill: "none", stroke: "#cfd6d6", "stroke-width": .5}, w);
 
   const sea = el("path", {class: "sea"}, svg);
+  // the open ocean is eBird's "High Seas" region
+  if (C.XX) { sea.__R = C.XX; sea.__name = "High Seas (open ocean)"; sea.__ocean = true;
+    sea.addEventListener("click", () => tapCountry(C.XX)); sea.classList.add("ocean"); }
   const grat = el("path", {class: "grat"}, svg);
   const graticule = d3.geoGraticule().step([30, 30])();
   const land = el("g", {id: "land"}, svg);
@@ -341,6 +348,7 @@ async function drawMap() {
     const R = byIso[f.id], painted = R && R.s.done + R.s.part > 0;
     const p = el("path", R ? (painted ? {class: "live has", style: `--fill:${shade(R.s)}`} : {class: "has"}) : {}, land);
     p.__f = f; p.__R = R; p.__name = R ? R.name : f.properties.name;
+    if (f.properties.code) p.classList.add("fine");           // detailed island outlines: thinner ink
     if (R) { R.f = f; R.path = p; p.addEventListener("click", () => tapCountry(R)); }
     return p;
   });
@@ -468,7 +476,7 @@ async function drawMap() {
     tip.innerHTML = `<b>${node.__name}</b>` + (R ? `${fmt(R.s.done)} of ${fmt(R.s.total)} species illustrated (${pct(R.s)}%)<br>click to open checklist` : "");
     tip.style.opacity = 1;
     if (calm.matches) return;                          // reduced motion: highlight only
-    dwell = setTimeout(() => visit(d3.geoCentroid(node.__f)), DWELL);
+    if (node.__f) dwell = setTimeout(() => visit(d3.geoCentroid(node.__f)), DWELL);
   }
   let sel = null;
   window.mapSelect = R => {                            // used by the search box
@@ -521,7 +529,7 @@ async function drawMap() {
     tip.style.left = (x + 14 + tw > r.width ? x - 14 - tw : x + 14) + "px";
     tip.style.top = (y + 70 > r.height ? y - 60 : y + 14) + "px";
     const t = ev.target;
-    setHover(t && t.__f ? t : null);
+    setHover(t && (t.__f || t.__ocean) ? t : null);
   });
   svg.addEventListener("pointerleave", () => {
     setHover(null);
