@@ -151,9 +151,28 @@ function shade(p) {
 const pct = p => Math.round(p.done / p.total * 100);
 
 // ---------- live map: turns toward the country under the mouse, zooms a touch, inks its border
-const W = 1000, ZOOM = 1.18, DUR = 850;
+const W = 1000, ZOOM = 1.18, DWELL = 220;
 const calm = matchMedia("(prefers-reduced-motion: reduce)");
-const view = {lam: 0, k: 1, focus: [0, 0]};          // current rotation, zoom and zoom centre (lon/lat)
+// camera: rotation (lam), zoom (k) and the latitude it zooms about; each eases on a spring so a new
+// target only changes where it's heading, never restarting the motion
+const view = {lam: 0, k: 1, lat: 0, vlam: 0, vk: 0, vlat: 0};
+const R2D = 180 / Math.PI, D2R = Math.PI / 180;
+const wrapPi = x => Math.atan2(Math.sin(x), Math.cos(x));
+const wrap180 = x => ((x + 540) % 360) - 180;
+function bearing([l1, p1], [l2, p2]) {               // initial great-circle bearing, radians from north
+  l1 *= D2R; p1 *= D2R; l2 *= D2R; p2 *= D2R;
+  return Math.atan2(Math.sin(l2 - l1) * Math.cos(p2), Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(l2 - l1));
+}
+function travel([l, p], brg, d) {                    // point d radians along bearing brg
+  l *= D2R; p *= D2R;
+  const p2 = Math.asin(Math.sin(p) * Math.cos(d) + Math.cos(p) * Math.sin(d) * Math.cos(brg));
+  const l2 = l + Math.atan2(Math.sin(brg) * Math.sin(d) * Math.cos(p), Math.cos(d) - Math.sin(p) * Math.sin(p2));
+  return [wrap180(l2 * R2D), p2 * R2D];
+}
+function spring(o, key, vkey, target, w, dt) {        // critically damped
+  o[vkey] += (w * w * (target - o[key]) - 2 * w * o[vkey]) * dt;
+  o[key] += o[vkey] * dt;
+}
 let proj, path, H, base, render = () => {};
 
 async function drawMap() {
@@ -199,12 +218,13 @@ async function drawMap() {
   paths.filter(p => p.__R).forEach(p => land.appendChild(p));
   // generous tap target for small countries
   const over = el("g", {}, svg);
-  // the albatross: overhead view, flying along the great circle while the map turns underneath
+  // the albatross: an overhead view of a bird that steers (keeps its speed and heading, banks round
+  // to a new target) rather than following a fixed route that restarts on every hover
   const shadow = el("g", {class: "bird-shadow"}, svg), bird = el("g", {class: "bird"}, svg);
   shadow.innerHTML = ALBATROSS.replace(/fill="[^"]*"/g, 'fill="#141414"').replace(/stroke="[^"]*"/g, 'stroke="none"');
   bird.innerHTML = ALBATROSS;
-  const wingsOf = g => [...g.querySelectorAll(".wing")];
-  const flight = {on: false, e: 0, interp: null, heading: 0};
+  const wings = [...bird.querySelectorAll(".wing"), ...shadow.querySelectorAll(".wing")];
+  const alba = {pos: [...REGIONS[0].at], hdg: 0, spd: 0, turn: 0, alt: 0, target: null, up: false};
   for (const R of live) {
     R.hit = el("circle", {r: 22, class: "hit"}, over);
     R.hit.__R = R; R.hit.__name = R.name; R.hit.__f = byId[R.ids[0]];
@@ -212,26 +232,27 @@ async function drawMap() {
   }
 
   render = () => {
-    // rotate, then scale about the focus point so it stays put while the map zooms
+    // rotate, then scale about the camera's latitude so that point stays put while the map zooms
+    const focus = [-view.lam, view.lat];
     proj.rotate([view.lam, 0]).scale(base.scale).translate([base.tx, base.ty]);
-    const p0 = proj(view.focus) || [W / 2, H / 2];
+    const p0 = proj(focus) || [W / 2, H / 2];
     proj.scale(base.scale * view.k).translate([p0[0] - view.k * (p0[0] - base.tx), p0[1] - view.k * (p0[1] - base.ty)]);
     sea.setAttribute("d", path({type: "Sphere"}));
     grat.setAttribute("d", path(graticule));
     for (const p of paths) p.setAttribute("d", path(p.__f) || "");
     for (const R of live) { const a = proj(R.at); if (a) { R.hit.setAttribute("cx", a[0]); R.hit.setAttribute("cy", a[1]); } }
-    if (flight.on) {
-      const e = flight.e, a = proj(flight.interp(e)), b = proj(flight.interp(Math.min(1, e + .02)));
-      if (a && b && Math.hypot(b[0] - a[0], b[1] - a[1]) > .05) flight.heading = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
-      if (a) {
-        const alt = Math.sin(Math.PI * e), sc = (.8 + .45 * alt) * Math.min(1.25, view.k);
-        // slow dynamic-soaring wing flex: mostly gliding, a gentle beat now and then
-        const flex = 1 - .1 * Math.pow(Math.sin(performance.now() / 260), 8);
-        const at = `translate(${a[0].toFixed(1)},${a[1].toFixed(1)}) rotate(${flight.heading.toFixed(1)}) scale(${sc.toFixed(3)})`;
-        bird.setAttribute("transform", at);
-        shadow.setAttribute("transform", `translate(${(a[0] + 3 + 14 * alt).toFixed(1)},${(a[1] + 4 + 20 * alt).toFixed(1)}) rotate(${flight.heading.toFixed(1)}) scale(${(sc * .92).toFixed(3)})`);
+    if (alba.up) {
+      const a = proj(alba.pos), b = proj(travel(alba.pos, alba.hdg, .02));
+      if (a && b) {
+        const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * R2D, alt = alba.alt;
+        const sc = (.78 + .42 * alt) * Math.min(1.2, view.k);
+        const bank = Math.max(-1, Math.min(1, alba.turn / 2.2));
+        // gliding, with an occasional slow beat; wings foreshorten a little when it banks
+        const flex = (1 - .1 * Math.pow(Math.sin(performance.now() / 260), 8)) * (1 - .14 * Math.abs(bank));
+        bird.setAttribute("transform", `translate(${a[0].toFixed(1)},${a[1].toFixed(1)}) rotate(${ang.toFixed(1)}) scale(${sc.toFixed(3)})`);
+        shadow.setAttribute("transform", `translate(${(a[0] + 3 + 14 * alt).toFixed(1)},${(a[1] + 4 + 20 * alt).toFixed(1)}) rotate(${ang.toFixed(1)}) scale(${(sc * .92).toFixed(3)})`);
         shadow.style.setProperty("--o", (.24 - .1 * alt).toFixed(2));
-        for (const w of [...wingsOf(bird), ...wingsOf(shadow)]) w.setAttribute("transform", `scale(1,${flex.toFixed(3)})`);
+        for (const w of wings) w.setAttribute("transform", `scale(1,${flex.toFixed(3)})`);
       }
     }
   };
@@ -241,39 +262,63 @@ async function drawMap() {
   $("#legend").innerHTML = `<span>Illustrated: 0%</span><i class="ramp" style="background:linear-gradient(90deg,${SHADE.join(",")})"></i>
     <span>100%</span><span class="hint">Hover a country &middot; click a shaded one to open its checklist</span>`;
 
-  // ---- hover: ink the border at once; turn + zoom after a short dwell, only when the mouse itself moved
-  let hoverNode = null, hovered = null, dwell = null, leaveT = null, lastMove = 0, animEnd = 0, anim = null;
-  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  let birdAt = REGIONS[0].at, fadeT = null;          // where the albatross last landed (starts at home)
-  function animateTo(lam, k, focus, fly) {
-    cancelAnimationFrame(anim);
-    const from = {...view}, d = ((lam - from.lam + 540) % 360) - 180, t0 = performance.now();
-    if (focus) view.focus = focus;
-    let dur = DUR;
-    if (fly) {
-      const start = flight.on ? flight.interp(flight.e) : birdAt;     // mid-air re-route starts where it is
-      const dist = d3.geoDistance(start, fly);
-      if (dist > .03) {
-        Object.assign(flight, {on: true, e: 0, interp: d3.geoInterpolate(start, fly)});
-        dur = 1000 + 1100 * Math.min(1, dist / Math.PI);
-        clearTimeout(fadeT); bird.classList.add("up"); shadow.classList.add("up");
+  // ---- one animation loop: bird physics + camera springs, sleeping when everything has settled
+  let cam = null, raf = 0, last = 0;                  // cam = [lon, lat] the camera is visiting, or null = home
+  function tick(now) {
+    const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
+    // bird
+    if (alba.target) {
+      const dist = d3.geoDistance(alba.pos, alba.target);
+      if (dist < .006) {
+        alba.pos = [...alba.target]; alba.target = null;
+      } else {
+        const err = wrapPi(bearing(alba.pos, alba.target) - alba.hdg);
+        const maxTurn = 1.4 + 6 * (1 - Math.min(1, dist / .6));          // rad/s: wide arcs far out, tight near the end
+        alba.turn += (Math.max(-maxTurn, Math.min(maxTurn, err * 3.5)) - alba.turn) * Math.min(1, dt * 6);
+        alba.hdg = wrapPi(alba.hdg + alba.turn * dt);
+        const cruise = Math.max(.1, Math.min(1.35, dist * 2.2)) * Math.max(.3, Math.cos(err / 2) ** 2);
+        alba.spd += (cruise - alba.spd) * Math.min(1, dt * 2.5);           // gentle take-off, no snapping
+        alba.pos = travel(alba.pos, alba.hdg, Math.min(alba.spd * dt, dist));
       }
-      birdAt = fly;
+    } else { alba.spd *= .9; alba.turn *= .9; }
+    const flying = !!alba.target;
+    const altT = flying ? Math.min(1, d3.geoDistance(alba.pos, alba.target) / .3) : 0;
+    alba.alt += (altT - alba.alt) * Math.min(1, dt * (flying ? 2.2 : 4));
+    const show = flying || alba.alt > .03;
+    if (show !== alba.up) { alba.up = show; bird.classList.toggle("up", show); shadow.classList.toggle("up", show); }
+    // camera: follow the bird a little ahead while it flies, settle on the country when it lands
+    let lonT = 0, latT = 0, kT = 1;
+    if (cam) {
+      if (flying) {
+        const dl = wrap180(alba.target[0] - alba.pos[0]);
+        lonT = alba.pos[0] + .35 * dl; latT = alba.pos[1] + .35 * (alba.target[1] - alba.pos[1]);
+        kT = ZOOM - (ZOOM - .98) * alba.alt;                                // ease out while airborne
+      } else { lonT = cam[0]; latT = cam[1]; kT = ZOOM; }
     }
-    const step = now => {
-      const t = Math.min(1, (now - t0) / dur), e = ease(t);
-      view.lam = from.lam + d * e; view.k = from.k + (k - from.k) * e;
-      if (flight.on) flight.e = e;
-      render();
-      if (t < 1) anim = requestAnimationFrame(step);
-      else {
-        animEnd = performance.now();
-        if (flight.on) fadeT = setTimeout(() => { bird.classList.remove("up"); shadow.classList.remove("up");
-          setTimeout(() => flight.on = false, 400); }, 250);
-      }
-    };
-    anim = requestAnimationFrame(step);
+    const lamT = view.lam + wrap180(-lonT - view.lam);
+    spring(view, "lam", "vlam", lamT, 2.6, dt);
+    view.vlam = Math.max(-150, Math.min(150, view.vlam));                 // never whip round faster than 150°/s
+    spring(view, "k", "vk", kT, 4, dt);
+    spring(view, "lat", "vlat", latT, 3, dt);
+    view.lam = wrap180(view.lam);
+    render();
+    const settled = !flying && !alba.up && Math.abs(wrap180(lamT - view.lam)) < .02 && Math.abs(view.vlam) < .02
+      && Math.abs(kT - view.k) < .001 && Math.abs(view.vk) < .001 && Math.abs(latT - view.lat) < .02;
+    raf = settled ? 0 : requestAnimationFrame(tick);
   }
+  const wake = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } };
+  function visit(lonlat) {
+    cam = lonlat;
+    if (d3.geoDistance(alba.pos, lonlat) > .03 || alba.target) {
+      if (!alba.target && !alba.up) alba.hdg = bearing(alba.pos, lonlat);  // take off facing the way it's going
+      alba.target = lonlat;
+    }
+    wake();
+  }
+
+  // ---- hover: ink the border at once; send the bird after a short pause. Only real mouse movement
+  // counts, so the map sliding under a still mouse never retargets anything.
+  let hoverNode = null, hovered = null, dwell = null, leaveT = null;
   function setHover(node) {
     if (hoverNode === node) return;
     if (hovered) hovered.classList.remove("hov");
@@ -285,14 +330,11 @@ async function drawMap() {
     const R = node.__R;
     tip.innerHTML = `<b>${node.__name}</b>` + (R ? `${R.p.done} of ${R.p.total} species illustrated (${pct(R.p)}%)<br>click to open checklist` : "");
     tip.style.opacity = 1;
-    dwell = setTimeout(() => {
-      if (lastMove < animEnd || calm.matches) return;   // don't chase when the map moved under a still mouse
-      const c = d3.geoCentroid(node.__f);
-      animateTo(-c[0], ZOOM, c, c);
-    }, 160);
+    if (calm.matches) return;                          // reduced motion: highlight only
+    dwell = setTimeout(() => visit(d3.geoCentroid(node.__f)), DWELL);
   }
   svg.addEventListener("pointermove", ev => {
-    lastMove = performance.now(); clearTimeout(leaveT);
+    clearTimeout(leaveT);
     const r = wrap.getBoundingClientRect();
     const x = ev.clientX - r.left, y = ev.clientY - r.top, tw = tip.offsetWidth || 160;
     tip.style.left = (x + 14 + tw > r.width ? x - 14 - tw : x + 14) + "px";
@@ -302,7 +344,7 @@ async function drawMap() {
   });
   svg.addEventListener("pointerleave", () => {
     setHover(null);
-    leaveT = setTimeout(() => animateTo(0, 1, null), 500);
+    leaveT = setTimeout(() => { cam = null; wake(); }, 600);   // drift home; the bird finishes its landing
   });
   wrap.removeAttribute("aria-busy");
 }
