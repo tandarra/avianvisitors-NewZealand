@@ -173,6 +173,25 @@ def all_sets(cache):
     return [s for s in sets if s["repo"].lower() not in ignore]
 
 
+_WORLD = None
+def guess_country(species, top=2):
+    """Where a set of species is from: countries scored by sum(1 / number of countries recording each species),
+    so range-restricted birds count most. Returns e.g. "New Zealand (95%)" where % = share of species found there."""
+    global _WORLD
+    if _WORLD is None:
+        w = json.loads((ROOT / "birds" / "world.json").read_text(encoding="utf-8"))
+        idx = {slug(sp[0]): i for i, sp in enumerate(w["species"])}
+        wide = collections.Counter(i for c in w["countries"] for i in c["sp"])
+        _WORLD = (idx, wide, [(c["name"], set(c["sp"])) for c in w["countries"]])
+    idx, wide, countries = _WORLD
+    sp = {idx[slug(RENAMES.get(x, x))] for x in species if slug(RENAMES.get(x, x)) in idx}
+    if not sp:
+        return "?"
+    scored = sorted(((sum(1 / wide[i] for i in sp & cs), name, len(sp & cs) / len(sp)) for name, cs in countries), reverse=True)
+    best = scored[0][0]
+    return ", ".join(f"{n} ({p:.0%})" for sc, n, p in scored[:top] if sc >= best * 0.6)
+
+
 def scan_forks(sets, token, days=60, limit=60):
     """Forks of Avian Visitors that recently added illustrations and aren't listed yet: candidates to review."""
     known = {s["repo"].lower() for s in sets}
@@ -205,9 +224,13 @@ def scan_forks(sets, token, days=60, limit=60):
             added = [x["filename"] for x in cmp.get("files", []) if x.get("status") == "added" and PAT.match(x["filename"])]
             sp = {PAT.match(x).group(2) for x in added}
             if len(sp) >= 10 and (not best or len(sp) > best[1]):
-                best = (b, len(sp))
+                msgs = [c["commit"]["message"].splitlines()[0] for c in cmp.get("commits", [])
+                        if c.get("author") is None or c["author"].get("login") == f["owner"]["login"]]
+                note = next((m for m in reversed(msgs) if re.search(r"(?i)illustrat|bird|species", m)), msgs[-1] if msgs else "")
+                best = (b, len(sp), sp, note)
         if best:
             out.append({"repo": f["full_name"], "branch": best[0], "species_added": best[1], "pushed": f["pushed_at"][:10],
+                        "country": guess_country(best[2]), "note": best[3][:90].replace("|", "/"),
                         "url": f"https://github.com/{f['full_name']}/tree/{best[0]}"})
         if checked >= limit: break
     return out
@@ -303,8 +326,12 @@ def main():
             lines = ["Forks of Avian Visitors that recently added illustrations but aren't in the atlas yet. "
                      "Check the style matches (Japanese woodblock / kachō-e), then either add the set to "
                      "`tools/extra_sets.json` under `sets` (repo, branch, region, creator, covers) or under `ignore`.", "",
-                     "| Repository | Branch | New species | Last push |", "|---|---|---|---|"]
-            lines += [f"| [{c['repo']}]({c['url']}) | `{c['branch']}` | {c['species_added']} | {c['pushed']} |" for c in cands]
+                     "**Likely country** is worked out from the birds themselves (birds found in few countries count most; "
+                     "% = share of the new species recorded there). **Commit note** is the fork's own description.", "",
+                     "| Repository | Likely country | New species | Commit note | Branch | Last push |",
+                     "|---|---|---|---|---|---|"]
+            lines += [f"| [{c['repo']}]({c['url']}) | {c['country']} | {c['species_added']} | {c['note']} | `{c['branch']}` | {c['pushed']} |"
+                      for c in cands]
             md.write_text("\n".join(lines) + "\n", encoding="utf-8")
             print(f"{len(cands)} candidate set(s) -> candidates.md")
         elif md.exists():
