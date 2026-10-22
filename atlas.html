@@ -415,6 +415,10 @@ async function drawMap() {
       const dist = d3.geoDistance(alba.pos, alba.target);
       if (dist < .006) {
         alba.pos = [...alba.target]; alba.target = null;
+      } else if (dist < .05) {
+        // final approach: glide straight in (no turning circle to get caught in)
+        alba.hdg = bearing(alba.pos, alba.target); alba.turn *= .8;
+        alba.pos = travel(alba.pos, alba.hdg, Math.min(Math.max(alba.spd, .08) * dt, dist));
       } else {
         const err = wrapPi(bearing(alba.pos, alba.target) - alba.hdg);
         const maxTurn = 1.4 + 6 * (1 - Math.min(1, dist / .6));          // rad/s: wide arcs far out, tight near the end
@@ -444,6 +448,7 @@ async function drawMap() {
     spring(view, "lam", "vlam", lamT, 2.6, dt);
     view.vlam = Math.max(-150, Math.min(150, view.vlam));                 // never whip round faster than 150°/s
     spring(view, "k", "vk", kT, 4, dt);
+    latT = Math.max(-65, Math.min(72, latT));                             // keep the camera off the poles
     spring(view, "lat", "vlat", latT, 3, dt);
     view.lam = wrap180(view.lam);
     render();
@@ -451,6 +456,15 @@ async function drawMap() {
       && Math.abs(kT - view.k) < .001 && Math.abs(view.vk) < .001 && Math.abs(latT - view.lat) < .02;
     raf = settled ? 0 : requestAnimationFrame(tick);
   }
+  // where to fly for a place: its centre, but never a pole (bearings break down there). A polar cap
+  // like Antarctica gets the coast straight below/above where the map is looking.
+  function aimFor(f) {
+    if (d3.geoContains(f, [0, -90])) return [wrap180(-view.lam), -72];
+    if (d3.geoContains(f, [0, 90])) return [wrap180(-view.lam), 80];
+    const c = d3.geoCentroid(f);
+    return [c[0], Math.max(-75, Math.min(80, c[1]))];
+  }
+  window.mapAim = aimFor;
   const wake = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } };
   function visit(lonlat) {
     cam = lonlat;
@@ -476,14 +490,14 @@ async function drawMap() {
     tip.innerHTML = `<b>${node.__name}</b>` + (R ? `${fmt(R.s.done)} of ${fmt(R.s.total)} species illustrated (${pct(R.s)}%)<br>click to open checklist` : "");
     tip.style.opacity = 1;
     if (calm.matches) return;                          // reduced motion: highlight only
-    if (node.__f) dwell = setTimeout(() => visit(d3.geoCentroid(node.__f)), DWELL);
+    if (node.__f) dwell = setTimeout(() => visit(aimFor(node.__f)), DWELL);
   }
   let sel = null;
   window.mapSelect = R => {                            // used by the search box
     if (sel) sel.classList.remove("sel");
     sel = R.path || null;
-    if (sel) { sel.classList.add("sel"); land.appendChild(sel); if (!calm.matches) visit(d3.geoCentroid(R.f)); }
-    else if (!calm.matches && R.f) visit(d3.geoCentroid(R.f));
+    if (sel) { sel.classList.add("sel"); land.appendChild(sel); if (!calm.matches) visit(aimFor(R.f)); }
+    else if (!calm.matches && R.f) visit(aimFor(R.f));
   };
   // ---- drag to turn the globe, pinch / buttons to zoom (mouse, pen and touch)
   const pts = new Map(); let drag = null;
