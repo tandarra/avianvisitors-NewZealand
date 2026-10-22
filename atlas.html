@@ -34,6 +34,8 @@ padding:4px 8px;font:11px 'Courier New',monospace;color:var(--mute);white-space:
 .tip b{display:block;font:700 14px Georgia,serif;color:var(--ink)}
 
 .hit{fill:transparent;cursor:pointer}
+.hit.isle{fill:rgba(239,235,225,.6);stroke:var(--ink2);stroke-width:.6}.hit.isle.live{fill:var(--fill);stroke:var(--ink)}
+.hit.isle:hover{stroke-width:1.4;stroke:var(--ink)}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font:12px 'Courier New',monospace;color:var(--mute);align-items:center;margin:2px 0 6px}
 #land path.live{fill:var(--fill);stroke:var(--ink);stroke-width:.7;cursor:pointer}
 .legend{margin:4px 0 28px;gap:8px}.legend .ramp{display:inline-block;width:160px;height:10px;border:1px solid var(--ink)}
@@ -48,6 +50,41 @@ padding:4px 8px;font:11px 'Courier New',monospace;color:var(--mute);white-space:
 .pick .bar{flex:1 1 200px;margin:0}.pick button{font:13px 'Courier New',monospace;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:7px 12px;cursor:pointer}
 #land path.has{cursor:pointer}
 #land path.sel{stroke:var(--ink);stroke-width:1.8}
+.ghost{font:12px 'Courier New',monospace;border:1px solid var(--ink);background:transparent;color:var(--ink);padding:5px 10px;cursor:pointer}
+.ghost:hover{background:#fff8ec}
+.world .acts{display:flex;gap:8px;margin-top:8px}
+.mapbox{position:relative}
+.zoom{position:absolute;right:16px;bottom:16px;display:flex;flex-direction:column;gap:4px;z-index:3}
+.zoom button{width:30px;height:30px;font:16px Georgia,serif;border:1px solid var(--ink);background:var(--paper2);color:var(--ink);cursor:pointer;line-height:1}
+#mapwrap svg{touch-action:none;cursor:grab}#mapwrap svg.drag{cursor:grabbing}
+.rank{margin:0 0 30px}.rank .rh{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.rank h3{margin:0;font-size:20px}.rank .seg{display:flex;gap:4px}
+.rank table{width:100%;border-collapse:collapse;margin:6px 0 10px;font-size:15px}
+.rank td,.rank th{padding:6px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rank th{font:11px 'Courier New',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;font-weight:400}
+.rank .num{text-align:right;font-family:'Courier New',monospace;font-size:13px;white-space:nowrap}
+.rank tbody tr{cursor:pointer}.rank tbody tr:hover{background:#fff8ec}
+.rank .barc{width:30%}.rank .barc .bar{margin:0}
+.rank td:first-child{font:12px 'Courier New',monospace;color:var(--mute);width:2.5em}
+.c{cursor:pointer}.c:hover{border-color:var(--ink2);background:#fff8ec}
+select{font:13px 'Courier New',monospace;border:1px solid var(--ink);background:transparent;padding:5px 6px;color:var(--ink)}
+dialog{border:1px solid var(--ink);background:var(--paper);color:var(--ink);padding:0;max-width:min(860px,94vw);width:100%;box-shadow:6px 6px 0 rgba(20,20,20,.25)}
+dialog::backdrop{background:rgba(20,20,20,.45)}
+.spin{padding:22px;position:relative}
+.x{position:absolute;right:10px;top:8px;border:0;background:none;font:28px Georgia,serif;cursor:pointer;color:var(--ink)}
+.spimgs{display:flex;gap:18px;align-items:center;justify-content:center;min-height:260px;background:var(--paper2);border:1px solid var(--line);padding:16px}
+.spimgs figure{margin:0;text-align:center;flex:1}
+.spimgs img{max-width:100%;max-height:300px;object-fit:contain;mix-blend-mode:multiply}
+.spimgs figcaption,.m{font:12px 'Courier New',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.spimgs .ph{width:180px;height:180px;margin:auto}
+.spbody h3{margin:14px 0 2px;font-size:26px}
+.links{display:flex;gap:8px;flex-wrap:wrap}.links a{font:12px 'Courier New',monospace;border:1px solid var(--ink);padding:5px 9px;text-decoration:none}
+.links a:hover{background:#fff8ec}
+.spnav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.spnav button{font:18px Georgia,serif;border:1px solid var(--ink);background:transparent;width:40px;height:34px;cursor:pointer}
+#pn h3{margin:0 0 4px;font-size:22px}
+#pnlist{columns:2 260px;font-size:14px;margin:12px 0 0;padding-left:28px}#pnlist li{margin:0 0 4px;break-inside:avoid}
+#pnlist small{color:var(--mute);font:11px 'Courier New',monospace}
 /* checklist panel */
 #panel[hidden]{display:none}
 #panel header{position:sticky;top:0;background:var(--paper);border-bottom:3px solid var(--ink);padding:14px 0 12px;z-index:3}
@@ -70,7 +107,10 @@ button.back{margin-right:4px}
 .ok{color:var(--ok)}.part{color:var(--part)}.miss{color:var(--miss)}
 .empty{font:13px 'Courier New',monospace;color:var(--mute);padding:20px 0}
 footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier New',monospace;color:var(--mute)}
-@media (max-width:640px){header.top h1{font-size:26px}header.top img.flier{height:60px}.legend .hint{margin-left:0;width:100%}}
+@media (max-width:640px){header.top h1{font-size:26px}header.top img.flier{height:60px}.legend .hint{margin-left:0;width:100%}
+  .pick{position:sticky;bottom:0;z-index:6;margin:0 -20px 20px;border-width:2px 0 0;box-shadow:0 -4px 12px rgba(20,20,20,.15)}
+  .rank .barc{display:none}.spimgs{flex-direction:column;min-height:0}.spimgs img{max-height:200px}
+  .zoom{right:12px;bottom:12px}}
 </style>
 </head>
 <body>
@@ -86,14 +126,23 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
     <div class="world" id="world" hidden>
       <div class="wl"><b id="wnum"></b><span id="wtxt"></span></div>
       <div class="bar"><i id="wbar"></i><i id="wbar2" class="half"></i></div>
+      <div class="acts"><button class="ghost" id="wnext">Paint next &rarr;</button><button class="ghost" id="wshare">Share card</button></div>
     </div>
     <div class="find">
       <input id="find" list="clist" placeholder="Find a country…" aria-label="Find a country" autocomplete="off">
       <datalist id="clist"></datalist>
     </div>
-    <div class="mapbox"><div id="mapwrap" aria-busy="true"></div></div>
+    <div class="mapbox"><div id="mapwrap" aria-busy="true"></div>
+      <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">&minus;</button><button id="zhome" aria-label="Reset view">&#8634;</button></div>
+    </div>
     <div class="legend" id="legend"></div>
     <div class="pick" id="pick" hidden></div>
+    <section class="rank" id="rank" hidden>
+      <div class="rh"><h3>Country rankings</h3>
+        <div class="seg"><button class="f on" data-r="pct">% illustrated</button><button class="f" data-r="done">Species painted</button><button class="f" data-r="total">Biggest lists</button></div></div>
+      <table><thead><tr><th>#</th><th>Country</th><th class="num">Illustrated</th><th class="num">%</th><th class="barc"></th></tr></thead><tbody id="rbody"></tbody></table>
+      <button class="ghost" id="rmore"></button>
+    </section>
   </section>
 
   <section id="panel" hidden>
@@ -105,10 +154,28 @@ footer{border-top:1px solid var(--line);padding:14px 0 30px;font:12px 'Courier N
         <button class="f on" data-f="all">All</button><button class="f" data-f="ok">Complete</button>
         <button class="f" data-f="part">Partial</button><button class="f" data-f="miss">Missing</button>
         <input id="q" placeholder="Search name..." aria-label="Search species">
+        <select id="sort" aria-label="Sort species"><option value="az">A–Z</option><option value="tax">eBird order</option>
+          <option value="wide">Most widespread</option><option value="miss">Missing first</option></select>
+        <button class="ghost" id="pnext">Paint next</button><button class="ghost" id="pshare">Share card</button>
       </div>
     </header>
     <main id="grid"></main>
   </section>
+
+  <dialog id="sp" aria-label="Species"><div class="spin">
+    <button class="x" id="spx" aria-label="Close">&times;</button>
+    <div class="spimgs" id="spimgs"></div>
+    <div class="spbody"><h3 id="spname"></h3><div class="s" id="spsci"></div><div class="chips" id="spchips"></div>
+      <p class="m" id="spmeta"></p><div class="links" id="splinks"></div></div>
+    <div class="spnav"><button id="spprev" aria-label="Previous">&larr;</button><span id="sppos"></span><button id="spnext" aria-label="Next">&rarr;</button></div>
+  </div></dialog>
+  <dialog id="pn" aria-label="Paint next"><div class="spin">
+    <button class="x" id="pnx" aria-label="Close">&times;</button>
+    <h3 id="pnt"></h3><p class="m" id="pnm"></p>
+    <div class="tools"><label class="m">How many <select id="pncount"><option>25</option><option selected>50</option><option>100</option><option>250</option></select></label>
+      <button class="f on" id="pndl">Download paint_next.txt</button><button class="f" id="pncp">Copy command</button></div>
+    <ol id="pnlist"></ol>
+  </div></dialog>
 
   <footer>Illustrations generated in the style of <a href="https://theodore.net/projects/AvianVisitors/">Avian Visitors</a> &middot;
     CC BY-NC-SA 4.0 &middot; Species lists from eBird &middot; Map: Natural Earth &middot;
@@ -161,6 +228,8 @@ async function loadData() {
   if (world) {
     WORLD = world;
     WORLD.slugs = world.species.map(([sci]) => slugOf(sci));
+    WORLD.wide = new Uint16Array(world.species.length);           // how many countries record each species
+    for (const c of world.countries) for (const i of c.sp) WORLD.wide[i]++;
     for (const c of world.countries) C[c.code] = {code: c.code, name: c.name, iso: c.iso, sp: c.sp};
   } else if (nz) {
     C.NZ = {code: "NZ", name: "New Zealand", iso: "554", prog: nz};
@@ -181,8 +250,8 @@ function stats(c) {
 function checklist(c) {
   if (c.prog) return c.prog;
   const birds = c.sp.map(i => {
-    const [sci, com] = WORLD.species[i], slug = WORLD.slugs[i], webp = PAINTED[slug] || [];
-    return {com, sci, slug, webp, status: paintState(slug), pose2: "second pose"};
+    const [sci, com, code] = WORLD.species[i], slug = WORLD.slugs[i], webp = PAINTED[slug] || [];
+    return {com, sci, slug, webp, code, idx: i, wide: WORLD.wide[i], status: paintState(slug), pose2: "in flight"};
   }).sort((a, b) => a.com.localeCompare(b.com));
   const s = c.s, images = birds.reduce((n, b) => n + b.webp.length, 0);
   return {total: s.total, done: s.done, part: s.part, miss: s.total - s.done - s.part, images, updated: WORLD.updated, birds};
@@ -229,8 +298,16 @@ async function drawMap() {
   const topo = await (await fetch("birds/world-110m.json")).json();
   await loadData();
   const byIso = {};
-  Object.values(C).forEach(c => { if (c.iso) byIso[c.iso] = c; });
-  const countries = topojson.feature(topo, topo.objects.countries).features.filter(f => f.id !== "010");
+  Object.values(C).forEach(c => { byIso[c.iso || c.code] = c; });
+  // small islands and overseas territories the 110m map leaves out (tools/build_world_extra.py)
+  const extra = WORLD ? (await getJSON("birds/world-extra.json"))?.features || [] : [];
+  for (const f of extra) {
+    if (f.geometry.type === "Point") { f.geometry = d3.geoCircle().center(f.geometry.coordinates).radius(.35)().valueOf(); continue; }
+    // tiny atoll rings can come out wound inside-out (covering the globe): flip any that do
+    f.geometry.coordinates = f.geometry.coordinates.map(poly =>
+      d3.geoArea({type: "Polygon", coordinates: poly}) > 2 * Math.PI ? poly.map(r => [...r].reverse()) : poly);
+  }
+  const countries = [...topojson.feature(topo, topo.objects.countries).features.filter(f => f.id !== "010"), ...extra];
   const byId = Object.fromEntries(countries.map(f => [f.id, f]));
 
   // fit: whole world across 1000 units, crop the far south (no Antarctica)
@@ -259,11 +336,12 @@ async function drawMap() {
     const R = byIso[f.id], painted = R && R.s.done + R.s.part > 0;
     const p = el("path", R ? (painted ? {class: "live has", style: `--fill:${shade(R.s)}`} : {class: "has"}) : {}, land);
     p.__f = f; p.__R = R; p.__name = R ? R.name : f.properties.name;
-    if (R) { R.f = f; R.path = p; p.addEventListener("click", () => openRegion(R.code)); }
+    if (R) { R.f = f; R.path = p; p.addEventListener("click", () => tapCountry(R)); }
     return p;
   });
   // small countries with birds get a generous invisible tap target
-  const live = Object.values(C).filter(R => R.f && R.s.done + R.s.part > 0 && d3.geoArea(R.f) < 2.5e-3)
+  // tiny places get a small visible ring as a hover / tap target
+  const live = Object.values(C).filter(R => R.f && d3.geoArea(R.f) < 1.5e-4)
     .map(R => Object.assign(R, {at: d3.geoCentroid(R.f)}));
   // keep coloured countries on top so their bold border isn't covered by neighbours
   paths.filter(p => p.__R).forEach(p => land.appendChild(p));
@@ -277,9 +355,10 @@ async function drawMap() {
   const wings = [...bird.querySelectorAll(".wing"), ...shadow.querySelectorAll(".wing")];
   const alba = {pos: [172.5, -41.5], hdg: 0, spd: 0, turn: 0, alt: 0, target: null, up: false};   // home: NZ
   for (const R of live) {
-    R.hit = el("circle", {r: 18, class: "hit"}, over);
+    const painted = R.s.done + R.s.part > 0;
+    R.hit = el("circle", {r: 4.5, class: "hit isle" + (painted ? " live" : ""), style: painted ? `--fill:${shade(R.s)}` : ""}, over);
     R.hit.__R = R; R.hit.__name = R.name; R.hit.__f = R.f;
-    R.hit.addEventListener("click", () => openRegion(R.code));
+    R.hit.addEventListener("click", () => tapCountry(R));
   }
 
   render = () => {
@@ -315,6 +394,7 @@ async function drawMap() {
 
   // ---- one animation loop: bird physics + camera springs, sleeping when everything has settled
   let cam = null, raf = 0, last = 0;                  // cam = [lon, lat] the camera is visiting, or null = home
+  let man = null;                                      // manual view from drag / pinch / zoom buttons: {lon, lat, k}
   function tick(now) {
     const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
     // bird
@@ -338,13 +418,14 @@ async function drawMap() {
     const show = flying || alba.alt > .03;
     if (show !== alba.up) { alba.up = show; bird.classList.toggle("up", show); shadow.classList.toggle("up", show); }
     // camera: follow the bird a little ahead while it flies, settle on the country when it lands
-    let lonT = 0, latT = 0, kT = 1;
+    const baseK = man ? man.k : 1;
+    let lonT = man ? man.lon : 0, latT = man ? man.lat : 0, kT = baseK;
     if (cam) {
       if (flying) {
         const dl = wrap180(alba.target[0] - alba.pos[0]);
         lonT = alba.pos[0] + .35 * dl; latT = alba.pos[1] + .35 * (alba.target[1] - alba.pos[1]);
-        kT = ZOOM - (ZOOM - .98) * alba.alt;                                // ease out while airborne
-      } else { lonT = cam[0]; latT = cam[1]; kT = ZOOM; }
+        kT = Math.max(baseK, ZOOM) - (Math.max(baseK, ZOOM) - .98) * alba.alt;   // ease out while airborne
+      } else { lonT = cam[0]; latT = cam[1]; kT = Math.max(baseK, ZOOM); }
     }
     const lamT = view.lam + wrap180(-lonT - view.lam);
     spring(view, "lam", "vlam", lamT, 2.6, dt);
@@ -389,8 +470,46 @@ async function drawMap() {
     if (sel) sel.classList.remove("sel");
     sel = R.path || null;
     if (sel) { sel.classList.add("sel"); land.appendChild(sel); if (!calm.matches) visit(d3.geoCentroid(R.f)); }
+    else if (!calm.matches && R.f) visit(d3.geoCentroid(R.f));
   };
+  // ---- drag to turn the globe, pinch / buttons to zoom (mouse, pen and touch)
+  const pts = new Map(); let drag = null;
+  const units = () => W / wrap.getBoundingClientRect().width;
+  const grab = () => { if (man) return; man = {lon: -view.lam, lat: view.lat, k: view.k}; };
+  svg.addEventListener("pointerdown", ev => {
+    lastPointer = ev.pointerType; dragged = false;
+    pts.set(ev.pointerId, [ev.clientX, ev.clientY]);
+    if (pts.size === 1) drag = {x: ev.clientX, y: ev.clientY, moved: false};
+    if (pts.size === 2) { const [a, b] = [...pts.values()]; drag = {pinch: Math.hypot(a[0] - b[0], a[1] - b[1]), k: man ? man.k : view.k, moved: true}; }
+  });
+  const endPt = ev => { pts.delete(ev.pointerId); if (!pts.size) { drag = null; svg.classList.remove("drag"); } };
+  svg.addEventListener("pointerup", endPt); svg.addEventListener("pointercancel", endPt);
   svg.addEventListener("pointermove", ev => {
+    if (!drag || !pts.has(ev.pointerId)) return;
+    const prev = pts.get(ev.pointerId); pts.set(ev.pointerId, [ev.clientX, ev.clientY]);
+    if (drag.pinch) {
+      if (pts.size < 2) return;
+      const [a, b] = [...pts.values()];
+      grab(); cam = null; man.k = Math.max(1, Math.min(6, drag.k * Math.hypot(a[0] - b[0], a[1] - b[1]) / drag.pinch));
+      wake(); return;
+    }
+    if (!drag.moved && Math.hypot(ev.clientX - drag.x, ev.clientY - drag.y) < 5) return;
+    if (!drag.moved) { drag.moved = true; svg.setPointerCapture(ev.pointerId); svg.classList.add("drag"); clearTimeout(dwell); }
+    dragged = true; grab(); cam = null;
+    const u = units();
+    man.lon = wrap180(man.lon - (ev.clientX - prev[0]) * u * 360 / (W * view.k));
+    man.lat = Math.max(-50, Math.min(70, man.lat + (ev.clientY - prev[1]) * u * 180 / (H * view.k)));
+    view.lam = -man.lon; view.vlam = 0; view.lat = man.lat; view.vlat = 0;
+    render(); wake();
+  });
+  const zoomBy = f => { grab(); man.k = Math.max(1, Math.min(6, man.k * f)); wake(); };
+  $("#zin").onclick = () => zoomBy(1.5);
+  $("#zout").onclick = () => zoomBy(1 / 1.5);
+  $("#zhome").onclick = () => { man = null; cam = null; wake(); };
+  window.mapVisit = lonlat => { if (!calm.matches) visit(lonlat); };
+
+  svg.addEventListener("pointermove", ev => {
+    if (ev.pointerType !== "mouse" || (drag && drag.moved)) return;   // no hover on touch, or while dragging
     clearTimeout(leaveT);
     const r = wrap.getBoundingClientRect();
     const x = ev.clientX - r.left, y = ev.clientY - r.top, tw = tip.offsetWidth || 160;
@@ -407,6 +526,13 @@ async function drawMap() {
   worldTracker(); searchBox();
 }
 
+// mouse click opens the checklist; a tap on a touchscreen selects first (card at the bottom)
+let lastPointer = "mouse", dragged = false;
+function tapCountry(R) {
+  if (dragged) return;
+  if (lastPointer === "touch") pick(R); else openRegion(R.code);
+}
+
 // ---------- world tracker + search
 function worldTracker() {
   if (!WORLD) return;
@@ -419,6 +545,28 @@ function worldTracker() {
   $("#wbar").style.width = (done / n * 100).toFixed(2) + "%";
   $("#wbar2").style.cssText = `left:${(done / n * 100).toFixed(2)}%;width:${(part / n * 100).toFixed(2)}%`;
   $("#world").hidden = false;
+  $("#wnext").onclick = () => paintNext(null);
+  $("#wshare").onclick = () => shareCard(null);
+  rankings();
+}
+
+// ---------- country rankings
+let rankBy = "pct", rankAll = false;
+function rankings() {
+  const cs = Object.values(C).filter(c => c.s.total > 0);
+  if (cs.length < 2) return;
+  const key = {pct: c => c.s.done / c.s.total + c.s.part / c.s.total / 1e3, done: c => c.s.done + c.s.part / 1e3, total: c => c.s.total}[rankBy];
+  cs.sort((a, b) => key(b) - key(a) || a.name.localeCompare(b.name));
+  const rows = rankAll ? cs : cs.slice(0, 15);
+  $("#rbody").innerHTML = rows.map((c, i) => `<tr data-c="${c.code}"><td>${i + 1}</td><td>${c.name}</td>
+    <td class="num">${fmt(c.s.done)} / ${fmt(c.s.total)}</td><td class="num">${pct(c.s)}%</td>
+    <td class="barc"><div class="bar"><i style="width:${(c.s.done / c.s.total * 100).toFixed(1)}%;background:${shade(c.s)}"></i></div></td></tr>`).join("");
+  $("#rbody").querySelectorAll("tr").forEach(tr => tr.onclick = () => openRegion(tr.dataset.c));
+  $("#rmore").textContent = rankAll ? "Show top 15" : `Show all ${cs.length} countries`;
+  $("#rmore").onclick = () => { rankAll = !rankAll; rankings(); };
+  document.querySelectorAll("[data-r]").forEach(b => { b.classList.toggle("on", b.dataset.r === rankBy);
+    b.onclick = () => { rankBy = b.dataset.r; rankings(); }; });
+  $("#rank").hidden = false;
 }
 function searchBox() {
   const list = Object.values(C).sort((a, b) => a.name.localeCompare(b.name));
@@ -434,7 +582,7 @@ function searchBox() {
   $("#find").addEventListener("keydown", e => { if (e.key === "Enter") find(); });
 }
 function pick(R) {
-  $("#find").value = R.name;
+  if (lastPointer !== "touch" || !$("#find").matches(":focus")) $("#find").value = R.name;
   showPick(R);
   window.mapSelect?.(R);
 }
@@ -444,13 +592,14 @@ function showPick(R, q) {
   const s = R.s, w = s.total ? (s.done / s.total * 100).toFixed(1) : 0;
   box.innerHTML = `<div><b>${R.name}</b><div class="m">${fmt(s.done)} of ${fmt(s.total)} species illustrated (${pct(s)}%)` +
     `${s.part ? ` · ${fmt(s.part)} partial` : ""}${R.f ? "" : " · too small to show on this map"}</div></div>
-    <div class="bar"><i style="width:${w}%"></i></div><button id="pickopen">Open checklist &rarr;</button>`;
+    <div class="bar"><i style="width:${w}%"></i></div><button class="ghost" id="pickshare">Share</button><button id="pickopen">Open checklist &rarr;</button>`;
   box.hidden = false;
   $("#pickopen").onclick = () => openRegion(R.code);
+  $("#pickshare").onclick = () => shareCard(R);
 }
 
 // ---------- checklist panel
-let cur = null, f = "all", q = "";
+let cur = null, curR = null, f = "all", q = "", sortBy = "az", shown = [];
 async function openRegion(code) {
   const R = C[code] || Object.values(C).find(c => c.code.toLowerCase() === String(code).toLowerCase());
   if (!R) return;
@@ -458,7 +607,10 @@ async function openRegion(code) {
   if (location.hash !== "#" + code) history.pushState(null, "", "#" + code);
   let p;
   p = checklist(R);
-  cur = p; f = "all"; q = ""; $("#q").value = "";
+  cur = p; curR = R; f = "all"; q = ""; $("#q").value = "";
+  $("#sort").querySelectorAll("option").forEach(o => o.disabled = !WORLD && (o.value === "tax" || o.value === "wide"));
+  if (!WORLD && (sortBy === "tax" || sortBy === "wide")) sortBy = "az";
+  $("#sort").value = sortBy;
   document.querySelectorAll("button.f").forEach(b => b.classList.toggle("on", b.dataset.f === "all"));
   $("#pname").textContent = R.name;
   const when = new Date(p.updated).toLocaleDateString(undefined, {day:"numeric", month:"short", year:"numeric"});
@@ -471,14 +623,147 @@ function closeRegion(push = true) {
   if (push) history.pushState(null, "", location.pathname);
   $("#panel").hidden = true; $("#atlas").hidden = false; $("#tag").textContent = "Click a country to open its checklist";
 }
+const SORTS = {
+  az: (a, b) => a.com.localeCompare(b.com),
+  tax: (a, b) => a.idx - b.idx,
+  wide: (a, b) => b.wide - a.wide || a.com.localeCompare(b.com),
+  miss: (a, b) => ({miss: 0, part: 1, ok: 2}[a.status] - {miss: 0, part: 1, ok: 2}[b.status]) || a.com.localeCompare(b.com),
+};
 function draw() {
-  const list = cur.birds.filter(b => (f === "all" || b.status === f) && (b.com + " " + b.sci).toLowerCase().includes(q));
-  $("#grid").innerHTML = list.length ? list.map(b => `
-    <div class="c"><div class="imgs">${b.webp.length ? [...b.webp].sort((x, y) => (x === b.slug + ".webp" ? -1 : y === b.slug + ".webp" ? 1 : x < y ? -1 : 1)).slice(0, 3).map(w => `<img loading="lazy" src="birds/${w}" alt="">`).join("") : '<div class="ph"></div>'}</div>
+  const list = cur.birds.filter(b => (f === "all" || b.status === f) && (b.com + " " + b.sci).toLowerCase().includes(q))
+    .sort(SORTS[sortBy] || SORTS.az);
+  shown = list;
+  $("#grid").innerHTML = list.length ? list.map((b, i) => `
+    <div class="c" data-i="${i}" tabindex="0" role="button" aria-label="${b.com}"><div class="imgs">${b.webp.length ? [...b.webp].sort((x, y) => (x === b.slug + ".webp" ? -1 : y === b.slug + ".webp" ? 1 : x < y ? -1 : 1)).slice(0, 3).map(w => `<img loading="lazy" src="birds/${w}" alt="">`).join("") : '<div class="ph"></div>'}</div>
     <div class="n">${b.com}</div><div class="s">${b.sci}</div><div class="chips">
     <span class="${b.webp.includes(b.slug + ".webp") ? "ok" : "miss"}">perched</span>
     <span class="${b.webp.includes(b.slug + "-2.webp") ? "ok" : "miss"}">${b.pose2}</span></div></div>`).join("")
     : '<div class="empty">No species match.</div>';
+  $("#grid").querySelectorAll(".c").forEach(c => {
+    c.onclick = () => showSpecies(+c.dataset.i);
+    c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showSpecies(+c.dataset.i); } };
+  });
+}
+const posesOf = b => [...b.webp].sort((x, y) => (x === b.slug + ".webp" ? -1 : y === b.slug + ".webp" ? 1 : x < y ? -1 : 1));
+let spAt = 0;
+function showSpecies(i) {
+  if (!shown.length) return;
+  spAt = (i + shown.length) % shown.length;
+  const b = shown[spAt], poses = posesOf(b), names = ["perched", b.pose2, "third pose"];
+  $("#spimgs").innerHTML = poses.length ? poses.slice(0, 3).map((w, k) =>
+    `<figure><img src="birds/${w}" alt="${b.com}, ${names[k] || "pose"}"><figcaption>${names[k] || "pose"}</figcaption></figure>`).join("")
+    : '<figure><div class="ph"></div><figcaption>not painted yet</figcaption></figure>';
+  $("#spname").textContent = b.com; $("#spsci").textContent = b.sci;
+  $("#spchips").innerHTML = `<span class="${b.webp.includes(b.slug + ".webp") ? "ok" : "miss"}">perched</span>
+    <span class="${b.webp.includes(b.slug + "-2.webp") ? "ok" : "miss"}">${b.pose2}</span>`;
+  $("#spmeta").textContent = b.wide ? `Recorded by eBird in ${b.wide} ${b.wide === 1 ? "country" : "countries"}` : "";
+  const q = encodeURIComponent(b.sci);
+  $("#splinks").innerHTML = (b.code ? `<a href="https://ebird.org/species/${b.code}" target="_blank" rel="noopener">eBird</a>
+    <a href="https://media.ebird.org/catalog?taxonCode=${b.code}&mediaType=audio" target="_blank" rel="noopener">Calls (Macaulay)</a>`
+    : `<a href="https://ebird.org/explore?q=${encodeURIComponent(b.com)}" target="_blank" rel="noopener">eBird</a>`) +
+    `<a href="https://xeno-canto.org/explore?query=${q}" target="_blank" rel="noopener">xeno-canto</a>
+    <a href="https://en.wikipedia.org/wiki/Special:Search?search=${q}" target="_blank" rel="noopener">Wikipedia</a>`;
+  $("#sppos").textContent = `${spAt + 1} of ${shown.length}`;
+  if (!$("#sp").open) $("#sp").showModal();
+}
+$("#spprev").onclick = () => showSpecies(spAt - 1);
+$("#spnext").onclick = () => showSpecies(spAt + 1);
+$("#spx").onclick = () => $("#sp").close();
+$("#sp").addEventListener("keydown", e => { if (e.key === "ArrowLeft") showSpecies(spAt - 1); if (e.key === "ArrowRight") showSpecies(spAt + 1); });
+$("#sp").addEventListener("click", e => { if (e.target === $("#sp")) $("#sp").close(); });
+$("#sort").onchange = e => { sortBy = e.target.value; draw(); };
+$("#pnext").onclick = () => paintNext(curR);
+$("#pshare").onclick = () => shareCard(curR);
+
+// ---------- paint next: the unpainted species that would lift the most countries
+let pnFor = null;
+function paintNext(R) {
+  pnFor = R;
+  const cnt = +$("#pncount").value;
+  let pool;
+  if (R) pool = checklist(R).birds;
+  else pool = WORLD.species.map(([sci, com, code], i) => ({sci, com, code, slug: WORLD.slugs[i], wide: WORLD.wide[i], status: paintState(WORLD.slugs[i])}));
+  const todo = pool.filter(b => b.status !== "ok").sort((a, b) => (b.wide || 0) - (a.wide || 0) || a.com.localeCompare(b.com)).slice(0, cnt);
+  const imgs = todo.reduce((n, b) => n + (b.status === "part" ? 1 : 2), 0);
+  $("#pnt").textContent = R ? `Paint next for ${R.name}` : "Paint next: biggest worldwide gains";
+  $("#pnm").textContent = `${todo.length} species · ${imgs} images · about US$${(imgs * .034).toFixed(2)} on Nano Banana 2.1 · ranked by how many countries record them`;
+  $("#pnlist").innerHTML = todo.map(b => `<li>${b.com} <small>${b.wide ? b.wide + " countries" : ""}${b.status === "part" ? " · 1 pose left" : ""}</small></li>`).join("");
+  const txt = todo.map(b => `${b.com} (${b.sci})`).join("\r\n") + "\r\n";
+  $("#pndl").onclick = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([txt], {type: "text/plain"}));
+    a.download = "paint_next.txt"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  $("#pncp").onclick = async () => {
+    const cmd = 'py nz_bird_illustrations.py --list paint_next.txt --style-ref "birds\\raw\\prosthemadera-novaeseelandiae.png"';
+    try { await navigator.clipboard.writeText(cmd); $("#pncp").textContent = "Copied"; setTimeout(() => $("#pncp").textContent = "Copy command", 1500); }
+    catch (e) { prompt("Run this in your Downloads folder:", cmd); }
+  };
+  if (!$("#pn").open) $("#pn").showModal();
+}
+$("#pncount").onchange = () => paintNext(pnFor);
+$("#pnx").onclick = () => $("#pn").close();
+$("#pn").addEventListener("click", e => { if (e.target === $("#pn")) $("#pn").close(); });
+
+// ---------- share card: a 1200 x 630 image of a country (or the world) and its progress
+const loadImg = src => new Promise(r => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = src; });
+async function shareCard(R) {
+  const cv = document.createElement("canvas"); cv.width = 1200; cv.height = 630;
+  const g = cv.getContext("2d");
+  g.fillStyle = "#efebe1"; g.fillRect(0, 0, 1200, 630);
+  g.strokeStyle = "#141414"; g.lineWidth = 3; g.strokeRect(24, 24, 1152, 582);
+  g.strokeStyle = "#d6d0c2"; g.lineWidth = 1; g.strokeRect(34, 34, 1132, 562);
+  let done, total, part, title, sub;
+  if (R) ({done, total, part} = R.s), title = R.name;
+  else {
+    done = 0; part = 0; total = WORLD.species.length;
+    WORLD.slugs.forEach(sl => { const st = paintState(sl); if (st === "ok") done++; else if (st === "part") part++; });
+    title = "The World";
+  }
+  const share = total ? done / total : 0;
+  sub = `${fmt(done)} of ${fmt(total)} eBird species illustrated`;
+  // map: the country fitted into the right half, or the whole shaded world
+  const mapBox = [[620, 70], [1140, 420]];
+  const pj = d3.geoEqualEarth(), gp = d3.geoPath(pj, g);
+  const feats = Object.values(C).filter(c => c.f);
+  if (R && R.f) {
+    pj.rotate([-d3.geoCentroid(R.f)[0], 0]).fitExtent(mapBox, R.f);
+    g.beginPath(); gp(R.f); g.fillStyle = shade(R.s); g.fill(); g.strokeStyle = "#141414"; g.lineWidth = 1.5; g.stroke();
+  } else {
+    pj.fitExtent(mapBox, {type: "Sphere"});
+    g.beginPath(); gp({type: "Sphere"}); g.fillStyle = "#f2eee4"; g.fill(); g.strokeStyle = "#3a352c"; g.lineWidth = 1; g.stroke();
+    for (const c of feats) { g.beginPath(); gp(c.f); g.fillStyle = c.s.done + c.s.part ? shade(c.s) : "#e2dac7"; g.fill(); g.strokeStyle = "#3a352c"; g.lineWidth = .4; g.stroke(); }
+  }
+  // text
+  g.fillStyle = "#6b665c"; g.font = "16px 'Courier New', monospace"; g.fillText("BIRD ATLAS · KACHŌ-E FIELD GUIDES", 64, 92);
+  g.fillStyle = "#141414"; g.font = `bold ${title.length > 18 ? 46 : 60}px Georgia, serif`; g.fillText(title, 64, 160, 540);
+  g.font = "bold 96px Georgia, serif"; g.fillStyle = "#8a2a18";
+  g.fillText(`${pct({done, total})}%`, 64, 280);
+  g.fillStyle = "#141414"; g.font = "22px Georgia, serif"; g.fillText(sub, 64, 322, 540);
+  // progress bar in the dotted style
+  for (let x = 64; x < 584; x += 4) { g.fillStyle = "rgba(0,0,0,.12)"; g.fillRect(x, 344, 2, 14); }
+  g.fillStyle = "#141414"; g.fillRect(64, 344, 520 * share, 14);
+  // a row of painted birds from this place
+  const pool = (R ? checklist(R).birds : Object.keys(PAINTED).map(slug => ({slug, webp: PAINTED[slug], wide: 0})))
+    .filter(b => b.webp && b.webp.length).sort((a, b) => (b.wide || 0) - (a.wide || 0)).slice(0, 7);
+  const ims = await Promise.all(pool.map(b => loadImg("birds/" + (b.webp.includes(b.slug + ".webp") ? b.slug + ".webp" : b.webp[0]))));
+  let x = 64;
+  g.globalCompositeOperation = "multiply";
+  for (const im of ims.filter(Boolean)) {
+    const h = 120, w = Math.min(150, im.width * h / im.height);
+    g.drawImage(im, x, 440 + (120 - Math.min(h, im.height * w / im.width)), w, Math.min(h, im.height * w / im.width));
+    x += w + 14; if (x > 1100) break;
+  }
+  g.globalCompositeOperation = "source-over";
+  g.fillStyle = "#6b665c"; g.font = "15px 'Courier New', monospace";
+  g.fillText(location.host + location.pathname + (R ? "#" + R.code : ""), 64, 590);
+  const blob = await new Promise(r => cv.toBlob(r, "image/png"));
+  const name = `bird-atlas-${R ? R.code.toLowerCase() : "world"}.png`, file = new File([blob], name, {type: "image/png"});
+  if (navigator.canShare && navigator.canShare({files: [file]}) && lastPointer === "touch") {
+    try { await navigator.share({files: [file], title: `Bird Atlas: ${title}`, text: sub}); return; } catch (e) { if (e.name === "AbortError") return; }
+  }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
 }
 document.querySelectorAll("button.f").forEach(x => x.onclick = () => {
   document.querySelectorAll("button.f").forEach(y => y.classList.remove("on")); x.classList.add("on"); f = x.dataset.f; draw(); });

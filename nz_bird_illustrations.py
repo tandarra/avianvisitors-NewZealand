@@ -21,6 +21,8 @@ Typical runs:
     python nz_bird_illustrations.py --region NZ --list-only   # whole-NZ master list + cost estimate
     python nz_bird_illustrations.py --progress                # master index: birds/master_index.csv + .html
     python nz_bird_illustrations.py --world                   # world + per-country eBird lists for atlas.html
+    python nz_bird_illustrations.py --list paint_next.txt --style-ref birds/raw/prosthemadera-novaeseelandiae.png
+                                                              # paint a list exported from the atlas ("Paint next")
     python nz_bird_illustrations.py --species "Tui"    # redo one bird (use --force to overwrite)
 
   Batch the NZ list with your best image as the style guide (+ optional photos in birds/refs/<slug>.jpg):
@@ -163,7 +165,7 @@ def build_world(key, out):
     import datetime
     data = {"updated": datetime.datetime.now().isoformat(timespec="minutes"),
             "source": "eBird taxonomy (species) and country species lists",
-            "species": [[t["sciName"], t["comName"]] for t in tax], "countries": rows}
+            "species": [[t["sciName"], t["comName"], t["speciesCode"]] for t in tax], "countries": rows}
     (out / "world.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"Wrote {out / 'world.json'}")
 
@@ -338,6 +340,8 @@ def main():
     ap.add_argument("--list-only", action="store_true", help="just print the species list")
     ap.add_argument("--progress", action="store_true",
                     help="write birds/master_index.csv + .html for the whole-NZ list (default region NZ)")
+    ap.add_argument("--list", help="paint exactly the species in this file, one per line as "
+                                   "'Common Name (Scientific name)' (e.g. paint_next.txt from atlas.html)")
     ap.add_argument("--world", action="store_true",
                     help="write birds/world.json: eBird's world species list + every country's list (for atlas.html)")
     ap.add_argument("--cutout-only", action="store_true",
@@ -403,7 +407,15 @@ def main():
     if not gkey and not a.list_only:
         sys.exit("No Gemini key: add GEMINI_API_KEY=... to bird_keys.txt next to this script.")
 
-    if a.from_prompts:
+    if a.list:
+        birds = {}
+        for line in Path(a.list).read_text(encoding="utf-8-sig").splitlines():
+            m = re.match(r"\s*(.+?)\s*\(([A-Z][a-z]+ [a-z\-]+)\)\s*$", line)
+            if m:
+                birds[m.group(2)] = m.group(1)
+        if not birds:
+            sys.exit(f"No 'Common Name (Scientific name)' lines found in {a.list}")
+    elif a.from_prompts:
         birds = {}
         pf = Path("nz_bird_prompts.txt")
         if pf.exists():

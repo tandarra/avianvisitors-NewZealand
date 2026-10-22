@@ -29,6 +29,7 @@ every species eBird has recorded in New Zealand (389), with what's been illustra
 | `birds/progress_<region>.json` | Compact checklist data for the atlas, also written by `--progress` |
 | `birds/world.json` | eBird's world species list + every country's list, built by `--world` (powers search, shading and the world tracker) |
 | `birds/painted.json` | Cut-outs per species, written by `--progress` and `--world` |
+| `birds/world-extra.json` | Outlines for small islands and territories the base map leaves out, built by `tools/build_world_extra.py` |
 | `atlas.html`, `birds/world-110m.json`, `vendor/` | World map front page (d3-geo + Natural Earth 110m via world-atlas); turns and zooms toward the country under the mouse |
 | `index.html` | Public live collage page (Cloudflare Pages) |
 | `functions/api/today.js` | Last-24h species counts from BirdNET-Go via a path-restricted tunnel |
