@@ -187,7 +187,11 @@ def img_part(path):
     return {"inlineData": {"mimeType": mime, "data": base64.b64encode(data).decode()}}
 
 
-def paint(gkey, model, com, sci, pose_kw, style_ref=None, photo_ref=None, tries=3):
+class OutOfCredit(Exception):
+    pass
+
+
+def paint(gkey, model, com, sci, pose_kw, style_ref=None, photo_ref=None, tries=4):
     text = PROMPT.format(com=com, sci=sci, **pose_kw)
     parts, notes, n = [], "", 1
     if style_ref:
@@ -207,6 +211,8 @@ def paint(gkey, model, com, sci, pose_kw, style_ref=None, photo_ref=None, tries=
     for attempt in range(1, tries + 1):
         r = requests.post(GEMINI.format(model=model), headers={"x-goog-api-key": gkey},
                           json=body, timeout=120)
+        if r.status_code == 402:
+            raise OutOfCredit(r.text[:300])
         if r.status_code == 429 or r.status_code >= 500:
             try:
                 msg = r.json().get("error", {}).get("message", "")
@@ -215,7 +221,7 @@ def paint(gkey, model, com, sci, pose_kw, style_ref=None, photo_ref=None, tries=
             if r.status_code == 429 and ("limit: 0" in msg or "billing" in msg.lower()):
                 sys.exit(f"\nGemini says this key has no image quota:\n  {msg[:400]}\n"
                          "Enable billing for this key's project in AI Studio, then run again.")
-            wait = 20 * attempt
+            wait = 30 * attempt
             print(f"    server busy ({r.status_code}): {msg[:160]}")
             print(f"    retrying in {wait}s")
             time.sleep(wait)
@@ -228,6 +234,14 @@ def paint(gkey, model, com, sci, pose_kw, style_ref=None, photo_ref=None, tries=
                     return base64.b64decode(data["data"])
         print("    no image returned, retrying")
     return None
+
+
+def out_of_credit(index_path, index, done, failed):
+    index_path.write_text(json.dumps(index, indent=2, ensure_ascii=False))
+    sys.exit(f"\nOut of Gemini credit (402 Payment Required) after painting {done} new image(s).\n"
+             "Top up in Google AI Studio (Billing), then run the same command again: everything already\n"
+             "painted is skipped, so it carries on where it stopped." +
+             (f"\n{len(failed)} image(s) that failed earlier will be retried too." if failed else ""))
 
 
 def cutout(png_bytes, remover):
@@ -474,6 +488,7 @@ def main():
     out, raw = Path(a.out), Path(a.out) / "raw"
     raw.mkdir(parents=True, exist_ok=True)
     index_path = out / "index.json"
+    failed = []
     index = json.loads(index_path.read_text()) if index_path.exists() else {}
 
     done = 0
@@ -500,14 +515,41 @@ def main():
             if a.limit and done >= a.limit:
                 break
             print(f"  painting {com} ({kw['pose']}){' + photo ref' if photo else ''}")
-            png = paint(gkey, a.model, com, sci, kw, a.style_ref, photo)
+            try:
+                png = paint(gkey, a.model, com, sci, kw, a.style_ref, photo)
+            except OutOfCredit:
+                out_of_credit(index_path, index, done, failed)
             if not png:
-                print("    FAILED, skipping")
+                print("    FAILED, will retry at the end")
+                failed.append((sci, com, suffix, kw, photo))
                 continue
             (raw / f"{s}{suffix}.png").write_bytes(png)
             cutout(png, remover).save(target, "WEBP", quality=88)
             done += 1
             time.sleep(2)
+        index_path.write_text(json.dumps(index, indent=2, ensure_ascii=False))   # saved as we go
+
+    # second chance for anything the model was too busy for, after a cool-down
+    if failed:
+        print(f"\n{len(failed)} image(s) failed; waiting 2 minutes, then one more try each")
+        time.sleep(120)
+        still = []
+        for sci, com, suffix, kw, photo in failed:
+            print(f"  retry {com} ({kw['pose']})")
+            try:
+                png = paint(gkey, a.model, com, sci, kw, a.style_ref, photo)
+            except OutOfCredit:
+                out_of_credit(index_path, index, done, still + [(sci, com, suffix, kw, photo)])
+            if not png:
+                still.append((sci, com, suffix, kw, photo)); continue
+            s = slug(sci)
+            (raw / f"{s}{suffix}.png").write_bytes(png)
+            cutout(png, remover).save(out / f"{s}{suffix}.webp", "WEBP", quality=88)
+            done += 1
+        if still:
+            print("\nStill missing (run again later to fill these in):")
+            for _, com, _, kw, _ in still:
+                print(f"  {com} ({kw['pose']})")
 
     index_path.write_text(json.dumps(index, indent=2, ensure_ascii=False))
     print(f"\nPainted {done} new. Review the images in '{raw}', delete any duds there and run again "
