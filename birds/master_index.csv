@@ -1,189 +1,189 @@
 ﻿Common name,Scientific name,File name,Perched,Second pose,Second pose type,Extra poses,Raw not yet cut out,Status
-Adelie Penguin,Pygoscelis adeliae,pygoscelis-adeliae,,,swimming,,,Missing
-African Collared-Dove,Streptopelia roseogrisea,streptopelia-roseogrisea,,,in-flight,,,Missing
-American Golden-Plover,Pluvialis dominica,pluvialis-dominica,,,in-flight,,,Missing
-Antarctic Petrel,Thalassoica antarctica,thalassoica-antarctica,,,in-flight,,,Missing
-Antarctic Prion,Pachyptila desolata,pachyptila-desolata,,,in-flight,,,Missing
-Antarctic Tern,Sterna vittata,sterna-vittata,,,in-flight,,,Missing
-Antipodean Albatross,Diomedea antipodensis,diomedea-antipodensis,,,in-flight,,,Missing
-Antipodes Parakeet,Cyanoramphus unicolor,cyanoramphus-unicolor,,,in-flight,,,Missing
-Arctic Tern,Sterna paradisaea,sterna-paradisaea,,,in-flight,,,Missing
-Asian Dowitcher,Limnodromus semipalmatus,limnodromus-semipalmatus,,,in-flight,,,Missing
+Adelie Penguin,Pygoscelis adeliae,pygoscelis-adeliae,yes,yes,swimming,,,Complete
+African Collared-Dove,Streptopelia roseogrisea,streptopelia-roseogrisea,yes,yes,in-flight,,,Complete
+American Golden-Plover,Pluvialis dominica,pluvialis-dominica,yes,yes,in-flight,,,Complete
+Antarctic Petrel,Thalassoica antarctica,thalassoica-antarctica,yes,yes,in-flight,,,Complete
+Antarctic Prion,Pachyptila desolata,pachyptila-desolata,yes,yes,in-flight,,,Complete
+Antarctic Tern,Sterna vittata,sterna-vittata,yes,yes,in-flight,,,Complete
+Antipodean Albatross,Diomedea antipodensis,diomedea-antipodensis,yes,yes,in-flight,,,Complete
+Antipodes Parakeet,Cyanoramphus unicolor,cyanoramphus-unicolor,yes,yes,in-flight,,,Complete
+Arctic Tern,Sterna paradisaea,sterna-paradisaea,yes,yes,in-flight,,,Complete
+Asian Dowitcher,Limnodromus semipalmatus,limnodromus-semipalmatus,yes,yes,in-flight,,,Complete
 Atlantic Yellow-nosed Albatross,Thalassarche chlororhynchos,thalassarche-chlororhynchos,,,in-flight,,,Missing
-Auckland Islands Rail,Lewinia muelleri,lewinia-muelleri,,,in-flight,,,Missing
-Auckland Islands Shag,Leucocarbo colensoi,leucocarbo-colensoi,,,in-flight,,,Missing
-Auckland Islands Teal,Anas aucklandica,anas-aucklandica,,,walking,,,Missing
+Auckland Islands Rail,Lewinia muelleri,lewinia-muelleri,yes,yes,in-flight,,,Complete
+Auckland Islands Shag,Leucocarbo colensoi,leucocarbo-colensoi,yes,yes,in-flight,,,Complete
+Auckland Islands Teal,Anas aucklandica,anas-aucklandica,yes,yes,walking,,,Complete
 Australasian Bittern,Botaurus poiciloptilus,botaurus-poiciloptilus,yes,yes,in-flight,,,Complete
-Australasian Darter,Anhinga novaehollandiae,anhinga-novaehollandiae,,,in-flight,,,Missing
+Australasian Darter,Anhinga novaehollandiae,anhinga-novaehollandiae,yes,yes,in-flight,,,Complete
 Australasian Gannet,Morus serrator,morus-serrator,yes,yes,in-flight,,,Complete
-Australasian Grebe,Tachybaptus novaehollandiae,tachybaptus-novaehollandiae,,,in-flight,,,Missing
+Australasian Grebe,Tachybaptus novaehollandiae,tachybaptus-novaehollandiae,yes,yes,in-flight,,,Complete
 Australasian Shoveler,Spatula rhynchotis,spatula-rhynchotis,yes,yes,in-flight,,,Complete
 Australasian Swamphen,Porphyrio melanotus,porphyrio-melanotus,yes,yes,in-flight,,,Complete
-Australian Fairy Tern,Sternula nereis,sternula-nereis,,,in-flight,,,Missing
-Australian Ibis,Threskiornis molucca,threskiornis-molucca,,,in-flight,,,Missing
-Australian King-Parrot,Alisterus scapularis,alisterus-scapularis,,,in-flight,,,Missing
+Australian Fairy Tern,Sternula nereis,sternula-nereis,yes,yes,in-flight,,,Complete
+Australian Ibis,Threskiornis molucca,threskiornis-molucca,yes,yes,in-flight,,,Complete
+Australian King-Parrot,Alisterus scapularis,alisterus-scapularis,yes,yes,in-flight,,,Complete
 Australian Magpie,Gymnorhina tibicen,gymnorhina-tibicen,yes,yes,in-flight,,,Complete
-Australian Painted-Snipe,Rostratula australis,rostratula-australis,,,in-flight,,,Missing
-Australian Pelican,Pelecanus conspicillatus,pelecanus-conspicillatus,,,in-flight,,,Missing
-Australian Reed Warbler,Acrocephalus australis,acrocephalus-australis,,,in-flight,,,Missing
-Australian Shelduck,Tadorna tadornoides,tadorna-tadornoides,,,in-flight,,,Missing
-Australian Tern,Gelochelidon macrotarsa,gelochelidon-macrotarsa,,,in-flight,,,Missing
-Baillon's Crake,Zapornia pusilla,zapornia-pusilla,,,in-flight,,,Missing
-Baird's Sandpiper,Calidris bairdii,calidris-bairdii,,,in-flight,,,Missing
+Australian Painted-Snipe,Rostratula australis,rostratula-australis,yes,yes,in-flight,,,Complete
+Australian Pelican,Pelecanus conspicillatus,pelecanus-conspicillatus,yes,yes,in-flight,,,Complete
+Australian Reed Warbler,Acrocephalus australis,acrocephalus-australis,yes,yes,in-flight,,,Complete
+Australian Shelduck,Tadorna tadornoides,tadorna-tadornoides,yes,yes,in-flight,,,Complete
+Australian Tern,Gelochelidon macrotarsa,gelochelidon-macrotarsa,yes,yes,in-flight,,,Complete
+Baillon's Crake,Zapornia pusilla,zapornia-pusilla,yes,yes,in-flight,,,Complete
+Baird's Sandpiper,Calidris bairdii,calidris-bairdii,yes,yes,in-flight,,,Complete
 Bar-tailed Godwit,Limosa lapponica,limosa-lapponica,yes,yes,in-flight,,,Complete
-Black Kite,Milvus migrans,milvus-migrans,,,in-flight,,,Missing
-Black Noddy,Anous minutus,anous-minutus,,,in-flight,,,Missing
-Black Robin,Petroica traversi,petroica-traversi,,,in-flight,,,Missing
-Black Stilt,Himantopus novaezelandiae,himantopus-novaezelandiae,,,in-flight,,,Missing
+Black Kite,Milvus migrans,milvus-migrans,yes,yes,in-flight,,,Complete
+Black Noddy,Anous minutus,anous-minutus,yes,yes,in-flight,,,Complete
+Black Robin,Petroica traversi,petroica-traversi,yes,yes,in-flight,,,Complete
+Black Stilt,Himantopus novaezelandiae,himantopus-novaezelandiae,yes,yes,in-flight,,,Complete
 Black Swan,Cygnus atratus,cygnus-atratus,yes,yes,in-flight,,,Complete
-Black Tern,Chlidonias niger,chlidonias-niger,,,in-flight,,,Missing
-Black-backed Bittern,Botaurus dubius,botaurus-dubius,,,in-flight,,,Missing
-Black-bellied Plover,Pluvialis squatarola,pluvialis-squatarola,,,in-flight,,,Missing
-Black-bellied Storm-Petrel,Fregetta tropica,fregetta-tropica,,,in-flight,,,Missing
-Black-billed Gull,Chroicocephalus bulleri,chroicocephalus-bulleri,,,in-flight,,,Missing
-Black-browed Albatross,Thalassarche melanophris,thalassarche-melanophris,,,in-flight,,,Missing
-Black-faced Cuckooshrike,Coracina novaehollandiae,coracina-novaehollandiae,,,in-flight,,,Missing
-Black-fronted Dotterel,Thinornis melanops,thinornis-melanops,,,in-flight,,,Missing
-Black-fronted Tern,Chlidonias albostriatus,chlidonias-albostriatus,,,in-flight,,,Missing
-Black-naped Tern,Sterna sumatrana,sterna-sumatrana,,,in-flight,,,Missing
-Black-tailed Godwit,Limosa limosa,limosa-limosa,,,in-flight,,,Missing
-Black-tailed Nativehen,Tribonyx ventralis,tribonyx-ventralis,,,in-flight,,,Missing
-Black-winged Petrel,Pterodroma nigripennis,pterodroma-nigripennis,,,in-flight,,,Missing
-Blue Duck,Hymenolaimus malacorhynchos,hymenolaimus-malacorhynchos,,,in-flight,,,Missing
-Blue Petrel,Halobaena caerulea,halobaena-caerulea,,,in-flight,,,Missing
-Blue-billed White-Tern,Gygis candida,gygis-candida,,,in-flight,,,Missing
-Blue-breasted Quail,Synoicus chinensis,synoicus-chinensis,,,in-flight,,,Missing
-Bounty Islands Shag,Leucocarbo ranfurlyi,leucocarbo-ranfurlyi,,,in-flight,,,Missing
-Bridled Tern,Onychoprion anaethetus,onychoprion-anaethetus,,,in-flight,,,Missing
-Broad-billed Prion,Pachyptila vittata,pachyptila-vittata,,,in-flight,,,Missing
-Broad-billed Sandpiper,Calidris falcinellus,calidris-falcinellus,,,in-flight,,,Missing
-Brown Booby,Sula leucogaster,sula-leucogaster,,,in-flight,,,Missing
-Brown Noddy,Anous stolidus,anous-stolidus,,,in-flight,,,Missing
-Brown Quail,Synoicus ypsilophorus,synoicus-ypsilophorus,,,in-flight,,,Missing
-Brown Skua,Stercorarius antarcticus,stercorarius-antarcticus,,,in-flight,,,Missing
-Brown Teal,Anas chlorotis,anas-chlorotis,,,in-flight,,,Missing
-Budgerigar,Melopsittacus undulatus,melopsittacus-undulatus,,,in-flight,,,Missing
+Black Tern,Chlidonias niger,chlidonias-niger,yes,yes,in-flight,,,Complete
+Black-backed Bittern,Botaurus dubius,botaurus-dubius,yes,yes,in-flight,,,Complete
+Black-bellied Plover,Pluvialis squatarola,pluvialis-squatarola,yes,yes,in-flight,,,Complete
+Black-bellied Storm-Petrel,Fregetta tropica,fregetta-tropica,yes,yes,in-flight,,,Complete
+Black-billed Gull,Chroicocephalus bulleri,chroicocephalus-bulleri,yes,yes,in-flight,,,Complete
+Black-browed Albatross,Thalassarche melanophris,thalassarche-melanophris,yes,,in-flight,,,Partial
+Black-faced Cuckooshrike,Coracina novaehollandiae,coracina-novaehollandiae,yes,yes,in-flight,,,Complete
+Black-fronted Dotterel,Thinornis melanops,thinornis-melanops,yes,yes,in-flight,,,Complete
+Black-fronted Tern,Chlidonias albostriatus,chlidonias-albostriatus,yes,yes,in-flight,,,Complete
+Black-naped Tern,Sterna sumatrana,sterna-sumatrana,yes,yes,in-flight,,,Complete
+Black-tailed Godwit,Limosa limosa,limosa-limosa,yes,yes,in-flight,,,Complete
+Black-tailed Nativehen,Tribonyx ventralis,tribonyx-ventralis,yes,yes,in-flight,,,Complete
+Black-winged Petrel,Pterodroma nigripennis,pterodroma-nigripennis,yes,yes,in-flight,,,Complete
+Blue Duck,Hymenolaimus malacorhynchos,hymenolaimus-malacorhynchos,yes,yes,in-flight,,,Complete
+Blue Petrel,Halobaena caerulea,halobaena-caerulea,yes,yes,in-flight,,,Complete
+Blue-billed White-Tern,Gygis candida,gygis-candida,yes,yes,in-flight,,,Complete
+Blue-breasted Quail,Synoicus chinensis,synoicus-chinensis,yes,yes,in-flight,,,Complete
+Bounty Islands Shag,Leucocarbo ranfurlyi,leucocarbo-ranfurlyi,yes,yes,in-flight,,,Complete
+Bridled Tern,Onychoprion anaethetus,onychoprion-anaethetus,yes,yes,in-flight,,,Complete
+Broad-billed Prion,Pachyptila vittata,pachyptila-vittata,yes,yes,in-flight,,,Complete
+Broad-billed Sandpiper,Calidris falcinellus,calidris-falcinellus,yes,yes,in-flight,,,Complete
+Brown Booby,Sula leucogaster,sula-leucogaster,yes,yes,in-flight,,,Complete
+Brown Noddy,Anous stolidus,anous-stolidus,yes,yes,in-flight,,,Complete
+Brown Quail,Synoicus ypsilophorus,synoicus-ypsilophorus,yes,yes,in-flight,,,Complete
+Brown Skua,Stercorarius antarcticus,stercorarius-antarcticus,yes,yes,in-flight,,,Complete
+Brown Teal,Anas chlorotis,anas-chlorotis,yes,yes,in-flight,,,Complete
+Budgerigar,Melopsittacus undulatus,melopsittacus-undulatus,yes,yes,in-flight,,,Complete
 Buff-banded Rail,Gallirallus philippensis,gallirallus-philippensis,yes,yes,in-flight,,,Complete
-Buff-breasted Sandpiper,Calidris subruficollis,calidris-subruficollis,,,in-flight,,,Missing
+Buff-breasted Sandpiper,Calidris subruficollis,calidris-subruficollis,yes,yes,in-flight,,,Complete
 Buller's Albatross,Thalassarche bulleri,thalassarche-bulleri,,,in-flight,,,Missing
-Buller's Shearwater,Ardenna bulleri,ardenna-bulleri,,,in-flight,,,Missing
-Bush Wren,Xenicus longipes,xenicus-longipes,,,in-flight,,,Missing
+Buller's Shearwater,Ardenna bulleri,ardenna-bulleri,yes,yes,in-flight,,,Complete
+Bush Wren,Xenicus longipes,xenicus-longipes,yes,yes,in-flight,,,Complete
 California Quail,Callipepla californica,callipepla-californica,yes,yes,in-flight,,,Complete
-Campbell Islands Shag,Leucocarbo campbelli,leucocarbo-campbelli,,,in-flight,,,Missing
-Campbell Islands Teal,Anas nesiotis,anas-nesiotis,,,walking,,,Missing
+Campbell Islands Shag,Leucocarbo campbelli,leucocarbo-campbelli,yes,yes,in-flight,,,Complete
+Campbell Islands Teal,Anas nesiotis,anas-nesiotis,yes,yes,walking,,,Complete
 Canada Goose,Branta canadensis,branta-canadensis,yes,yes,in-flight,,,Complete
-Cape Barren Goose,Cereopsis novaehollandiae,cereopsis-novaehollandiae,,,in-flight,,,Missing
-Cape Gannet,Morus capensis,morus-capensis,,,in-flight,,,Missing
-Caspian Tern,Hydroprogne caspia,hydroprogne-caspia,,,in-flight,,,Missing
-Channel-billed Cuckoo,Scythrops novaehollandiae,scythrops-novaehollandiae,,,in-flight,,,Missing
-Chatham Albatross,Thalassarche eremita,thalassarche-eremita,,,in-flight,,,Missing
-Chatham Islands Gerygone,Gerygone albofrontata,gerygone-albofrontata,,,in-flight,,,Missing
-Chatham Islands Oystercatcher,Haematopus chathamensis,haematopus-chathamensis,,,in-flight,,,Missing
-Chatham Islands Parakeet,Cyanoramphus forbesi,cyanoramphus-forbesi,,,in-flight,,,Missing
-Chatham Islands Petrel,Pterodroma axillaris,pterodroma-axillaris,,,in-flight,,,Missing
-Chatham Islands Pigeon,Hemiphaga chathamensis,hemiphaga-chathamensis,,,in-flight,,,Missing
-Chatham Islands Shag,Leucocarbo onslowi,leucocarbo-onslowi,,,in-flight,,,Missing
-Chatham Islands Snipe,Coenocorypha pusilla,coenocorypha-pusilla,,,in-flight,,,Missing
-Chestnut Teal,Anas castanea,anas-castanea,,,in-flight,,,Missing
-Chinstrap Penguin,Pygoscelis antarcticus,pygoscelis-antarcticus,,,swimming,,,Missing
-Christmas Shearwater,Puffinus nativitatis,puffinus-nativitatis,,,in-flight,,,Missing
-Chukar,Alectoris chukar,alectoris-chukar,,,in-flight,,,Missing
-Cirl Bunting,Emberiza cirlus,emberiza-cirlus,,,in-flight,,,Missing
-Cockatiel,Nymphicus hollandicus,nymphicus-hollandicus,,,in-flight,,,Missing
-Collared Petrel,Pterodroma brevipes,pterodroma-brevipes,,,in-flight,,,Missing
+Cape Barren Goose,Cereopsis novaehollandiae,cereopsis-novaehollandiae,yes,yes,in-flight,,,Complete
+Cape Gannet,Morus capensis,morus-capensis,yes,yes,in-flight,,,Complete
+Caspian Tern,Hydroprogne caspia,hydroprogne-caspia,yes,yes,in-flight,,,Complete
+Channel-billed Cuckoo,Scythrops novaehollandiae,scythrops-novaehollandiae,yes,yes,in-flight,,,Complete
+Chatham Albatross,Thalassarche eremita,thalassarche-eremita,yes,yes,in-flight,,,Complete
+Chatham Islands Gerygone,Gerygone albofrontata,gerygone-albofrontata,yes,yes,in-flight,,,Complete
+Chatham Islands Oystercatcher,Haematopus chathamensis,haematopus-chathamensis,yes,yes,in-flight,,,Complete
+Chatham Islands Parakeet,Cyanoramphus forbesi,cyanoramphus-forbesi,yes,yes,in-flight,,,Complete
+Chatham Islands Petrel,Pterodroma axillaris,pterodroma-axillaris,yes,yes,in-flight,,,Complete
+Chatham Islands Pigeon,Hemiphaga chathamensis,hemiphaga-chathamensis,yes,yes,in-flight,,,Complete
+Chatham Islands Shag,Leucocarbo onslowi,leucocarbo-onslowi,yes,yes,in-flight,,,Complete
+Chatham Islands Snipe,Coenocorypha pusilla,coenocorypha-pusilla,yes,yes,in-flight,,,Complete
+Chestnut Teal,Anas castanea,anas-castanea,yes,yes,in-flight,,,Complete
+Chinstrap Penguin,Pygoscelis antarcticus,pygoscelis-antarcticus,yes,yes,swimming,,,Complete
+Christmas Shearwater,Puffinus nativitatis,puffinus-nativitatis,yes,yes,in-flight,,,Complete
+Chukar,Alectoris chukar,alectoris-chukar,yes,yes,in-flight,,,Complete
+Cirl Bunting,Emberiza cirlus,emberiza-cirlus,yes,yes,in-flight,,,Complete
+Cockatiel,Nymphicus hollandicus,nymphicus-hollandicus,yes,yes,in-flight,,,Complete
+Collared Petrel,Pterodroma brevipes,pterodroma-brevipes,yes,yes,in-flight,,,Complete
 Common Chaffinch,Fringilla coelebs,fringilla-coelebs,yes,yes,in-flight,,,Complete
-Common Diving-Petrel,Pelecanoides urinatrix,pelecanoides-urinatrix,,,in-flight,,,Missing
-Common Greenshank,Tringa nebularia,tringa-nebularia,,,in-flight,,,Missing
+Common Diving-Petrel,Pelecanoides urinatrix,pelecanoides-urinatrix,yes,yes,in-flight,,,Complete
+Common Greenshank,Tringa nebularia,tringa-nebularia,yes,yes,in-flight,,,Complete
 Common Myna,Acridotheres tristis,acridotheres-tristis,yes,yes,in-flight,,,Complete
-Common Ostrich,Struthio camelus,struthio-camelus,,,walking,,,Missing
-Common Ringed Plover,Charadrius hiaticula,charadrius-hiaticula,,,in-flight,,,Missing
-Common Sandpiper,Actitis hypoleucos,actitis-hypoleucos,,,in-flight,,,Missing
-Common Tern,Sterna hirundo,sterna-hirundo,,,in-flight,,,Missing
-Cook's Petrel,Pterodroma cookii,pterodroma-cookii,,,in-flight,,,Missing
-Crested Pigeon,Ocyphaps lophotes,ocyphaps-lophotes,,,in-flight,,,Missing
-Crimson Rosella,Platycercus elegans,platycercus-elegans,,,in-flight,,,Missing
-Curlew Sandpiper,Calidris ferruginea,calidris-ferruginea,,,in-flight,,,Missing
-Dollarbird,Eurystomus orientalis,eurystomus-orientalis,,,in-flight,,,Missing
-Double-banded Plover,Anarhynchus bicinctus,anarhynchus-bicinctus,,,in-flight,,,Missing
-Dunlin,Calidris alpina,calidris-alpina,,,in-flight,,,Missing
+Common Ostrich,Struthio camelus,struthio-camelus,yes,yes,walking,,,Complete
+Common Ringed Plover,Charadrius hiaticula,charadrius-hiaticula,yes,yes,in-flight,,,Complete
+Common Sandpiper,Actitis hypoleucos,actitis-hypoleucos,yes,yes,in-flight,,,Complete
+Common Tern,Sterna hirundo,sterna-hirundo,yes,yes,in-flight,,,Complete
+Cook's Petrel,Pterodroma cookii,pterodroma-cookii,yes,yes,in-flight,,,Complete
+Crested Pigeon,Ocyphaps lophotes,ocyphaps-lophotes,yes,yes,in-flight,,,Complete
+Crimson Rosella,Platycercus elegans,platycercus-elegans,yes,yes,in-flight,,,Complete
+Curlew Sandpiper,Calidris ferruginea,calidris-ferruginea,yes,yes,in-flight,,,Complete
+Dollarbird,Eurystomus orientalis,eurystomus-orientalis,yes,yes,in-flight,,,Complete
+Double-banded Plover,Anarhynchus bicinctus,anarhynchus-bicinctus,yes,yes,in-flight,,,Complete
+Dunlin,Calidris alpina,calidris-alpina,yes,yes,in-flight,,,Complete
 Dunnock,Prunella modularis,prunella-modularis,yes,yes,in-flight,,,Complete
-Dusky Moorhen,Gallinula tenebrosa,gallinula-tenebrosa,,,in-flight,,,Missing
-Dusky Woodswallow,Artamus cyanopterus,artamus-cyanopterus,,,in-flight,,,Missing
-Eastern Barn Owl,Tyto javanica,tyto-javanica,,,in-flight,,,Missing
-Eastern Cattle-Egret,Ardea coromanda,ardea-coromanda,,,in-flight,,,Missing
-Eastern Rockhopper Penguin,Eudyptes filholi,eudyptes-filholi,,,swimming,,,Missing
+Dusky Moorhen,Gallinula tenebrosa,gallinula-tenebrosa,yes,yes,in-flight,,,Complete
+Dusky Woodswallow,Artamus cyanopterus,artamus-cyanopterus,yes,yes,in-flight,,,Complete
+Eastern Barn Owl,Tyto javanica,tyto-javanica,yes,yes,in-flight,,,Complete
+Eastern Cattle-Egret,Ardea coromanda,ardea-coromanda,yes,yes,in-flight,,,Complete
+Eastern Rockhopper Penguin,Eudyptes filholi,eudyptes-filholi,yes,yes,swimming,,,Complete
 Eastern Rosella,Platycercus eximius,platycercus-eximius,yes,yes,in-flight,,,Complete
-Emperor Penguin,Aptenodytes forsteri,aptenodytes-forsteri,,,swimming,,,Missing
-Emu,Dromaius novaehollandiae,dromaius-novaehollandiae,,,walking,,,Missing
-Erect-crested Penguin,Eudyptes sclateri,eudyptes-sclateri,,,swimming,,,Missing
+Emperor Penguin,Aptenodytes forsteri,aptenodytes-forsteri,yes,yes,swimming,,,Complete
+Emu,Dromaius novaehollandiae,dromaius-novaehollandiae,yes,yes,walking,,,Complete
+Erect-crested Penguin,Eudyptes sclateri,eudyptes-sclateri,yes,yes,swimming,,,Complete
 Eurasian Blackbird,Turdus merula,turdus-merula,yes,yes,in-flight,,,Complete
-Eurasian Coot,Fulica atra,fulica-atra,,,in-flight,,,Missing
-Eurasian Curlew,Numenius arquata,numenius-arquata,,,in-flight,,,Missing
+Eurasian Coot,Fulica atra,fulica-atra,yes,yes,in-flight,,,Complete
+Eurasian Curlew,Numenius arquata,numenius-arquata,yes,yes,in-flight,,,Complete
 Eurasian Skylark,Alauda arvensis,alauda-arvensis,yes,yes,in-flight,,,Complete
-Eurasian Whimbrel,Numenius phaeopus,numenius-phaeopus,yes,,in-flight,,,Partial
+Eurasian Whimbrel,Numenius phaeopus,numenius-phaeopus,yes,yes,in-flight,,,Complete
 European Goldfinch,Carduelis carduelis,carduelis-carduelis,yes,yes,in-flight,,,Complete
 European Greenfinch,Chloris chloris,chloris-chloris,yes,yes,in-flight,,,Complete
 European Starling,Sturnus vulgaris,sturnus-vulgaris,yes,yes,in-flight,,,Complete
-Fairy Martin,Petrochelidon ariel,petrochelidon-ariel,,,in-flight,,,Missing
-Fairy Prion,Pachyptila turtur,pachyptila-turtur,,,in-flight,,,Missing
-Fan-tailed Cuckoo,Cacomantis flabelliformis,cacomantis-flabelliformis,,,in-flight,,,Missing
-Far Eastern Curlew,Numenius madagascariensis,numenius-madagascariensis,,,in-flight,,,Missing
-Fiordland Penguin,Eudyptes pachyrhynchus,eudyptes-pachyrhynchus,,,swimming,,,Missing
-Fischer's Lovebird,Agapornis fischeri,agapornis-fischeri,,,in-flight,,,Missing
-Flesh-footed Shearwater,Ardenna carneipes,ardenna-carneipes,,,in-flight,,,Missing
-Fluttering Shearwater,Puffinus gavia,puffinus-gavia,,,in-flight,,,Missing
-Franklin's Gull,Leucophaeus pipixcan,leucophaeus-pipixcan,,,in-flight,,,Missing
-Fulmar Prion,Pachyptila crassirostris,pachyptila-crassirostris,,,in-flight,,,Missing
-Galah,Eolophus roseicapilla,eolophus-roseicapilla,,,in-flight,,,Missing
-Gentoo Penguin,Pygoscelis papua,pygoscelis-papua,,,swimming,,,Missing
-Glossy Ibis,Plegadis falcinellus,plegadis-falcinellus,,,in-flight,,,Missing
-Golden Pheasant,Chrysolophus pictus,chrysolophus-pictus,,,in-flight,,,Missing
-Gould's Petrel,Pterodroma leucoptera,pterodroma-leucoptera,,,in-flight,,,Missing
+Fairy Martin,Petrochelidon ariel,petrochelidon-ariel,yes,yes,in-flight,,,Complete
+Fairy Prion,Pachyptila turtur,pachyptila-turtur,yes,yes,in-flight,,,Complete
+Fan-tailed Cuckoo,Cacomantis flabelliformis,cacomantis-flabelliformis,yes,yes,in-flight,,,Complete
+Far Eastern Curlew,Numenius madagascariensis,numenius-madagascariensis,yes,yes,in-flight,,,Complete
+Fiordland Penguin,Eudyptes pachyrhynchus,eudyptes-pachyrhynchus,yes,yes,swimming,,,Complete
+Fischer's Lovebird,Agapornis fischeri,agapornis-fischeri,yes,yes,in-flight,,,Complete
+Flesh-footed Shearwater,Ardenna carneipes,ardenna-carneipes,yes,yes,in-flight,,,Complete
+Fluttering Shearwater,Puffinus gavia,puffinus-gavia,yes,yes,in-flight,,,Complete
+Franklin's Gull,Leucophaeus pipixcan,leucophaeus-pipixcan,yes,yes,in-flight,,,Complete
+Fulmar Prion,Pachyptila crassirostris,pachyptila-crassirostris,yes,yes,in-flight,,,Complete
+Galah,Eolophus roseicapilla,eolophus-roseicapilla,yes,yes,in-flight,,,Complete
+Gentoo Penguin,Pygoscelis papua,pygoscelis-papua,yes,yes,swimming,,,Complete
+Glossy Ibis,Plegadis falcinellus,plegadis-falcinellus,yes,yes,in-flight,,,Complete
+Golden Pheasant,Chrysolophus pictus,chrysolophus-pictus,yes,yes,in-flight,,,Complete
+Gould's Petrel,Pterodroma leucoptera,pterodroma-leucoptera,yes,yes,in-flight,,,Complete
 Gray Gerygone,Gerygone igata,gerygone-igata,yes,yes,in-flight,,,Complete
-Gray Noddy,Anous albivitta,anous-albivitta,,,in-flight,,,Missing
-Gray Petrel,Procellaria cinerea,procellaria-cinerea,,,in-flight,,,Missing
+Gray Noddy,Anous albivitta,anous-albivitta,yes,yes,in-flight,,,Complete
+Gray Petrel,Procellaria cinerea,procellaria-cinerea,yes,yes,in-flight,,,Complete
 Gray Teal,Anas gracilis,anas-gracilis,yes,yes,in-flight,,,Complete
-Gray-backed Storm-Petrel,Garrodia nereis,garrodia-nereis,,,in-flight,,,Missing
-Gray-backed Tern,Onychoprion lunatus,onychoprion-lunatus,,,in-flight,,,Missing
-Gray-faced Petrel,Pterodroma gouldi,pterodroma-gouldi,,,in-flight,,,Missing
-Gray-headed Albatross,Thalassarche chrysostoma,thalassarche-chrysostoma,,,in-flight,,,Missing
-Gray-tailed Tattler,Tringa brevipes,tringa-brevipes,,,in-flight,,,Missing
+Gray-backed Storm-Petrel,Garrodia nereis,garrodia-nereis,yes,yes,in-flight,,,Complete
+Gray-backed Tern,Onychoprion lunatus,onychoprion-lunatus,yes,yes,in-flight,,,Complete
+Gray-faced Petrel,Pterodroma gouldi,pterodroma-gouldi,yes,yes,in-flight,,,Complete
+Gray-headed Albatross,Thalassarche chrysostoma,thalassarche-chrysostoma,yes,,in-flight,,,Partial
+Gray-tailed Tattler,Tringa brevipes,tringa-brevipes,yes,yes,in-flight,,,Complete
 Graylag Goose,Anser anser,anser-anser,yes,yes,in-flight,,,Complete
 Great Cormorant,Phalacrocorax carbo,phalacrocorax-carbo,yes,yes,in-flight,,,Complete
-Great Crested Grebe,Podiceps cristatus,podiceps-cristatus,,,in-flight,,,Missing
-Great Crested Tern,Thalasseus bergii,thalasseus-bergii,,,in-flight,,,Missing
-Great Egret,Ardea alba,ardea-alba,,,in-flight,,,Missing
-Great Frigatebird,Fregata minor,fregata-minor,,,in-flight,,,Missing
-Great Knot,Calidris tenuirostris,calidris-tenuirostris,,,in-flight,,,Missing
-Great Shearwater,Ardenna gravis,ardenna-gravis,,,in-flight,,,Missing
-Great Spotted Kiwi,Apteryx maxima,apteryx-maxima,,,walking,,,Missing
-Greater Sand-Plover,Anarhynchus leschenaultii,anarhynchus-leschenaultii,,,in-flight,,,Missing
-Gull-billed Tern,Gelochelidon nilotica,gelochelidon-nilotica,,,in-flight,,,Missing
-Hardhead,Aythya australis,aythya-australis,,,in-flight,,,Missing
-Helmeted Guineafowl,Numida meleagris,numida-meleagris,,,in-flight,,,Missing
-Herald Petrel,Pterodroma heraldica,pterodroma-heraldica,,,in-flight,,,Missing
-Hoary-headed Grebe,Poliocephalus poliocephalus,poliocephalus-poliocephalus,,,in-flight,,,Missing
+Great Crested Grebe,Podiceps cristatus,podiceps-cristatus,yes,yes,in-flight,,,Complete
+Great Crested Tern,Thalasseus bergii,thalasseus-bergii,yes,yes,in-flight,,,Complete
+Great Egret,Ardea alba,ardea-alba,yes,yes,in-flight,,,Complete
+Great Frigatebird,Fregata minor,fregata-minor,yes,yes,in-flight,,,Complete
+Great Knot,Calidris tenuirostris,calidris-tenuirostris,yes,yes,in-flight,,,Complete
+Great Shearwater,Ardenna gravis,ardenna-gravis,yes,yes,in-flight,,,Complete
+Great Spotted Kiwi,Apteryx maxima,apteryx-maxima,yes,yes,walking,,,Complete
+Greater Sand-Plover,Anarhynchus leschenaultii,anarhynchus-leschenaultii,yes,yes,in-flight,,,Complete
+Gull-billed Tern,Gelochelidon nilotica,gelochelidon-nilotica,yes,yes,in-flight,,,Complete
+Hardhead,Aythya australis,aythya-australis,yes,yes,in-flight,,,Complete
+Helmeted Guineafowl,Numida meleagris,numida-meleagris,yes,yes,in-flight,,,Complete
+Herald Petrel,Pterodroma heraldica,pterodroma-heraldica,yes,yes,in-flight,,,Complete
+Hoary-headed Grebe,Poliocephalus poliocephalus,poliocephalus-poliocephalus,yes,yes,in-flight,,,Complete
 House Sparrow,Passer domesticus,passer-domesticus,yes,yes,in-flight,,,Complete
-Hudsonian Godwit,Limosa haemastica,limosa-haemastica,,,in-flight,,,Missing
-Hudsonian Whimbrel,Numenius hudsonicus,numenius-hudsonicus,,,in-flight,,,Missing
-Huia,Heteralocha acutirostris,heteralocha-acutirostris,,,in-flight,,,Missing
-Hutton's Shearwater,Puffinus huttoni,puffinus-huttoni,,,in-flight,,,Missing
+Hudsonian Godwit,Limosa haemastica,limosa-haemastica,yes,yes,in-flight,,,Complete
+Hudsonian Whimbrel,Numenius hudsonicus,numenius-hudsonicus,yes,yes,in-flight,,,Complete
+Huia,Heteralocha acutirostris,heteralocha-acutirostris,yes,yes,in-flight,,,Complete
+Hutton's Shearwater,Puffinus huttoni,puffinus-huttoni,yes,yes,in-flight,,,Complete
 Indian Peafowl,Pavo cristatus,pavo-cristatus,yes,yes,in-flight,,,Complete
-Indian Yellow-nosed Albatross,Thalassarche carteri,thalassarche-carteri,,,in-flight,,,Missing
-Island Canary,Serinus canaria,serinus-canaria,,,in-flight,,,Missing
-Juan Fernandez Petrel,Pterodroma externa,pterodroma-externa,,,in-flight,,,Missing
-Kakapo,Strigops habroptilus,strigops-habroptilus,,,walking,,,Missing
-Kea,Nestor notabilis,nestor-notabilis,,,in-flight,,,Missing
+Indian Yellow-nosed Albatross,Thalassarche carteri,thalassarche-carteri,,yes,in-flight,,,Partial
+Island Canary,Serinus canaria,serinus-canaria,yes,yes,in-flight,,,Complete
+Juan Fernandez Petrel,Pterodroma externa,pterodroma-externa,yes,yes,in-flight,,,Complete
+Kakapo,Strigops habroptilus,strigops-habroptilus,yes,yes,walking,,,Complete
+Kea,Nestor notabilis,nestor-notabilis,yes,yes,in-flight,,,Complete
 Kelp Gull,Larus dominicanus,larus-dominicanus,yes,yes,in-flight,,,Complete
-Kerguelen Petrel,Aphrodroma brevirostris,aphrodroma-brevirostris,,,in-flight,,,Missing
-Kermadec Petrel,Pterodroma neglecta,pterodroma-neglecta,,,in-flight,,,Missing
-King Penguin,Aptenodytes patagonicus,aptenodytes-patagonicus,,,swimming,,,Missing
-Lady Amherst's Pheasant,Chrysolophus amherstiae,chrysolophus-amherstiae,,,in-flight,,,Missing
-Latham's Snipe,Gallinago hardwickii,gallinago-hardwickii,,,in-flight,,,Missing
-Laughing Gull,Leucophaeus atricilla,leucophaeus-atricilla,,,in-flight,,,Missing
-Laughing Kookaburra,Dacelo novaeguineae,dacelo-novaeguineae,,,in-flight,,,Missing
-Laughing Owl,Ninox albifacies,ninox-albifacies,,,in-flight,,,Missing
-Laysan Albatross,Phoebastria immutabilis,phoebastria-immutabilis,,,in-flight,,,Missing
+Kerguelen Petrel,Aphrodroma brevirostris,aphrodroma-brevirostris,yes,yes,in-flight,,,Complete
+Kermadec Petrel,Pterodroma neglecta,pterodroma-neglecta,yes,yes,in-flight,,,Complete
+King Penguin,Aptenodytes patagonicus,aptenodytes-patagonicus,yes,yes,swimming,,,Complete
+Lady Amherst's Pheasant,Chrysolophus amherstiae,chrysolophus-amherstiae,yes,yes,in-flight,,,Complete
+Latham's Snipe,Gallinago hardwickii,gallinago-hardwickii,yes,yes,in-flight,,,Complete
+Laughing Gull,Leucophaeus atricilla,leucophaeus-atricilla,yes,yes,in-flight,,,Complete
+Laughing Kookaburra,Dacelo novaeguineae,dacelo-novaeguineae,yes,yes,in-flight,,,Complete
+Laughing Owl,Ninox albifacies,ninox-albifacies,yes,yes,in-flight,,,Complete
+Laysan Albatross,Phoebastria immutabilis,phoebastria-immutabilis,yes,yes,in-flight,,,Complete
 Leach's Storm-Petrel,Hydrobates leucorhous,hydrobates-leucorhous,,,in-flight,,,Missing
 Least Sandpiper,Calidris minutilla,calidris-minutilla,,,in-flight,,,Missing
 Lesser Frigatebird,Fregata ariel,fregata-ariel,,,in-flight,,,Missing
