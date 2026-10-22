@@ -8,8 +8,8 @@ Home Assistant "Field Journal" card. The style follows the
 **Live: https://birds.tandarra.net** — every bird heard in the garden in the last 24 hours,
 collaged and sized by how often each one called.
 
-**Bird Atlas:** [`atlas.html`](https://birds.tandarra.net/atlas.html) — a world map; click a
-region to open its checklist (New Zealand now; US, Great Britain, Germany and Victoria to come).
+**Bird Atlas:** [`atlas.html`](https://birds.tandarra.net/atlas.html) — a world map where each
+country with illustrations is shaded by how much of its checklist is painted; click it to open the checklist.
 
 **Illustration checklist:** [`birds/master_index.html`](https://birds.tandarra.net/birds/master_index.html) —
 every species eBird has recorded in New Zealand (389), with what's been illustrated so far
