@@ -11,7 +11,7 @@ Kachō-e / Japanese woodblock bird illustrations in the [Avian Visitors](https:/
 | [Brazil](https://birds.tandarra.net/atlas.html#BR) | 642 / 1,872 (34%) | [Brazil (Passaredo)](https://github.com/bramatti/Passaredo/tree/pt-br) by bramatti |
 | [Canada](https://birds.tandarra.net/atlas.html#CA) | 697 / 802 (87%) | [Western North America](https://github.com/Twarner491/AvianVisitors/tree/avian-visitors) by Teddy Warner (Avian Visitors)<br>[Northeastern North America](https://github.com/dylanberry/BirdUp/tree/avian-visitors) by Dylan Berry<br>[North America](https://github.com/corychainsman/AvianVisitors/tree/avian-visitors) by corychainsman |
 | [France](https://birds.tandarra.net/atlas.html#FR) | 601 / 656 (92%) | [Central Europe](https://github.com/cyril-0815/AvianVisitors/tree/avian-visitors) by Cyril Michel (cyril-0815) |
-| [Germany](https://birds.tandarra.net/atlas.html#DE) | 557 / 597 (93%) | [Germany](https://github.com/bassrelic/AvianVisitors-German-Fork/tree/add_german_species) by bassrelic<br>[Lower Saxony, Germany](https://github.com/bilibb/AvianVisitors/tree/de-ni) by bilibb |
+| [Germany](https://birds.tandarra.net/atlas.html#DE) | 557 / 597 (93%) | [Germany](https://github.com/bassrelic/AvianVisitors-German-Fork/tree/add_german_species) by bassrelic<br>[Lower Saxony, Germany](https://github.com/bilibb/AvianVisitors/tree/de-ni) by bilibb<br>[Germany](https://github.com/crsct/AvianVisitors-German/tree/avian-visitors) by crsct |
 | [Latvia](https://birds.tandarra.net/atlas.html#LV) | 347 / 348 (100%) | [Latvia (Līču Putni)](https://github.com/EvijaDaukste/AvianVisitorsLV/tree/avian-visitors) by Evija Ciematniece (EvijaDaukste) |
 | [Malaysia](https://birds.tandarra.net/atlas.html#MY) | 534 / 874 (61%) | [Singapore / Southeast Asia](https://github.com/lohchan279/avianvisitors/tree/merge-trial) by Joel (lohchan279) |
 | [Netherlands](https://birds.tandarra.net/atlas.html#NL) | 551 / 588 (94%) | [Netherlands](https://github.com/peterdeboer-nl/AvianVisitors/tree/avian-visitors) by peterdeboer-nl<br>[Netherlands (garden birds)](https://github.com/sjoerdcoen/AvianVisitors/tree/avian-visitors) by sjoerdcoen |
@@ -51,6 +51,7 @@ Kachō-e / Japanese woodblock bird illustrations in the [Avian Visitors](https:/
 | Germany | bassrelic | [bassrelic/AvianVisitors-German-Fork](https://github.com/bassrelic/AvianVisitors-German-Fork/tree/add_german_species) | 36 | CC BY-NC-SA 4.0 |
 | Central Europe | Cyril Michel (cyril-0815) | [cyril-0815/AvianVisitors](https://github.com/cyril-0815/AvianVisitors/tree/avian-visitors) | 28 | CC BY-NC-SA 4.0 |
 | Netherlands (garden birds) | sjoerdcoen | [sjoerdcoen/AvianVisitors](https://github.com/sjoerdcoen/AvianVisitors/tree/avian-visitors) | 25 | CC BY-NC-SA 4.0 |
+| Germany | crsct | [crsct/AvianVisitors-German](https://github.com/crsct/AvianVisitors-German/tree/avian-visitors) | 20 | CC BY-NC-SA 4.0 |
 | Río de la Plata (Uruguay / Argentina) | Tadeo (tadeongmi) | [tadeongmi/AvianVisitors](https://github.com/tadeongmi/AvianVisitors/tree/avian-visitors) | 16 | CC BY-NC-SA 4.0 |
 | Canberra / ACT, Australia | opurtell | [opurtell/AvianVisitorsACT](https://github.com/opurtell/AvianVisitorsACT/tree/main) | 6 | CC BY-NC-SA 4.0 |
 

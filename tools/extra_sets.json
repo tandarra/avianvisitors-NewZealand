@@ -155,6 +155,16 @@
         "SG",
         "MY"
       ]
+    },
+    {
+      "id": "dec",
+      "repo": "crsct/AvianVisitors-German",
+      "branch": "avian-visitors",
+      "region": "Germany",
+      "creator": "crsct",
+      "covers": [
+        "DE"
+      ]
     }
   ],
   "ignore": [
