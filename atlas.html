@@ -29,7 +29,7 @@ header.top img.flier{position:absolute;right:8px;top:6px;height:88px;mix-blend-m
 .bird,.bird-shadow{pointer-events:none;opacity:0;transition:opacity .35s}
 .bird.up{opacity:1}.bird-shadow.up{opacity:var(--o,.2)}
 .bird{filter:drop-shadow(0 .5px 0 rgba(20,20,20,.25))}
-.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .15s;background:var(--paper2);border:1px solid var(--ink);
+.tip{position:absolute;pointer-events:none;white-space:nowrap;opacity:0;transition:opacity .15s;background:var(--paper2);border:1px solid var(--ink);
 padding:4px 8px;font:11px 'Courier New',monospace;color:var(--mute);white-space:nowrap;z-index:2;box-shadow:2px 2px 0 rgba(20,20,20,.2)}
 .tip b{display:block;font:700 14px Georgia,serif;color:var(--ink)}
 
@@ -634,11 +634,11 @@ async function drawMap() {
     if (ev.pointerType !== "mouse" || (drag && drag.moved)) return;   // no hover on touch, or while dragging
     clearTimeout(leaveT);
     const r = wrap.getBoundingClientRect();
-    const x = ev.clientX - r.left, y = ev.clientY - r.top, tw = tip.offsetWidth || 160;
-    tip.style.left = (x + 14 + tw > r.width ? x - 14 - tw : x + 14) + "px";
-    tip.style.top = (y + 70 > r.height ? y - 60 : y + 14) + "px";
     const t = ev.target;
-    setHover(t && (t.__f || t.__ocean) ? t : null);
+    setHover(t && (t.__f || t.__ocean) ? t : null);                  // set the text first, then measure it
+    const x = ev.clientX - r.left, y = ev.clientY - r.top, tw = tip.offsetWidth || 160;
+    tip.style.left = Math.max(4, x + 14 + tw > r.width - 4 ? x - 14 - tw : x + 14) + "px";
+    tip.style.top = (y + 70 > r.height ? y - 60 : y + 14) + "px";
   });
   svg.addEventListener("pointerleave", () => {
     setHover(null);
