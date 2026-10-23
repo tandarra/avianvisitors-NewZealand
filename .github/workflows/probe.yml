@@ -1,0 +1,12 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          n(){ echo "::notice title=$1::$(echo "$2" | tr '\n\r' '  ' | head -c 1800)"; }
+          n sdks "$(curl -s -m 30 https://developer.garmin.com/downloads/connect-iq/sdks/sdks.json | head -c 1500)"
+          n mgr "$(curl -s -m 30 https://developer.garmin.com/downloads/connect-iq/sdk-manager/sdk-manager.json | head -c 800)"
+          n devs "$(curl -s -m 30 -w ' HTTP %{http_code}' 'https://api.gcs.garmin.com/ciq-product-onboarding/devices?sdkVersion=8.1.0' | head -c 800)"
+          n fr265 "$(curl -s -m 30 -w ' HTTP %{http_code}' 'https://api.gcs.garmin.com/ciq-product-onboarding/devices/fr265' | head -c 600)"
