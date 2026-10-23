@@ -1,0 +1,12 @@
+# Optional. Push to the TV with:
+#   adb push birds.conf /sdcard/Android/data/com.example.birdhome/files/birds.conf
+# BirdNET-Go on your network (it serves /api/v2/analytics/species/daily)
+api=http://192.168.1.50:8080
+# Your own cut-outs (<scientific-name-slug>.webp and -2.webp), tried before img2. Leave blank to skip.
+img1=
+# Fallback cut-outs: this repo's New Zealand set
+img2=https://raw.githubusercontent.com/tandarra/avianvisitors-NewZealand/main/birds/
+# Birds heard in the last N hours
+hours=24
+# Collage size multiplier (1 = default; 0.8 smaller, 1.2 bigger)
+budget=1

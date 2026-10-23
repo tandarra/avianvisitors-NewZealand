@@ -5,11 +5,28 @@ Kachō-e woodblock-style illustrations of New Zealand's birds, built for a
 Home Assistant "Field Journal" card. The style follows the
 [Avian Visitors](https://theodore.net/projects/AvianVisitors/) guidelines by Teddy Warner.
 
+<p align="center"><a href="android-tv/README.md"><img src="docs/images/tv-home-screen.jpg" alt="TV home screen showing today's garden birds as a kachō-e collage" width="100%"></a></p>
+<p align="center"><sub>Our TV home screen: every bird the garden microphone heard today, painted in kachō-e style.
+<b><a href="android-tv/README.md">Put it on your Android TV / Nvidia Shield →</a></b></sub></p>
+
+<table>
+<tr>
+<td width="50%"><a href="https://birds.tandarra.net/atlas.html"><img src="docs/images/atlas-map.jpg" alt="Bird Atlas world map"></a></td>
+<td width="50%"><a href="https://birds.tandarra.net/atlas.html#NZ"><img src="docs/images/atlas-country.jpg" alt="New Zealand checklist"></a></td>
+</tr>
+<tr>
+<td align="center"><sub><b>Bird Atlas</b>: 11,167 eBird species, 253 countries, 28 community sets</sub></td>
+<td align="center"><sub><b>Checklists</b>: perched and in-flight paintings, credited to each artist</sub></td>
+</tr>
+</table>
+
 **Live: https://birds.tandarra.net** — every bird heard in the garden in the last 24 hours,
 collaged and sized by how often each one called.
 
 **Bird Atlas:** [`atlas.html`](https://birds.tandarra.net/atlas.html) — a world map where each
 country with illustrations is shaded by how much of its checklist is painted; click it to open the checklist.
+
+**On your TV:** [`android-tv/`](android-tv/README.md) — how the collage became our Nvidia Shield's home screen, and how to build your own.
 
 **Sets by country:** [`COLLECTIONS.md`](COLLECTIONS.md) — every community Avian Visitors set, linked by country.
 
@@ -37,6 +54,9 @@ every species eBird has recorded in New Zealand (389), with what's been illustra
 | `index.html` | Public live collage page (Cloudflare Pages) |
 | `functions/api/today.js` | Last-24h species counts from BirdNET-Go via a path-restricted tunnel |
 | `functions/api/clip.js`, `functions/api/audio/[id].js` | Click-to-play: best clip per species (your BirdNET-Go "correct" reviews first, else highest confidence), audio proxied and cached |
+| `android-tv/` | Android TV home screen with the daily bird collage as its wallpaper: guide, `BirdWall.java` collage engine, minimal launcher |
+| `tools/build_audio.py`, `birds/audio.json` | eBird species codes and one xeno-canto recording per species for the atlas (daily on GitHub) |
+| `docs/images/` | Screenshots used in these READMEs |
 | `worker.js`, `wrangler.jsonc` | Same site deployed as a Cloudflare Worker instead of Pages |
 | `bird_illustrations.py` | Generator, cut-out tool, progress and world-list builder (`nz_bird_illustrations.py` is the old name, kept as a shim) |
 | `homeassistant/packages/birdnet.yaml` | MQTT sensors for BirdNET-Go detections + today's running species list |

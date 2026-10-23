@@ -90,7 +90,7 @@ def best(recs):
     return min(recs, key=score) if recs else None
 
 
-def add_audio(key, limit):
+def add_audio(key, limit, minutes=80):
     path = ROOT / "birds" / "audio.json"
     data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     have, none = data.get("a", {}), data.get("none", {})
@@ -110,7 +110,10 @@ def add_audio(key, limit):
     print(f"xeno-canto: {len(have)} species have a recording, {len(todo)} to look up, doing up to {limit}")
     done = found = 0
     stop = False
+    deadline = time.time() + minutes * 60          # finish and save well inside the job's time limit
     for _, _, sci, com in todo[:limit]:
+        if time.time() > deadline:
+            print(f"time limit reached after {done} lookups; saving and continuing tomorrow"); break
         r = None
         # scientific name first; xeno-canto sometimes uses an older name, so fall back to the English name
         for query in (f'sp:"{sci}"', f'en:"{com}"'):
@@ -147,6 +150,7 @@ def add_audio(key, limit):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--max", type=int, default=2500, help="xeno-canto lookups this run")
+    ap.add_argument("--minutes", type=int, default=80, help="stop looking up after this long")
     a = ap.parse_args()
     try:
         add_codes()
@@ -154,7 +158,7 @@ def main():
         print(f"eBird taxonomy unavailable: {e}")
     key = os.environ.get("XC_KEY", "").strip()
     if key:
-        add_audio(key, a.max)
+        add_audio(key, a.max, a.minutes)
     else:
         print("XC_KEY not set: skipping recordings (add a free xeno-canto API key as a repository secret)")
 
