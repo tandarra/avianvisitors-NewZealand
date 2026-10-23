@@ -47,6 +47,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python tools/build_collections.py --forks
 
+      - name: Watch pictures (JPEG paintings for the Garmin app)
+        run: |
+          pip install -q pillow
+          python tools/build_watch_thumbs.py --country NZ
+
       - name: eBird codes and bird sounds
         env:
           XC_KEY: ${{ secrets.XC_KEY }}      # free xeno-canto API key; sounds are skipped until it's added
@@ -54,7 +59,7 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add birds/collections.json COLLECTIONS.md birds/world.json birds/audio.json 2>/dev/null || git add birds/collections.json COLLECTIONS.md birds/world.json
+          git add birds/collections.json COLLECTIONS.md birds/world.json birds/audio.json birds/watch
           if git diff --cached --quiet; then
             echo "No changes today."
           else

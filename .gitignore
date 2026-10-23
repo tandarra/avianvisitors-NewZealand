@@ -17,3 +17,8 @@ Thumbs.db
 desktop.ini
 .collections-cache/
 candidates.md
+
+# Garmin build output and signing key (never commit the key)
+garmin/bin/
+*.der
+*.pem
