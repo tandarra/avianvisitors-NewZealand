@@ -198,7 +198,7 @@ class BirdsView extends WatchUi.View {
 class ImageCallback {
     var view, slug;
     function initialize(v, s) { view = v; slug = s; }
-    function onImage(code as Number, img) as Void {
+    function onImage(code as Number, img as WatchUi.BitmapResource or Graphics.BitmapReference or Null) as Void {
         view.setImage(slug, code == 200 ? img : null);
     }
 }
