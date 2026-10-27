@@ -23,13 +23,13 @@ def slug(s):
     return re.sub(r"[^a-z]+", "-", s.lower()).strip("-")
 
 
-def source_for(sl, painted, col, prefer_ids):
-    """(label, loader) for the painting the atlas would show, or None."""
+def source_for(sl, painted, col, prefer_ids, pose=""):
+    """(label, loader) for the painting the atlas would show, or None. pose "" = perched, "-2" = in flight."""
     poses = col["img"].get(sl, {})
-    p = poses.get("")
+    p = poses.get(pose)
     if p and col["sources"][p[0]]["id"] in prefer_ids and col["sources"][p[0]]["license"]:
         return community(col, p)
-    own = ROOT / "birds" / f"{sl}.webp"
+    own = ROOT / "birds" / f"{sl}{pose}.webp"
     if sl in painted and own.exists():
         return f"own:{own.stat().st_size}", lambda: own.read_bytes()
     if p and col["sources"][p[0]]["license"]:
@@ -76,18 +76,20 @@ def main():
     idx = json.loads(idx_path.read_text(encoding="utf-8")) if idx_path.exists() else {}
     made = kept = none = failed = 0
     for i in country["sp"]:
-        sl = slug(world["species"][i][0])
-        src = source_for(sl, painted, col, prefer_ids)
-        if not src:
-            none += 1; continue
-        label, load = src
-        f = out_dir / f"{sl}.jpg"
-        if idx.get(sl) == label and f.exists():
-            kept += 1; continue
-        try:
-            f.write_bytes(render(load(), a.size)); idx[sl] = label; made += 1
-        except Exception as e:
-            print(f"  {sl}: {e}"); failed += 1
+        base = slug(world["species"][i][0])
+        for pose in ("", "-2"):                      # perched, then in flight (-2)
+            sl = base + pose
+            src = source_for(base, painted, col, prefer_ids, pose)
+            if not src:
+                none += 1; continue
+            label, load = src
+            f = out_dir / f"{sl}.jpg"
+            if idx.get(sl) == label and f.exists():
+                kept += 1; continue
+            try:
+                f.write_bytes(render(load(), a.size)); idx[sl] = label; made += 1
+            except Exception as e:
+                print(f"  {sl}: {e}"); failed += 1
     idx_path.write_text(json.dumps(dict(sorted(idx.items())), indent=0), encoding="utf-8")
     print(f"watch thumbs ({a.country}): {made} new/updated, {kept} unchanged, {none} not painted yet, {failed} failed")
 

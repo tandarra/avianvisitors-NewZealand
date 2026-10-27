@@ -14,6 +14,7 @@ class BirdsView extends WatchUi.View {
     const IMG_SIZE = 200;
 
     var page = 0;
+    var flying = false;                 // showing the in-flight painting of the current bird
     var data = null;
     var loading = false;
     var failed = false;
@@ -36,8 +37,16 @@ class BirdsView extends WatchUi.View {
 
     function pages() as Number { return species().size() + 1; }
 
-    function next() as Void { if (page < pages() - 1) { page++; loadImages(); WatchUi.requestUpdate(); } }
-    function prev() as Void { if (page > 0) { page--; loadImages(); WatchUi.requestUpdate(); } }
+    // tap or hold on a bird: switch between perched and in flight
+    function togglePose() as Void {
+        if (page < 1) { return; }
+        flying = !flying;
+        loadImages();
+        WatchUi.requestUpdate();
+    }
+
+    function next() as Void { if (page < pages() - 1) { page++; flying = false; loadImages(); WatchUi.requestUpdate(); } }
+    function prev() as Void { if (page > 0) { page--; flying = false; loadImages(); WatchUi.requestUpdate(); } }
 
     // ---- data
     function fetch() as Void {
@@ -69,13 +78,18 @@ class BirdsView extends WatchUi.View {
         for (var p = page; p <= page + 1; p++) {
             if (p < 1 || p > sp.size()) { continue; }
             var slug = (sp[p - 1] as Array)[1] as String;
-            if (images.hasKey(slug)) { continue; }
-            images[slug] = false;
-            if (images.size() > 6) { trim(slug); }
-            Communications.makeImageRequest(BirdsApi.IMG + slug + ".jpg", null, {
-                :maxWidth => IMG_SIZE, :maxHeight => IMG_SIZE
-            }, new ImageCallback(self, slug).method(:onImage));
+            if (p == page && flying) { fetchImage(slug + "-2"); }
+            fetchImage(slug);
         }
+    }
+
+    function fetchImage(key as String) as Void {
+        if (images.hasKey(key)) { return; }
+        images[key] = false;
+        if (images.size() > 6) { trim(key); }
+        Communications.makeImageRequest(BirdsApi.IMG + key + ".jpg", null, {
+            :maxWidth => IMG_SIZE, :maxHeight => IMG_SIZE
+        }, new ImageCallback(self, key).method(:onImage));
     }
 
     // keep memory low: drop pictures far from the current page
@@ -83,7 +97,7 @@ class BirdsView extends WatchUi.View {
         var sp = species();
         var near = {} as Dictionary;
         for (var p = page - 1; p <= page + 1; p++) {
-            if (p >= 1 && p <= sp.size()) { near[(sp[p - 1] as Array)[1]] = true; }
+            if (p >= 1 && p <= sp.size()) { var sl = (sp[p - 1] as Array)[1] as String; near[sl] = true; near[sl + "-2"] = true; }
         }
         var keys = images.keys();
         for (var i = 0; i < keys.size(); i++) {
@@ -136,6 +150,10 @@ class BirdsView extends WatchUi.View {
         var b = species()[i] as Array;
         var cx = w / 2;
         var img = images.get(b[1]);
+        if (flying) {                                   // use the flight painting once it has loaded, else keep the perched one
+            var f = images.get((b[1] as String) + "-2");
+            if (f != null && f != false) { img = f; }
+        }
         var top = (h * 0.07).toNumber();
         if (img != null && img != false) {
             var bmp = img;
